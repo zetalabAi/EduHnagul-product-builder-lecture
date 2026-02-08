@@ -6,7 +6,7 @@ import { AppError } from "../types";
 export const createSession = functions.https.onCall(async (data, context) => {
   try {
     const userId = requireAuth(context);
-    const { persona, responseStyle, correctionStrength, formalityLevel } = data;
+    const { persona, responseStyle, correctionStrength, formalityLevel, isVoiceSession } = data;
 
     // Validate settings
     const validPersonas = ["same-sex-friend", "opposite-sex-friend", "boyfriend", "girlfriend"];
@@ -26,11 +26,17 @@ export const createSession = functions.https.onCall(async (data, context) => {
     await sessionRef.set({
       id: sessionRef.id,
       userId,
-      title: "New conversation",
+      title: isVoiceSession ? "Voice conversation" : "New conversation",
       persona,
       responseStyle,
       correctionStrength,
       formalityLevel,
+      // Voice session specific
+      isVoiceSession: isVoiceSession || false,
+      totalDurationSeconds: 0,
+      userSpeakingSeconds: 0,
+      aiSpeakingSeconds: 0,
+      isPaused: false,
       rollingSummary: null,
       lastSummaryAt: null,
       summaryVersion: 0,

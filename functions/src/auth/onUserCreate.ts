@@ -14,6 +14,11 @@ export const onUserCreate = functions.auth.user().onCreate(async (user) => {
     else if (locale.startsWith("fr")) nativeLanguage = "fr";
   }
 
+  const now = admin.firestore.Timestamp.now();
+  const weeklyResetAt = admin.firestore.Timestamp.fromMillis(
+    now.toMillis() + 7 * 24 * 60 * 60 * 1000 // +7 days
+  );
+
   // Create user document
   await db.collection("users").doc(user.uid).set({
     uid: user.uid,
@@ -27,11 +32,27 @@ export const onUserCreate = functions.auth.user().onCreate(async (user) => {
     stripeCustomerId: null,
     stripeSubscriptionId: null,
 
+    // Student discount (만 20세 이하)
+    isStudent: false,
+    birthDate: null,
+
+    // Voice chat credits (weekly reset, 7-day cycle)
+    weeklyMinutesUsed: 0,
+    weeklyResetAt: weeklyResetAt,
+
+    // Analysis quota
+    analysisUsedLifetime: false, // Free/Free+: 1회 평생
+    dailyAnalysisUsed: 0, // Pro/Pro+: daily
+    lastAnalysisReset: now,
+
+    // Assistant usage
+    weeklyAssistantUsed: 0,
+
+    // Legacy fields (text chat)
     trialUsed: false,
     trialStartedAt: null,
     trialEndedAt: null,
     trialMessagesUsed: 0,
-
     dailyMessagesUsed: 0,
     lastQuotaReset: admin.firestore.FieldValue.serverTimestamp(),
 

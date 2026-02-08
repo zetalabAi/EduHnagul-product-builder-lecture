@@ -7,16 +7,32 @@ export interface UserDocument {
   photoURL: string | null;
   nativeLanguage: "en" | "es" | "ja" | "zh" | "fr";
 
-  subscriptionTier: "free" | "pro";
+  subscriptionTier: "free" | "free+" | "pro" | "pro+";
   subscriptionStatus: "active" | "canceled" | "past_due" | null;
   stripeCustomerId: string | null;
   stripeSubscriptionId: string | null;
 
+  // Student discount (만 20세 이하)
+  isStudent: boolean;
+  birthDate: Timestamp | null;
+
+  // Voice chat credits (weekly reset, 7-day cycle)
+  weeklyMinutesUsed: number;
+  weeklyResetAt: Timestamp;
+
+  // Analysis quota (Free/Free+: 1회 평생, Pro: 3회/일, Pro+: 7회/일)
+  analysisUsedLifetime: boolean; // Free/Free+ only
+  dailyAnalysisUsed: number; // Pro/Pro+ only
+  lastAnalysisReset: Timestamp;
+
+  // Assistant usage (Free+: 주 1회, Pro/Pro+: 무제한)
+  weeklyAssistantUsed: number;
+
+  // Legacy fields (for text chat)
   trialUsed: boolean;
   trialStartedAt: Timestamp | null;
   trialEndedAt: Timestamp | null;
   trialMessagesUsed: number;
-
   dailyMessagesUsed: number;
   lastQuotaReset: Timestamp;
 
@@ -33,6 +49,13 @@ export interface SessionDocument {
   responseStyle: "empathetic" | "balanced" | "blunt";
   correctionStrength: "minimal" | "strict";
   formalityLevel: "formal" | "polite" | "casual" | "intimate";
+
+  // Voice session specific
+  isVoiceSession: boolean;
+  totalDurationSeconds: number; // Total conversation time
+  userSpeakingSeconds: number; // User speaking time
+  aiSpeakingSeconds: number; // AI speaking time
+  isPaused: boolean; // Session paused (not ended)
 
   rollingSummary: string | null;
   lastSummaryAt: Timestamp | null;
@@ -51,6 +74,10 @@ export interface MessageDocument {
 
   role: "user" | "assistant";
   content: string;
+
+  // Voice message specific
+  audioUrl: string | null; // TTS audio URL (assistant only)
+  durationSeconds: number | null; // Speaking duration
 
   modelUsed: "claude-3-haiku-20240307" | "claude-3-5-sonnet-20241022" | null;
   inputTokens: number | null;
