@@ -256,7 +256,7 @@ STRIPE_SECRET_KEY=sk_test_51Abc...xyz
 STRIPE_PUBLISHABLE_KEY=pk_test_51Abc...xyz
 
 # Claude API (이미 있음)
-ANTHROPIC_API_KEY=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
+ANTHROPIC_API_KEY=sk-ant-api03-YOUR_CLAUDE_API_KEY_HERE
 EOF
 
 echo "✅ .env 파일 생성 완료!"

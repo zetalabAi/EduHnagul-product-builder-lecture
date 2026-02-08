@@ -5,7 +5,7 @@
 ### 1. Claude API ✅
 ```
 Status: 설정 완료!
-Key: sk-ant-api03-d53Ouh_...QLp8NQAA
+Key: sk-ant-api03-YOUR_KEY_HERE
 위치: Firebase Functions Config
 ```
 
