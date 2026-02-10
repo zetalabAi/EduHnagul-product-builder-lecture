@@ -14,6 +14,12 @@ const anthropic = new Anthropic({
 interface TextChatRequest {
   sessionId: string;
   userMessage: string;
+  settings?: {
+    persona: string;
+    responseStyle: string;
+    correctionStrength: string;
+    formalityLevel: string;
+  };
 }
 
 interface TextChatResponse {
@@ -34,7 +40,7 @@ export const textChat = functions.https.onCall(
   async (data: TextChatRequest, context): Promise<TextChatResponse> => {
     const startTime = Date.now();
     const userId = verifyAuth(context);
-    const { sessionId, userMessage } = data;
+    const { sessionId, userMessage, settings } = data;
 
     if (!sessionId || !userMessage) {
       throw new AppError("INVALID_PARAMS", "Missing required parameters", 400);
@@ -106,7 +112,11 @@ export const textChat = functions.https.onCall(
       .reverse();
 
     // 6. Build Claude conversation
-    const systemPrompt = assemblePrompt(session, user, session.rollingSummary);
+    // Apply settings from request if provided
+    const effectiveSession = settings
+      ? ({ ...session, ...settings } as SessionDocument)
+      : session;
+    const systemPrompt = assemblePrompt(effectiveSession, user, session.rollingSummary);
 
     const conversationMessages = messages.map((msg) => ({
       role: msg.role as "user" | "assistant",

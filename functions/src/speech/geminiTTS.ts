@@ -1,4 +1,4 @@
-import {GoogleGenerativeAI} from "@google/generative-ai";
+import {TextToSpeechClient} from "@google-cloud/text-to-speech";
 import * as admin from "firebase-admin";
 import * as crypto from "crypto";
 import * as functions from "firebase-functions";
@@ -8,101 +8,123 @@ function getBucket() {
   return admin.storage().bucket("edu-hangul-tts-audio");
 }
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || "");
+const ttsClient = new TextToSpeechClient();
 
 interface TTSOptions {
   text: string;
-  voiceName?: string; // 'Kore', 'Aoede', 'Charon', 'Fenrir', 'Puck' 등
-  temperature?: number; // 1.5-2.0 권장
-  styleInstructions?: string; // 사용자 대화 설정
+  voiceName?: string;
+  temperature?: number;
+  styleInstructions?: string;
 }
 
 /**
- * Generate natural-sounding TTS using Gemini 2.5 Pro Preview TTS
- * Dramatically better quality than Google Cloud TTS
+ * Preprocess text for better TTS quality
+ * Remove or replace special characters that TTS reads literally
+ */
+function preprocessText(text: string): string {
+  return text
+    // Remove excessive punctuation
+    .replace(/!{2,}/g, "!")
+    .replace(/\?{2,}/g, "?")
+    .replace(/~{2,}/g, "~")
+    // Normalize whitespace
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
+ * Generate high-quality TTS using Google Cloud Wavenet voices
+ * Best quality available for Korean
  */
 export async function generateGeminiTTS(options: TTSOptions): Promise<string> {
+  const startTime = Date.now();
+
   const {
     text,
-    voiceName = "Kore", // 한국어 여성 목소리
-    temperature = 1.5,
-    styleInstructions = "따뜻하고 친근한 톤으로 읽어주세요",
+    voiceName = "ko-KR-Wavenet-A", // High-quality female voice
   } = options;
+
+  // Preprocess text for better quality
+  const cleanText = preprocessText(text);
+
+  functions.logger.info("🎤 === TTS Generation Start ===");
+  functions.logger.info(`📝 Text: ${cleanText.substring(0, 100)}...`);
+  functions.logger.info(`🎵 Voice: ${voiceName}`);
 
   // 캐싱용 해시
   const hash = crypto
     .createHash("sha256")
-    .update(`${text}-${voiceName}-${temperature}-${styleInstructions}`)
-    .digest("hex");
+    .update(`${cleanText}-${voiceName}`)
+    .digest("hex")
+    .substring(0, 16);
 
-  const fileName = `gemini-tts/${hash}.mp3`;
+  const fileName = `tts/wavenet-${hash}.mp3`;
   const bucket = getBucket();
   const file = bucket.file(fileName);
 
   // 캐시 확인
-  const [exists] = await file.exists();
-  if (exists) {
-    functions.logger.info(`Using cached Gemini TTS: ${fileName}`);
-    return `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+  try {
+    const [exists] = await file.exists();
+    if (exists) {
+      const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+      functions.logger.info(`✅ Cache hit: ${publicUrl}`);
+      functions.logger.info(`⏱️ Cache lookup: ${Date.now() - startTime}ms`);
+      return publicUrl;
+    }
+  } catch (error) {
+    functions.logger.warn("⚠️ Cache check failed:", error);
   }
 
-  functions.logger.info("Generating new Gemini TTS...");
+  functions.logger.info("🚀 Generating new TTS audio...");
 
-  // Gemini TTS 생성
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash-exp",
-  });
+  try {
+    // Use SSML for better control
+    const ssmlText = `<speak><prosody rate="1.0" pitch="0st">${cleanText}</prosody></speak>`;
 
-  const result = await model.generateContent({
-    contents: [
-      {
-        role: "user",
-        parts: [
-          {
-            text: `${styleInstructions}\n\n다음 텍스트를 읽어주세요:\n\n${text}`,
-          },
-        ],
+    const [response] = await ttsClient.synthesizeSpeech({
+      input: {ssml: ssmlText},
+      voice: {
+        languageCode: "ko-KR",
+        name: voiceName, // Wavenet-A: Most natural female voice
       },
-    ],
-    generationConfig: {
-      temperature,
-    },
-  });
+      audioConfig: {
+        audioEncoding: "MP3",
+        speakingRate: 1.0,
+        pitch: 0.0,
+        // Use telephony profile for clearer speech
+        effectsProfileId: ["telephony-class-application"],
+      },
+    });
 
-  // 오디오 추출
-  const response = result.response;
-  if (!response || !response.candidates || response.candidates.length === 0) {
-    throw new Error("No response from Gemini TTS");
+    if (!response.audioContent) {
+      throw new Error("No audio content in TTS response");
+    }
+
+    const audioBuffer = Buffer.from(response.audioContent);
+    functions.logger.info(`💾 Saving to Storage (${audioBuffer.length} bytes)...`);
+
+    // Save to Cloud Storage
+    await file.save(audioBuffer, {
+      metadata: {
+        contentType: "audio/mpeg",
+        cacheControl: "public, max-age=604800", // 7 days
+      },
+    });
+
+    // Make publicly readable
+    await file.makePublic();
+
+    const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+    functions.logger.info("✅ === TTS Generation Complete ===");
+    functions.logger.info(`🔗 URL: ${publicUrl}`);
+    functions.logger.info(`⏱️ Total time: ${Date.now() - startTime}ms`);
+
+    return publicUrl;
+  } catch (error: any) {
+    functions.logger.error("❌ === TTS Generation Failed ===");
+    functions.logger.error("Error:", error);
+    throw new Error(`TTS generation failed: ${error.message}`);
   }
-
-  // Note: The actual API may return audio data differently
-  // This is a placeholder - need to adjust based on actual API response
-  const audioData = (response as any).audioContent;
-
-  if (!audioData) {
-    functions.logger.warn("Gemini TTS not available, falling back to text response");
-    throw new Error("Audio data not available from Gemini");
-  }
-
-  // Cloud Storage에 저장
-  const audioBuffer = Buffer.isBuffer(audioData) ?
-    audioData :
-    Buffer.from(audioData, "base64");
-
-  await file.save(audioBuffer, {
-    metadata: {
-      contentType: "audio/mpeg",
-      cacheControl: "public, max-age=604800", // 7일
-    },
-  });
-
-  // Make file publicly readable
-  await file.makePublic();
-
-  const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
-  functions.logger.info(`Generated new Gemini TTS: ${publicUrl}`);
-
-  return publicUrl;
 }
 
 /**

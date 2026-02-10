@@ -2,28 +2,21 @@ import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import {Timestamp} from "firebase-admin/firestore";
 import Anthropic from "@anthropic-ai/sdk";
-import {TextToSpeechClient} from "@google-cloud/text-to-speech";
 import {verifyAuth} from "../auth/authMiddleware";
 import {AppError} from "../utils/errors";
 import {UserDocument, SessionDocument, MessageDocument} from "../types";
 import {assemblePrompt} from "../chat/prompts";
 import {checkVoiceCredits, deductVoiceCredits} from "./creditManager";
 import {generateGeminiTTS, buildStyleInstructions} from "./geminiTTS";
-import * as crypto from "crypto";
 
 // Lazy initialization
 function getDb() {
   return admin.firestore();
 }
 
-function getBucket() {
-  return admin.storage().bucket("edu-hangul-tts-audio");
-}
-
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY || "",
 });
-const ttsClient = new TextToSpeechClient();
 
 /**
  * Parse AI response into dialogue (for TTS) and learning tip (text only)
@@ -88,60 +81,6 @@ function cleanLearningTip(tip: string): string {
     });
 
   return lines.join("\n").trim();
-}
-
-/**
- * Generate hash for TTS caching
- * Same text + voice = same hash = reuse audio file
- */
-function generateTTSHash(text: string, voiceName: string): string {
-  return crypto
-    .createHash("sha256")
-    .update(`${text}:${voiceName}`)
-    .digest("hex");
-}
-
-/**
- * Upload TTS audio to Cloud Storage and return public URL
- * Uses hash-based caching to avoid duplicate synthesis
- */
-async function uploadTTSToStorage(
-  audioBuffer: Buffer,
-  text: string,
-  voiceName: string
-): Promise<string> {
-  const bucket = getBucket();
-  const hash = generateTTSHash(text, voiceName);
-  const fileName = `tts/${hash}.mp3`;
-  const file = bucket.file(fileName);
-
-  // Check if file already exists (cache hit)
-  const [exists] = await file.exists();
-  if (exists) {
-    functions.logger.info(`TTS cache hit for hash: ${hash}`);
-    const [url] = await file.getSignedUrl({
-      action: "read",
-      expires: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
-    return url;
-  }
-
-  // Upload new file
-  await file.save(audioBuffer, {
-    metadata: {
-      contentType: "audio/mpeg",
-      cacheControl: "public, max-age=604800", // 7 days
-    },
-  });
-
-  // Make file publicly readable
-  await file.makePublic();
-
-  // Get public URL
-  const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
-  functions.logger.info(`TTS audio uploaded: ${fileName}`);
-
-  return publicUrl;
 }
 
 interface VoiceChatRequest {
@@ -269,63 +208,25 @@ export const voiceChat = functions.https.onCall(
       const {dialogue, learningTip} = parseAIResponse(fullAIMessage);
       functions.logger.info(`📝 Parsed - Dialogue: ${dialogue.length} chars, Learning Tip: ${learningTip.length} chars`);
 
-      // 7. Synthesize speech with Gemini TTS (dialogue only, NOT learning tip!)
+      // 7. Synthesize speech (dialogue only, NOT learning tip!)
       // Performance: TTS start
       ttsStartTime = Date.now();
-      let audioUrl: string;
 
-      try {
-        // Build style instructions from session settings
-        const styleInstructions = buildStyleInstructions({
-          persona: effectiveSession.persona,
-          responseStyle: effectiveSession.responseStyle,
-          formalityLevel: effectiveSession.formalityLevel,
-        });
+      // Build style instructions from session settings
+      const styleInstructions = buildStyleInstructions({
+        persona: effectiveSession.persona,
+        responseStyle: effectiveSession.responseStyle,
+        formalityLevel: effectiveSession.formalityLevel,
+      });
 
-        // Try Gemini TTS first (better quality)
-        functions.logger.info("🎤 Attempting Gemini TTS...");
-        audioUrl = await generateGeminiTTS({
-          text: dialogue, // Only dialogue, NOT full message!
-          voiceName: "Kore", // Korean female voice
-          temperature: 1.5,
-          styleInstructions,
-        });
-        functions.logger.info("✅ Gemini TTS success");
-      } catch (geminiError: any) {
-        // Fallback to Google Cloud TTS if Gemini fails
-        functions.logger.warn(`Gemini TTS failed (${geminiError.message}), falling back to Google Cloud TTS`);
-
-        const ttsRequest = {
-          input: {text: dialogue}, // Only dialogue!
-          voice: {
-            languageCode: "ko-KR",
-            name: "ko-KR-Neural2-A", // High-quality neural female voice
-          },
-          audioConfig: {
-            audioEncoding: "MP3" as const,
-            speakingRate: 1.0,
-            pitch: 0.0,
-            effectsProfileId: ["small-bluetooth-speaker-class-device"],
-          },
-        };
-
-        const [ttsResponse] = await ttsClient.synthesizeSpeech(ttsRequest);
-
-        if (!ttsResponse.audioContent) {
-          throw new AppError("TTS_ERROR", "Failed to synthesize speech", 500);
-        }
-
-        // Upload to Cloud Storage and get URL (with caching)
-        try {
-          const audioBuffer = Buffer.from(ttsResponse.audioContent);
-          audioUrl = await uploadTTSToStorage(audioBuffer, dialogue, "ko-KR-Neural2-A");
-        } catch (storageError: any) {
-          functions.logger.warn("Storage upload failed, using base64 fallback:", storageError.message);
-          // Fallback: return base64 data URL
-          const audioBase64 = ttsResponse.audioContent.toString("base64");
-          audioUrl = `data:audio/mp3;base64,${audioBase64}`;
-        }
-      }
+      // Generate high-quality TTS
+      functions.logger.info("🎤 Generating TTS audio...");
+      const audioUrl = await generateGeminiTTS({
+        text: dialogue, // Only dialogue, NOT full message!
+        voiceName: "ko-KR-Wavenet-A", // Highest quality Korean female voice
+        temperature: 1.5,
+        styleInstructions,
+      });
 
       ttsTime = Date.now() - ttsStartTime;
       functions.logger.info(`🔊 TTS: ${ttsTime}ms`);
