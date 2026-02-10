@@ -178,7 +178,7 @@ export const voiceChat = functions.https.onCall(
       const systemPrompt = assemblePrompt(effectiveSession, user, session.rollingSummary);
 
       const response = await anthropic.messages.create({
-        model: "claude-3-5-sonnet-20240620",
+        model: "claude-sonnet-4-20250514",
         max_tokens: 1024,
         system: systemPrompt,
         messages: conversationMessages,
@@ -235,7 +235,7 @@ export const voiceChat = functions.https.onCall(
         content: aiMessage,
         audioUrl: audioUrl, // Cloud Storage URL
         durationSeconds: estimatedDuration,
-        modelUsed: "claude-3-5-sonnet-20240620",
+        modelUsed: "claude-sonnet-4-20250514",
         inputTokens,
         outputTokens,
         latencyMs: Date.now() - startTime,

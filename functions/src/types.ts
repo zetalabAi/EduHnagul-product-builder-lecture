@@ -85,7 +85,7 @@ export interface MessageDocument {
   audioUrl: string | null; // TTS audio URL (assistant only)
   durationSeconds: number | null; // Speaking duration
 
-  modelUsed: "claude-3-haiku-20240307" | "claude-3-5-sonnet-20240620" | null;
+  modelUsed: "claude-3-haiku-20240307" | "claude-sonnet-4-20250514" | null;
   inputTokens: number | null;
   outputTokens: number | null;
   latencyMs: number | null;
