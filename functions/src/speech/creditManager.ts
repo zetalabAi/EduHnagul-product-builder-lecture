@@ -10,8 +10,14 @@ function getDb() {
 
 /**
  * Get weekly minute limits based on subscription tier
+ *
+ * 🧪 TEST MODE: All tiers unlimited during testing
  */
 export function getWeeklyMinuteLimit(tier: UserDocument["subscriptionTier"]): number {
+  // 🧪 TEST MODE: Unlimited for all tiers
+  return Infinity;
+
+  /* Original limits (restore after testing):
   switch (tier) {
   case "free":
     return 15;
@@ -23,6 +29,7 @@ export function getWeeklyMinuteLimit(tier: UserDocument["subscriptionTier"]): nu
   default:
     return 15;
   }
+  */
 }
 
 /**
