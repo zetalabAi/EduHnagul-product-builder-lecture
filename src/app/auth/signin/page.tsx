@@ -67,7 +67,7 @@ export default function SignInPage() {
       );
 
       toast.success("환영합니다! 로그인에 성공했습니다.");
-      router.push("/app");
+      router.push("/");
     } catch (error: any) {
       console.error("Google sign-in error:", error);
 
@@ -115,7 +115,7 @@ export default function SignInPage() {
       await initializeUserDocument(result.user.uid, email, displayName);
 
       toast.success("회원가입이 완료되었습니다!");
-      router.push("/app");
+      router.push("/");
     } catch (error: any) {
       console.error("Sign-up error:", error);
 
@@ -150,7 +150,7 @@ export default function SignInPage() {
       await initializeUserDocument(result.user.uid, email);
 
       toast.success("환영합니다! 로그인에 성공했습니다.");
-      router.push("/app");
+      router.push("/");
     } catch (error: any) {
       console.error("Sign-in error:", error);
 
