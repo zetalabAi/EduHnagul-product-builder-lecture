@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { httpsCallable } from "firebase/functions";
 import { auth, functions } from "@/lib/firebase";
 import { useUserCredits } from "@/hooks/useUserCredits";
@@ -81,6 +81,17 @@ export default function SettingsPage() {
       toast.error("구독 관리 페이지를 열 수 없습니다.");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      toast.success("로그아웃되었습니다.");
+      router.push("/");
+    } catch (error: any) {
+      console.error("Logout error:", error);
+      toast.error("로그아웃에 실패했습니다.");
     }
   };
 
@@ -221,7 +232,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Usage Stats */}
-        <div className="bg-gray-800 rounded-xl p-6">
+        <div className="bg-gray-800 rounded-xl p-6 mb-6">
           <h2 className="text-2xl font-bold mb-4">사용 현황</h2>
 
           <div className="space-y-3">
@@ -250,6 +261,17 @@ export default function SettingsPage() {
               </span>
             </div>
           </div>
+        </div>
+
+        {/* Logout Button */}
+        <div className="bg-gray-800 rounded-xl p-6">
+          <button
+            onClick={handleLogout}
+            className="w-full bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg font-bold transition-colors flex items-center justify-center space-x-2"
+          >
+            <span>🚪</span>
+            <span>로그아웃</span>
+          </button>
         </div>
       </div>
     </div>
