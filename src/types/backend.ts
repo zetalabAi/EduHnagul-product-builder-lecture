@@ -85,6 +85,7 @@ export interface UserDocument {
   displayName: string | null;
   photoURL: string | null;
   nativeLanguage: "en" | "es" | "ja" | "zh" | "fr";
+  koreanLevel: "beginner" | "intermediate" | "advanced";
 
   // Subscription
   subscriptionTier: "free" | "pro";

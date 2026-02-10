@@ -36,6 +36,7 @@ export function useSpeechRecognition(
   const [isSupported, setIsSupported] = useState(false);
 
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const accumulatedFinalTranscriptRef = useRef<string>(""); // Accumulate final transcripts
 
   // Update refs when callbacks change
   useEffect(() => {
@@ -82,7 +83,19 @@ export function useSpeechRecognition(
         }
       }
 
-      const currentTranscript = finalTranscript || interimTranscript;
+      // Accumulate final transcripts with space separator
+      if (finalTranscript) {
+        if (accumulatedFinalTranscriptRef.current) {
+          accumulatedFinalTranscriptRef.current += " " + finalTranscript;
+        } else {
+          accumulatedFinalTranscriptRef.current = finalTranscript;
+        }
+      }
+
+      // Combine accumulated finals + current interim
+      const currentTranscript = accumulatedFinalTranscriptRef.current +
+        (interimTranscript ? (accumulatedFinalTranscriptRef.current ? " " : "") + interimTranscript : "");
+
       setTranscript(currentTranscript);
 
       if (onResultRef.current) {
@@ -139,6 +152,7 @@ export function useSpeechRecognition(
 
   const resetTranscript = () => {
     setTranscript("");
+    accumulatedFinalTranscriptRef.current = ""; // Also reset accumulated finals
   };
 
   return {

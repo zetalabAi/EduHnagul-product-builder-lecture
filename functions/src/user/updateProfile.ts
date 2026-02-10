@@ -8,6 +8,7 @@ import { Timestamp } from "firebase-admin/firestore";
 interface UpdateProfileRequest {
   birthDate?: string; // ISO date string (YYYY-MM-DD)
   displayName?: string;
+  koreanLevel?: "beginner" | "intermediate" | "advanced";
 }
 
 interface UpdateProfileResponse {
@@ -26,7 +27,7 @@ export const updateProfile = functions.https.onCall(
     context
   ): Promise<UpdateProfileResponse> => {
     const userId = verifyAuth(context);
-    const { birthDate, displayName } = data;
+    const { birthDate, displayName, koreanLevel } = data;
 
     const userRef = admin.firestore().collection("users").doc(userId);
     const updates: any = {
@@ -89,6 +90,19 @@ export const updateProfile = functions.https.onCall(
         );
       }
       updates.displayName = displayName.trim();
+    }
+
+    // Handle Korean level update
+    if (koreanLevel !== undefined) {
+      const validLevels = ["beginner", "intermediate", "advanced"];
+      if (!validLevels.includes(koreanLevel)) {
+        throw new AppError(
+          "INVALID_LEVEL",
+          "Invalid Korean level. Must be beginner, intermediate, or advanced",
+          400
+        );
+      }
+      updates.koreanLevel = koreanLevel;
     }
 
     // Update Firestore (source of truth)

@@ -5,11 +5,11 @@ import toast from "react-hot-toast";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { useVoiceChat } from "@/hooks/useVoiceChat";
 import { useAssistant } from "@/hooks/useAssistant";
+import { useUserCredits } from "@/hooks/useUserCredits";
 import { SessionSummary } from "./SessionSummary";
-import { AdBanner } from "./AdBanner";
-import { AdInterstitial } from "./AdInterstitial";
 import { getMessagesBySession } from "@/lib/firestore";
-import { auth } from "@/lib/firebase";
+import { auth, functions } from "@/lib/firebase";
+import { httpsCallable } from "firebase/functions";
 
 interface VoiceChatProps {
   sessionId: string;
@@ -23,9 +23,50 @@ interface VoiceChatProps {
 interface Message {
   id: string;
   role: "user" | "assistant";
-  content: string;
+  content: string; // 대화 파트 (음성으로 읽음)
+  learningNote?: string; // 학습 노트 (텍스트만 표시)
   audioUrl?: string;
   timestamp: Date;
+}
+
+/**
+ * AI 응답을 대화 파트와 학습 노트로 분리
+ * Backend가 이미 분리해서 보내주므로 여기서는 간단하게 처리
+ */
+function parseAIResponse(fullResponse: string): { dialogue: string; notes: string } {
+  // Backend already separates dialogue and learning tip
+  // This is a fallback parser for any edge cases
+
+  // Try [DIALOGUE] and [LEARNING_TIP] markers first
+  const dialogueMatch = fullResponse.match(/\[DIALOGUE\]([\s\S]*?)(?:\[LEARNING_TIP\]|$)/);
+  const learningTipMatch = fullResponse.match(/\[LEARNING_TIP\]([\s\S]*?)$/);
+
+  if (dialogueMatch || learningTipMatch) {
+    return {
+      dialogue: dialogueMatch ? dialogueMatch[1].trim() : fullResponse.split('[LEARNING_TIP]')[0].trim(),
+      notes: learningTipMatch ? learningTipMatch[1].trim() : '',
+    };
+  }
+
+  // Fallback: parse "*" prefix format
+  const lines = fullResponse.split('\n');
+  const dialogueLines: string[] = [];
+  const noteLines: string[] = [];
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('*')) {
+      // "*" 제거하고 학습 노트에 추가
+      noteLines.push(trimmed.substring(1).trim());
+    } else if (trimmed) {
+      dialogueLines.push(line);
+    }
+  }
+
+  return {
+    dialogue: dialogueLines.join('\n').trim(),
+    notes: noteLines.join('\n').trim(),
+  };
 }
 
 export function VoiceChat({
@@ -43,6 +84,8 @@ export function VoiceChat({
   const [showSettings, setShowSettings] = useState(false);
   const [showBackConfirm, setShowBackConfirm] = useState(false);
   const [showEndConfirm, setShowEndConfirm] = useState(false);
+  const [expandedNotes, setExpandedNotes] = useState<Set<string>>(new Set()); // 펼쳐진 학습 노트 ID
+  const [aiStatus, setAiStatus] = useState<"idle" | "thinking" | "speaking">("idle"); // AI 상태
 
   // Session settings
   const [sessionSettings, setSessionSettings] = useState({
@@ -54,12 +97,6 @@ export function VoiceChat({
 
   // Recording state
   const [recordingDuration, setRecordingDuration] = useState(0);
-
-  // Ad system (Free tier only)
-  const [showStartAd, setShowStartAd] = useState(subscriptionTier === "free");
-  const [showBannerAd, setShowBannerAd] = useState(false);
-  const [conversationStartTime, setConversationStartTime] = useState<number | null>(null);
-  const bannerIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -75,6 +112,17 @@ export function VoiceChat({
     getSuggestions,
     clearSuggestions,
   } = useAssistant();
+
+  // Get user credits for Korean level
+  const { credits } = useUserCredits(auth.currentUser?.uid || null);
+  const [koreanLevel, setKoreanLevel] = useState<"beginner" | "intermediate" | "advanced">("intermediate");
+
+  // Load korean level from credits
+  useEffect(() => {
+    if (credits?.koreanLevel) {
+      setKoreanLevel(credits.koreanLevel);
+    }
+  }, [credits]);
 
   // Memoize speech recognition callbacks to prevent re-initialization
   const handleSpeechResult = useCallback((text: string, isFinal: boolean) => {
@@ -246,6 +294,9 @@ export function VoiceChat({
       duration,
     });
 
+    // AI 상태: 생각하는 중
+    setAiStatus("thinking");
+
     // Send to backend with current settings
     const response = await sendMessage({
       sessionId,
@@ -258,11 +309,14 @@ export function VoiceChat({
 
     if (response) {
       console.log("✅ Adding AI message to chat");
-      // Add AI message
+      console.log("📝 Response - Dialogue:", response.aiMessage.substring(0, 50), "Learning Tip:", response.learningTip?.substring(0, 50) || "none");
+
+      // Backend already separated dialogue and learning tip
       const aiMessage: Message = {
         id: response.messageId,
         role: "assistant",
-        content: response.aiMessage,
+        content: response.aiMessage, // Dialogue only (what was spoken)
+        learningNote: response.learningTip || undefined, // Learning tip from backend
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, aiMessage]);
@@ -270,7 +324,10 @@ export function VoiceChat({
       // Update remaining minutes
       onMinutesUpdate(response.remainingMinutes);
 
-      // Play TTS audio from Cloud Storage URL
+      // AI 상태: 말하는 중
+      setAiStatus("speaking");
+
+      // Play TTS audio from Cloud Storage URL (dialogue only, no learning tip!)
       console.log("🔊 Playing TTS audio");
       playAudio(response.audioUrl);
     } else {
@@ -335,26 +392,11 @@ export function VoiceChat({
       if (audioRef.current?.src) {
         URL.revokeObjectURL(audioRef.current.src);
       }
-      if (bannerIntervalRef.current) {
-        clearInterval(bannerIntervalRef.current);
-      }
       if (recordingTimerRef.current) {
         clearInterval(recordingTimerRef.current);
       }
     };
   }, []);
-
-  // Start conversation timer when first ad is closed (Free tier only)
-  const handleStartAdClose = () => {
-    setShowStartAd(false);
-    if (subscriptionTier === "free") {
-      setConversationStartTime(Date.now());
-      // Show banner ad every 5 minutes
-      bannerIntervalRef.current = setInterval(() => {
-        setShowBannerAd(true);
-      }, 5 * 60 * 1000); // 5 minutes
-    }
-  };
 
   if (!isSupported) {
     return (
@@ -433,10 +475,20 @@ export function VoiceChat({
       {/* Main Content - Centered Microphone Button */}
       <div className="flex-1 flex flex-col items-center justify-center px-4 pb-20">
         {/* Status Text at Top */}
-        <div className="absolute top-20 text-center">
+        <div className="absolute top-20 text-center space-y-2">
           <div className="text-sm text-gray-400">
             {remainingMinutes === Infinity ? "무제한" : `${remainingMinutes}분 남음`}
           </div>
+          {aiStatus === "thinking" && (
+            <div className="text-sm text-blue-400 animate-pulse">
+              🤔 생각하는 중...
+            </div>
+          )}
+          {aiStatus === "speaking" && (
+            <div className="text-sm text-green-400 animate-pulse">
+              🗣️ 말하는 중...
+            </div>
+          )}
         </div>
 
         {/* Latest Message Display */}
@@ -454,7 +506,36 @@ export function VoiceChat({
                       : "bg-gray-700 text-gray-100"
                   }`}
                 >
-                  <p className="text-base">{msg.content}</p>
+                  <p className="text-base whitespace-pre-wrap">{msg.content}</p>
+
+                  {/* 학습 노트 (AI 메시지에만) */}
+                  {msg.role === "assistant" && msg.learningNote && (
+                    <div className="mt-3 pt-3 border-t border-gray-600">
+                      <button
+                        onClick={() => {
+                          setExpandedNotes((prev) => {
+                            const next = new Set(prev);
+                            if (next.has(msg.id)) {
+                              next.delete(msg.id);
+                            } else {
+                              next.add(msg.id);
+                            }
+                            return next;
+                          });
+                        }}
+                        className="flex items-center justify-between w-full text-left text-sm text-yellow-300 hover:text-yellow-200 transition"
+                      >
+                        <span className="font-medium">💡 학습 팁 보기</span>
+                        <span className="text-xs">{expandedNotes.has(msg.id) ? '▲' : '▼'}</span>
+                      </button>
+
+                      {expandedNotes.has(msg.id) && (
+                        <div className="mt-2 p-3 bg-yellow-900 bg-opacity-30 border border-yellow-600 rounded-lg">
+                          <p className="text-xs text-yellow-100 whitespace-pre-wrap">{msg.learningNote}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -609,8 +690,14 @@ export function VoiceChat({
       {/* Hidden audio element for TTS playback */}
       <audio
         ref={audioRef}
-        onEnded={() => setIsPlayingAudio(false)}
-        onError={() => setIsPlayingAudio(false)}
+        onEnded={() => {
+          setIsPlayingAudio(false);
+          setAiStatus("idle");
+        }}
+        onError={() => {
+          setIsPlayingAudio(false);
+          setAiStatus("idle");
+        }}
       />
 
       {/* Session Summary Modal */}
@@ -728,6 +815,42 @@ export function VoiceChat({
                 </p>
               </div>
 
+              {/* Korean Level */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-300 mb-2">
+                  📚 한국어 레벨 (Korean Level)
+                </label>
+                <select
+                  value={koreanLevel}
+                  onChange={async (e) => {
+                    const newLevel = e.target.value as "beginner" | "intermediate" | "advanced";
+                    setKoreanLevel(newLevel);
+
+                    // Update user profile
+                    if (functions) {
+                      try {
+                        const updateFn = httpsCallable(functions, "updateProfile");
+                        await updateFn({ koreanLevel: newLevel });
+                        toast.success("한국어 레벨이 업데이트되었습니다!");
+                      } catch (error: any) {
+                        console.error("Failed to update Korean level:", error);
+                        toast.error("레벨 업데이트에 실패했습니다.");
+                      }
+                    }
+                  }}
+                  className="w-full px-4 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="beginner">🌱 초급 (Beginner)</option>
+                  <option value="intermediate">🌿 중급 (Intermediate)</option>
+                  <option value="advanced">🌳 고급 (Advanced)</option>
+                </select>
+                <p className="mt-2 text-xs text-gray-400">
+                  {koreanLevel === "beginner" && "짧은 문장, 기본 어휘, 한 번에 1개 질문"}
+                  {koreanLevel === "intermediate" && "자연스러운 대화, 일상 어휘, 한 번에 1-2개 질문"}
+                  {koreanLevel === "advanced" && "원어민 수준, 다양한 표현, 질문 개수 제한 없음"}
+                </p>
+              </div>
+
               {/* Info box */}
               <div className="bg-blue-900 bg-opacity-30 rounded-lg p-4 border border-blue-700">
                 <p className="text-sm text-blue-200">
@@ -805,11 +928,6 @@ export function VoiceChat({
             </div>
           </div>
         </div>
-      )}
-
-      {/* Start Ad Interstitial (Free tier only) */}
-      {showStartAd && subscriptionTier === "free" && (
-        <AdInterstitial onClose={handleStartAdClose} countdown={5} />
       )}
     </div>
   );

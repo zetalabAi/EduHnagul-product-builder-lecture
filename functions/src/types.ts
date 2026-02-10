@@ -6,6 +6,7 @@ export interface UserDocument {
   displayName: string | null;
   photoURL: string | null;
   nativeLanguage: "en" | "es" | "ja" | "zh" | "fr";
+  koreanLevel: "beginner" | "intermediate" | "advanced"; // 한국어 레벨
 
   subscriptionTier: "free" | "free+" | "pro" | "pro+";
   subscriptionStatus: "active" | "canceled" | "past_due" | null;

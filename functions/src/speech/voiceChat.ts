@@ -8,6 +8,7 @@ import {AppError} from "../utils/errors";
 import {UserDocument, SessionDocument, MessageDocument} from "../types";
 import {assemblePrompt} from "../chat/prompts";
 import {checkVoiceCredits, deductVoiceCredits} from "./creditManager";
+import {generateGeminiTTS, buildStyleInstructions} from "./geminiTTS";
 import * as crypto from "crypto";
 
 // Lazy initialization
@@ -23,6 +24,71 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY || "",
 });
 const ttsClient = new TextToSpeechClient();
+
+/**
+ * Parse AI response into dialogue (for TTS) and learning tip (text only)
+ * Supports both explicit markers and "*" prefix format
+ */
+function parseAIResponse(fullResponse: string): {
+  dialogue: string;
+  learningTip: string;
+} {
+  // Try explicit [DIALOGUE] and [LEARNING_TIP] markers first
+  const dialogueMatch = fullResponse.match(/\[DIALOGUE\]([\s\S]*?)(?:\[LEARNING_TIP\]|$)/);
+  const learningTipMatch = fullResponse.match(/\[LEARNING_TIP\]([\s\S]*?)$/);
+
+  if (dialogueMatch || learningTipMatch) {
+    const dialogue = dialogueMatch ? dialogueMatch[1].trim() : fullResponse.split("[LEARNING_TIP]")[0].trim();
+    const learningTip = learningTipMatch ? learningTipMatch[1].trim() : "";
+    return {dialogue, learningTip: cleanLearningTip(learningTip)};
+  }
+
+  // Fallback: parse "*" prefix format
+  const lines = fullResponse.split("\n");
+  const dialogueLines: string[] = [];
+  const noteLines: string[] = [];
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith("*")) {
+      // "*" 제거하고 학습 노트에 추가
+      noteLines.push(trimmed.substring(1).trim());
+    } else if (trimmed) {
+      dialogueLines.push(line);
+    }
+  }
+
+  return {
+    dialogue: dialogueLines.join("\n").trim(),
+    learningTip: cleanLearningTip(noteLines.join("\n").trim()),
+  };
+}
+
+/**
+ * Clean learning tip: remove incomplete sentences
+ */
+function cleanLearningTip(tip: string): string {
+  if (!tip) return "";
+
+  const lines = tip
+    .split("\n")
+    .filter((line) => {
+      const trimmed = line.trim();
+      // Keep lines that end with proper punctuation
+      return (
+        trimmed.endsWith(".") ||
+        trimmed.endsWith("!") ||
+        trimmed.endsWith("?") ||
+        trimmed.endsWith("요") ||
+        trimmed.endsWith("다") ||
+        trimmed.endsWith("니다") ||
+        trimmed.endsWith("어요") ||
+        trimmed.endsWith("에요")
+      );
+    });
+
+  return lines.join("\n").trim();
+}
 
 /**
  * Generate hash for TTS caching
@@ -92,11 +158,12 @@ interface VoiceChatRequest {
 
 interface VoiceChatResponse {
   messageId: string;
-  aiMessage: string;
+  aiMessage: string; // Full AI response (dialogue + learning tip)
   audioUrl: string; // Cloud Storage URL
   inputTokens: number;
   outputTokens: number;
   remainingMinutes: number;
+  learningTip?: string; // Learning tip (text only, not in TTS)
 }
 
 /**
@@ -109,6 +176,12 @@ export const voiceChat = functions.https.onCall(
     const userId = verifyAuth(context);
 
     const {sessionId, userMessage, userSpeakingDuration = 0, settings} = data;
+
+    // Performance tracking
+    let claudeStartTime = 0;
+    let claudeTime = 0;
+    let ttsStartTime = 0;
+    let ttsTime = 0;
 
     if (!sessionId || !userMessage) {
       throw new AppError("INVALID_INPUT", "Session ID and message are required", 400);
@@ -177,63 +250,98 @@ export const voiceChat = functions.https.onCall(
         : session;
       const systemPrompt = assemblePrompt(effectiveSession, user, session.rollingSummary);
 
+      // Performance: Claude API start
+      claudeStartTime = Date.now();
       const response = await anthropic.messages.create({
         model: "claude-sonnet-4-20250514",
         max_tokens: 1024,
         system: systemPrompt,
         messages: conversationMessages,
       });
+      claudeTime = Date.now() - claudeStartTime;
+      functions.logger.info(`⚡ Claude API: ${claudeTime}ms`);
 
-      const aiMessage = response.content[0].type === "text" ? response.content[0].text : "";
+      const fullAIMessage = response.content[0].type === "text" ? response.content[0].text : "";
       const inputTokens = response.usage.input_tokens;
       const outputTokens = response.usage.output_tokens;
 
-      // 7. Synthesize speech with Google TTS Journey
-      const ttsRequest = {
-        input: {text: aiMessage},
-        voice: {
-          languageCode: "ko-KR",
-          name: "ko-KR-Journey-F", // Emotional female voice
-        },
-        audioConfig: {
-          audioEncoding: "MP3" as const,
-          speakingRate: 1.0,
-          pitch: 0.0,
-          effectsProfileId: ["small-bluetooth-speaker-class-device"],
-        },
-      };
+      // Parse response: separate dialogue (for TTS) and learning tip (text only)
+      const {dialogue, learningTip} = parseAIResponse(fullAIMessage);
+      functions.logger.info(`📝 Parsed - Dialogue: ${dialogue.length} chars, Learning Tip: ${learningTip.length} chars`);
 
-      const [ttsResponse] = await ttsClient.synthesizeSpeech(ttsRequest);
-
-      if (!ttsResponse.audioContent) {
-        throw new AppError("TTS_ERROR", "Failed to synthesize speech", 500);
-      }
-
-      // Upload to Cloud Storage and get URL (with caching)
-      // Fallback to base64 if Storage upload fails
+      // 7. Synthesize speech with Gemini TTS (dialogue only, NOT learning tip!)
+      // Performance: TTS start
+      ttsStartTime = Date.now();
       let audioUrl: string;
+
       try {
-        const audioBuffer = Buffer.from(ttsResponse.audioContent);
-        audioUrl = await uploadTTSToStorage(audioBuffer, aiMessage, "ko-KR-Journey-F");
-      } catch (storageError: any) {
-        functions.logger.warn("Storage upload failed, using base64 fallback:", storageError.message);
-        // Fallback: return base64 data URL
-        const audioBase64 = ttsResponse.audioContent.toString("base64");
-        audioUrl = `data:audio/mp3;base64,${audioBase64}`;
+        // Build style instructions from session settings
+        const styleInstructions = buildStyleInstructions({
+          persona: effectiveSession.persona,
+          responseStyle: effectiveSession.responseStyle,
+          formalityLevel: effectiveSession.formalityLevel,
+        });
+
+        // Try Gemini TTS first (better quality)
+        functions.logger.info("🎤 Attempting Gemini TTS...");
+        audioUrl = await generateGeminiTTS({
+          text: dialogue, // Only dialogue, NOT full message!
+          voiceName: "Kore", // Korean female voice
+          temperature: 1.5,
+          styleInstructions,
+        });
+        functions.logger.info("✅ Gemini TTS success");
+      } catch (geminiError: any) {
+        // Fallback to Google Cloud TTS if Gemini fails
+        functions.logger.warn(`Gemini TTS failed (${geminiError.message}), falling back to Google Cloud TTS`);
+
+        const ttsRequest = {
+          input: {text: dialogue}, // Only dialogue!
+          voice: {
+            languageCode: "ko-KR",
+            name: "ko-KR-Neural2-A", // High-quality neural female voice
+          },
+          audioConfig: {
+            audioEncoding: "MP3" as const,
+            speakingRate: 1.0,
+            pitch: 0.0,
+            effectsProfileId: ["small-bluetooth-speaker-class-device"],
+          },
+        };
+
+        const [ttsResponse] = await ttsClient.synthesizeSpeech(ttsRequest);
+
+        if (!ttsResponse.audioContent) {
+          throw new AppError("TTS_ERROR", "Failed to synthesize speech", 500);
+        }
+
+        // Upload to Cloud Storage and get URL (with caching)
+        try {
+          const audioBuffer = Buffer.from(ttsResponse.audioContent);
+          audioUrl = await uploadTTSToStorage(audioBuffer, dialogue, "ko-KR-Neural2-A");
+        } catch (storageError: any) {
+          functions.logger.warn("Storage upload failed, using base64 fallback:", storageError.message);
+          // Fallback: return base64 data URL
+          const audioBase64 = ttsResponse.audioContent.toString("base64");
+          audioUrl = `data:audio/mp3;base64,${audioBase64}`;
+        }
       }
 
-      // Estimate AI speaking duration (rough: 150 chars per minute)
-      const estimatedDuration = Math.ceil(aiMessage.length / 2.5); // ~150 chars/min = 2.5 chars/sec
+      ttsTime = Date.now() - ttsStartTime;
+      functions.logger.info(`🔊 TTS: ${ttsTime}ms`);
 
-      // 8. Save AI message
+      // Estimate AI speaking duration based on dialogue only (not learning tip)
+      const estimatedDuration = Math.ceil(dialogue.length / 2.5); // ~150 chars/min = 2.5 chars/sec
+
+      // 8. Save AI message (full message with dialogue + learning tip)
       const aiMessageRef = getDb().collection("messages").doc();
       const aiMessageDoc: MessageDocument = {
         id: aiMessageRef.id,
         sessionId,
         userId,
         role: "assistant",
-        content: aiMessage,
-        audioUrl: audioUrl, // Cloud Storage URL
+        content: fullAIMessage, // Store full message (dialogue + learning tip)
+        audioUrl: audioUrl, // Cloud Storage URL (dialogue only)
         durationSeconds: estimatedDuration,
         modelUsed: "claude-sonnet-4-20250514",
         inputTokens,
@@ -271,13 +379,22 @@ export const voiceChat = functions.https.onCall(
         finalRemaining = Infinity;
       }
 
+      // Performance: Total time
+      const totalTime = Date.now() - startTime;
+      functions.logger.info(
+        `📊 Performance Summary - Total: ${totalTime}ms | ` +
+        `Claude: ${claudeTime}ms (${Math.round((claudeTime / totalTime) * 100)}%) | ` +
+        `TTS: ${ttsTime}ms (${Math.round((ttsTime / totalTime) * 100)}%)`
+      );
+
       return {
         messageId: aiMessageRef.id,
-        aiMessage,
+        aiMessage: dialogue, // Return only dialogue (what was spoken)
         audioUrl: audioUrl,
         inputTokens,
         outputTokens,
         remainingMinutes: finalRemaining,
+        learningTip: learningTip || undefined, // Optional learning tip
       };
     } catch (error: any) {
       functions.logger.error("Voice chat error:", error);

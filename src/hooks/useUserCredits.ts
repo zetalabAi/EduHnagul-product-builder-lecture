@@ -6,6 +6,7 @@ import { db } from "@/lib/firebase";
 
 interface UserCredits {
   subscriptionTier: "free" | "free+" | "pro" | "pro+";
+  koreanLevel: "beginner" | "intermediate" | "advanced";
   weeklyMinutesUsed: number;
   weeklyResetAt: Date;
   remainingMinutes: number;
@@ -46,6 +47,7 @@ export function useUserCredits(userId: string | null) {
 
         setCredits({
           subscriptionTier: data.subscriptionTier,
+          koreanLevel: data.koreanLevel || "intermediate", // 기본값: 중급
           weeklyMinutesUsed: data.weeklyMinutesUsed || 0,
           weeklyResetAt: data.weeklyResetAt?.toDate() || new Date(),
           remainingMinutes: Math.max(0, remaining),
@@ -72,6 +74,10 @@ export function useUserCredits(userId: string | null) {
 }
 
 function getWeeklyLimit(tier: string): number {
+  // TEST MODE: Unlimited minutes for all tiers during testing
+  return Infinity;
+
+  /* Original limits (restore after testing):
   switch (tier) {
     case "free":
       return 15;
@@ -83,4 +89,5 @@ function getWeeklyLimit(tier: string): number {
     default:
       return 15;
   }
+  */
 }

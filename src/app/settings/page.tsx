@@ -12,6 +12,7 @@ export default function SettingsPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [displayName, setDisplayName] = useState("");
+  const [koreanLevel, setKoreanLevel] = useState<"beginner" | "intermediate" | "advanced">("intermediate");
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
   const { credits } = useUserCredits(user?.uid || null);
@@ -29,6 +30,29 @@ export default function SettingsPage() {
     return () => unsubscribe();
   }, [router]);
 
+  // Load korean level from credits
+  useEffect(() => {
+    if (credits?.koreanLevel) {
+      setKoreanLevel(credits.koreanLevel);
+    }
+  }, [credits]);
+
+  const handleKoreanLevelChange = async (newLevel: "beginner" | "intermediate" | "advanced") => {
+    setKoreanLevel(newLevel);
+
+    // Update immediately in Firestore
+    if (functions) {
+      try {
+        const updateFn = httpsCallable(functions, "updateProfile");
+        await updateFn({ koreanLevel: newLevel });
+        toast.success("한국어 레벨이 업데이트되었습니다!");
+      } catch (error: any) {
+        console.error("Failed to update Korean level:", error);
+        toast.error("레벨 업데이트에 실패했습니다.");
+      }
+    }
+  };
+
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!functions) return;
@@ -38,7 +62,7 @@ export default function SettingsPage() {
       setMessage("");
 
       const updateFn = httpsCallable<
-        { displayName?: string },
+        { displayName?: string; koreanLevel?: string },
         { success: boolean; message: string }
       >(functions, "updateProfile");
 
@@ -46,6 +70,7 @@ export default function SettingsPage() {
       if (displayName !== user?.displayName) {
         updates.displayName = displayName;
       }
+      // Korean level is now updated immediately, so no need to include it here
 
       const result = await updateFn(updates);
       toast.success(result.data.message);
@@ -113,7 +138,7 @@ export default function SettingsPage() {
           </button>
         </div>
 
-        <h1 className="text-4xl font-bold mb-8">프로필 설정</h1>
+        <h1 className="text-4xl font-bold mb-8">프로필</h1>
 
         {/* Account Info */}
         <div className="bg-gray-800 rounded-xl p-6 mb-6">
@@ -154,6 +179,69 @@ export default function SettingsPage() {
             >
               {isLoading ? "업데이트 중..." : "프로필 업데이트"}
             </button>
+          </div>
+        </div>
+
+        {/* Korean Level Selection */}
+        <div className="bg-gray-800 rounded-xl p-6 mb-6">
+          <h2 className="text-2xl font-bold mb-4">📚 한국어 레벨</h2>
+          <p className="text-sm text-gray-400 mb-4">
+            AI가 당신의 레벨에 맞춰 대화합니다. 레벨이 높을수록 더 많은 질문과 복잡한 표현을 사용합니다.
+            <br />
+            <span className="text-blue-400">💡 선택하면 즉시 저장되며, 모든 대화에 자동으로 적용됩니다.</span>
+          </p>
+
+          <div className="space-y-3">
+            <label className="flex items-start space-x-3 p-4 bg-gray-700 hover:bg-gray-650 rounded-lg cursor-pointer transition">
+              <input
+                type="radio"
+                name="koreanLevel"
+                value="beginner"
+                checked={koreanLevel === "beginner"}
+                onChange={(e) => handleKoreanLevelChange(e.target.value as "beginner")}
+                className="mt-1 w-4 h-4 text-blue-600"
+              />
+              <div className="flex-1">
+                <div className="font-bold text-white">🌱 초급 (Beginner)</div>
+                <div className="text-sm text-gray-400 mt-1">
+                  짧은 문장, 기본 어휘, 한 번에 1개 질문
+                </div>
+              </div>
+            </label>
+
+            <label className="flex items-start space-x-3 p-4 bg-gray-700 hover:bg-gray-650 rounded-lg cursor-pointer transition">
+              <input
+                type="radio"
+                name="koreanLevel"
+                value="intermediate"
+                checked={koreanLevel === "intermediate"}
+                onChange={(e) => handleKoreanLevelChange(e.target.value as "intermediate")}
+                className="mt-1 w-4 h-4 text-blue-600"
+              />
+              <div className="flex-1">
+                <div className="font-bold text-white">🌿 중급 (Intermediate)</div>
+                <div className="text-sm text-gray-400 mt-1">
+                  자연스러운 대화, 일상 어휘, 한 번에 1-2개 질문
+                </div>
+              </div>
+            </label>
+
+            <label className="flex items-start space-x-3 p-4 bg-gray-700 hover:bg-gray-650 rounded-lg cursor-pointer transition">
+              <input
+                type="radio"
+                name="koreanLevel"
+                value="advanced"
+                checked={koreanLevel === "advanced"}
+                onChange={(e) => handleKoreanLevelChange(e.target.value as "advanced")}
+                className="mt-1 w-4 h-4 text-blue-600"
+              />
+              <div className="flex-1">
+                <div className="font-bold text-white">🌳 고급 (Advanced)</div>
+                <div className="text-sm text-gray-400 mt-1">
+                  원어민 수준, 다양한 표현, 질문 개수 제한 없음
+                </div>
+              </div>
+            </label>
           </div>
         </div>
 

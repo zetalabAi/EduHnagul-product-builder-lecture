@@ -4,9 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useTextChat } from "@/hooks/useTextChat";
 import { useAssistant } from "@/hooks/useAssistant";
+import { useUserCredits } from "@/hooks/useUserCredits";
 import { SessionSummary } from "./SessionSummary";
 import { getMessagesBySession } from "@/lib/firestore";
-import { auth } from "@/lib/firebase";
+import { auth, functions } from "@/lib/firebase";
+import { httpsCallable } from "firebase/functions";
 
 interface TextChatProps {
   sessionId: string;
@@ -63,6 +65,17 @@ export function TextChat({
     getSuggestions,
     clearSuggestions,
   } = useAssistant();
+
+  // Get user credits for Korean level
+  const { credits } = useUserCredits(auth.currentUser?.uid || null);
+  const [koreanLevel, setKoreanLevel] = useState<"beginner" | "intermediate" | "advanced">("intermediate");
+
+  // Load korean level from credits
+  useEffect(() => {
+    if (credits?.koreanLevel) {
+      setKoreanLevel(credits.koreanLevel);
+    }
+  }, [credits]);
 
   // Auto-scroll to bottom when new messages arrive
   // Load existing messages on mount
@@ -514,6 +527,42 @@ export function TextChat({
                   {sessionSettings.formalityLevel === "polite" && "기본적인 존댓말"}
                   {sessionSettings.formalityLevel === "casual" && "친구같은 편한 반말"}
                   {sessionSettings.formalityLevel === "intimate" && "진짜 친구처럼 자연스러운 말투와 슬랭"}
+                </p>
+              </div>
+
+              {/* Korean Level */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-300 mb-2">
+                  📚 한국어 레벨 (Korean Level)
+                </label>
+                <select
+                  value={koreanLevel}
+                  onChange={async (e) => {
+                    const newLevel = e.target.value as "beginner" | "intermediate" | "advanced";
+                    setKoreanLevel(newLevel);
+
+                    // Update user profile
+                    if (functions) {
+                      try {
+                        const updateFn = httpsCallable(functions, "updateProfile");
+                        await updateFn({ koreanLevel: newLevel });
+                        toast.success("한국어 레벨이 업데이트되었습니다!");
+                      } catch (error: any) {
+                        console.error("Failed to update Korean level:", error);
+                        toast.error("레벨 업데이트에 실패했습니다.");
+                      }
+                    }
+                  }}
+                  className="w-full px-4 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="beginner">🌱 초급 (Beginner)</option>
+                  <option value="intermediate">🌿 중급 (Intermediate)</option>
+                  <option value="advanced">🌳 고급 (Advanced)</option>
+                </select>
+                <p className="mt-2 text-xs text-gray-400">
+                  {koreanLevel === "beginner" && "짧은 문장, 기본 어휘, 한 번에 1개 질문"}
+                  {koreanLevel === "intermediate" && "자연스러운 대화, 일상 어휘, 한 번에 1-2개 질문"}
+                  {koreanLevel === "advanced" && "원어민 수준, 다양한 표현, 질문 개수 제한 없음"}
                 </p>
               </div>
 

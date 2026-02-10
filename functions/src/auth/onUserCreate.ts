@@ -26,6 +26,7 @@ export const onUserCreate = functions.auth.user().onCreate(async (user) => {
     displayName: user.displayName || null,
     photoURL: user.photoURL || null,
     nativeLanguage,
+    koreanLevel: "intermediate", // 기본값: 중급
 
     subscriptionTier: "free",
     subscriptionStatus: null,

@@ -19,11 +19,12 @@ interface VoiceChatRequest {
 
 interface VoiceChatResponse {
   messageId: string;
-  aiMessage: string;
+  aiMessage: string; // Dialogue only (what was spoken)
   audioUrl: string; // Cloud Storage URL
   inputTokens: number;
   outputTokens: number;
   remainingMinutes: number;
+  learningTip?: string; // Learning tip (text only, not in TTS)
 }
 
 export function useVoiceChat() {
@@ -42,14 +43,21 @@ export function useVoiceChat() {
     setError(null);
 
     try {
+      // Performance tracking
+      const perfStart = performance.now();
       console.log("🔥 Calling voiceChat Cloud Function...");
+
       const voiceChatFn = httpsCallable<VoiceChatRequest, VoiceChatResponse>(
         functions,
         "voiceChat"
       );
 
       const result = await voiceChatFn(request);
+
+      const perfTotal = Math.round(performance.now() - perfStart);
+      console.log(`📊 Total latency: ${perfTotal}ms`);
       console.log("✅ Voice chat success:", result.data);
+
       return result.data;
     } catch (err: any) {
       console.error("❌ Voice chat error:", err);

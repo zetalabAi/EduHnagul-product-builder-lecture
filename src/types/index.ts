@@ -18,6 +18,7 @@ export type Persona = "same-sex-friend" | "opposite-sex-friend" | "boyfriend" | 
 export type ResponseStyle = "empathetic" | "balanced" | "blunt";
 export type CorrectionStrength = "minimal" | "strict";
 export type FormalityLevel = "formal" | "polite" | "casual" | "intimate";
+export type KoreanLevel = "beginner" | "intermediate" | "advanced";
 
 export type ChatSettings = {
   persona: Persona;
