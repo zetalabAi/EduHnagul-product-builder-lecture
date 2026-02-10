@@ -26,6 +26,16 @@ export function getWeeklyMinuteLimit(tier: UserDocument["subscriptionTier"]): nu
 }
 
 /**
+ * Check if weekly credits should be reset (7-day cycle)
+ */
+function shouldResetWeeklyCredits(
+  user: UserDocument,
+  now: admin.firestore.Timestamp
+): boolean {
+  return !user.weeklyResetAt || user.weeklyResetAt.toMillis() <= now.toMillis();
+}
+
+/**
  * Check if user has enough credits for voice chat
  * Returns remaining minutes
  */
@@ -69,8 +79,9 @@ export async function checkVoiceCredits(userId: string): Promise<number> {
 }
 
 /**
- * Deduct voice credits after a conversation
+ * Deduct voice credits after a conversation using transaction for atomicity
  * Returns new remaining minutes
+ * Throws error if quota would be exceeded
  */
 export async function deductVoiceCredits(
   userId: string,
@@ -79,20 +90,68 @@ export async function deductVoiceCredits(
   const userRef = getDb().collection("users").doc(userId);
   const minutes = Math.ceil(durationSeconds / 60);
 
-  await userRef.update({
-    weeklyMinutesUsed: admin.firestore.FieldValue.increment(minutes),
+  return await getDb().runTransaction(async (transaction) => {
+    const userDoc = await transaction.get(userRef);
+    if (!userDoc.exists) {
+      throw new AppError("USER_NOT_FOUND", "User document not found", 404);
+    }
+
+    const user = userDoc.data() as UserDocument;
+
+    // Check weekly reset
+    const now = admin.firestore.Timestamp.now();
+    const needsReset = shouldResetWeeklyCredits(user, now);
+
+    let currentUsed = user.weeklyMinutesUsed || 0;
+    if (needsReset) {
+      currentUsed = 0;
+    }
+
+    const weeklyLimit = getWeeklyMinuteLimit(user.subscriptionTier);
+
+    // Pro/Pro+ have unlimited
+    if (weeklyLimit === Infinity) {
+      const updateData: any = {
+        weeklyMinutesUsed: admin.firestore.FieldValue.increment(minutes),
+      };
+      if (needsReset) {
+        updateData.weeklyResetAt = admin.firestore.Timestamp.fromMillis(
+          now.toMillis() + 7 * 24 * 60 * 60 * 1000
+        );
+      }
+      transaction.update(userRef, updateData);
+      return Infinity;
+    }
+
+    // Check if deduction would exceed limit
+    const newUsed = currentUsed + minutes;
+    if (newUsed > weeklyLimit) {
+      const resetDate = needsReset
+        ? new Date(now.toMillis() + 7 * 24 * 60 * 60 * 1000)
+        : user.weeklyResetAt.toDate();
+      throw new AppError(
+        "QUOTA_EXCEEDED",
+        `Weekly voice credits exhausted. Resets on ${resetDate.toISOString()}`,
+        429
+      );
+    }
+
+    // Perform atomic update
+    const updateData: any = needsReset
+      ? {
+          weeklyMinutesUsed: minutes,
+          weeklyResetAt: admin.firestore.Timestamp.fromMillis(
+            now.toMillis() + 7 * 24 * 60 * 60 * 1000
+          ),
+        }
+      : {
+          weeklyMinutesUsed: admin.firestore.FieldValue.increment(minutes),
+        };
+
+    transaction.update(userRef, updateData);
+
+    return Math.max(0, weeklyLimit - newUsed);
   });
-
-  // Get updated user data
-  const userDoc = await userRef.get();
-  const user = userDoc.data() as UserDocument;
-
-  const weeklyLimit = getWeeklyMinuteLimit(user.subscriptionTier);
-  if (weeklyLimit === Infinity) {
-    return Infinity;
-  }
-
-  return Math.max(0, weeklyLimit - (user.weeklyMinutesUsed || 0));
 }
 
 /**

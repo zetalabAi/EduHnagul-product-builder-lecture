@@ -23,6 +23,12 @@ interface VoiceChatRequest {
   sessionId: string;
   userMessage: string;
   userSpeakingDuration?: number; // in seconds
+  settings?: {
+    persona: string;
+    responseStyle: string;
+    correctionStrength: string;
+    formalityLevel: string;
+  };
 }
 
 interface VoiceChatResponse {
@@ -43,7 +49,7 @@ export const voiceChat = functions.https.onCall(
     const startTime = Date.now();
     const userId = verifyAuth(context);
 
-    const {sessionId, userMessage, userSpeakingDuration = 0} = data;
+    const {sessionId, userMessage, userSpeakingDuration = 0, settings} = data;
 
     if (!sessionId || !userMessage) {
       throw new AppError("INVALID_INPUT", "Session ID and message are required", 400);
@@ -106,7 +112,11 @@ export const voiceChat = functions.https.onCall(
       }));
 
       // 6. Call Claude API (Sonnet for all plans)
-      const systemPrompt = assemblePrompt(session, user, session.rollingSummary);
+      // Apply settings from request if provided
+      const effectiveSession = settings
+        ? ({ ...session, ...settings } as SessionDocument)
+        : session;
+      const systemPrompt = assemblePrompt(effectiveSession, user, session.rollingSummary);
 
       const response = await anthropic.messages.create({
         model: "claude-3-5-sonnet-20240620",
@@ -182,15 +192,14 @@ export const voiceChat = functions.https.onCall(
 
       await getDb().collection("sessions").doc(sessionId).update(sessionUpdates);
 
-      // 10. Deduct credits (based on total conversation time)
+      // 10. Deduct credits and get updated remaining minutes
+      let finalRemaining: number;
       if (user.subscriptionTier === "free" || user.subscriptionTier === "free+") {
-        await deductVoiceCredits(userId, totalConversationTime);
+        finalRemaining = await deductVoiceCredits(userId, totalConversationTime);
+      } else {
+        // Pro/Pro+ users have unlimited
+        finalRemaining = Infinity;
       }
-
-      // 11. Calculate remaining minutes after deduction
-      const finalRemaining = user.subscriptionTier === "pro" || user.subscriptionTier === "pro+"
-        ? Infinity
-        : remainingMinutes - Math.ceil(totalConversationTime / 60);
 
       return {
         messageId: aiMessageRef.id,
