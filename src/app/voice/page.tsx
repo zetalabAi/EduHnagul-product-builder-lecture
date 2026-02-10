@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import { onAuthStateChanged } from "firebase/auth";
 import { httpsCallable } from "firebase/functions";
 import { auth, functions } from "@/lib/firebase";
@@ -68,7 +69,7 @@ export default function VoiceChatPage() {
       setShowSidebar(false);
     } catch (error) {
       console.error("Failed to create session:", error);
-      alert("세션 생성에 실패했습니다. 다시 시도해주세요.");
+      toast.error("세션 생성에 실패했습니다. 다시 시도해주세요.");
     } finally {
       setIsLoading(false);
     }
@@ -95,7 +96,7 @@ export default function VoiceChatPage() {
       setRenameSession(null);
     } catch (error) {
       console.error("Failed to rename session:", error);
-      alert("이름 변경에 실패했습니다.");
+      toast.error("이름 변경에 실패했습니다.");
     }
   };
 
@@ -107,7 +108,7 @@ export default function VoiceChatPage() {
       await togglePinFn({ sessionId: id });
     } catch (error) {
       console.error("Failed to pin session:", error);
-      alert("고정 설정에 실패했습니다.");
+      toast.error("고정 설정에 실패했습니다.");
     }
   };
 
@@ -127,7 +128,7 @@ export default function VoiceChatPage() {
       }
     } catch (error) {
       console.error("Failed to delete session:", error);
-      alert("삭제에 실패했습니다.");
+      toast.error("삭제에 실패했습니다.");
     }
   };
 
@@ -164,7 +165,7 @@ export default function VoiceChatPage() {
             </button>
             {credits.subscriptionTier === "free+" && (
               <button
-                onClick={() => alert("추가 구매 기능 준비 중")}
+                onClick={() => toast("추가 구매 기능 준비 중")}
                 className="w-full bg-gray-700 hover:bg-gray-600 px-6 py-3 rounded-lg"
               >
                 추가 60분 구매 ($2)

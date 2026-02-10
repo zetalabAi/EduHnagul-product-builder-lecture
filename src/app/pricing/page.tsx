@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import { onAuthStateChanged } from "firebase/auth";
 import { httpsCallable } from "firebase/functions";
 import { auth, functions } from "@/lib/firebase";
@@ -102,7 +103,7 @@ export default function PricingPage() {
       window.location.href = result.data.url;
     } catch (error: any) {
       console.error("Failed to create checkout:", error);
-      alert(error.message || "구독 시작에 실패했습니다. 다시 시도해주세요.");
+      toast.error(error.message || "구독 시작에 실패했습니다. 다시 시도해주세요.");
     } finally {
       setIsLoading(false);
     }
@@ -126,7 +127,7 @@ export default function PricingPage() {
       window.location.href = result.data.url;
     } catch (error: any) {
       console.error("Failed to open portal:", error);
-      alert("구독 관리 페이지를 열 수 없습니다.");
+      toast.error("구독 관리 페이지를 열 수 없습니다.");
     } finally {
       setIsLoading(false);
     }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import toast from "react-hot-toast";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { useVoiceChat } from "@/hooks/useVoiceChat";
 import { useAssistant } from "@/hooks/useAssistant";
@@ -84,7 +85,7 @@ export function VoiceChat({
 
   const handleSpeechError = useCallback((error: string) => {
     console.error("Speech recognition error:", error);
-    alert(`음성 인식 오류: ${error}\n\n마이크 권한을 확인해주세요.`);
+    toast.error(`음성 인식 오류: ${error}\n\n마이크 권한을 확인해주세요.`);
   }, []);
 
   const {
@@ -137,7 +138,7 @@ export function VoiceChat({
       console.log("✅ Recording setup complete");
     } catch (error) {
       console.error("❌ Failed to start recording:", error);
-      alert("마이크 권한이 필요합니다. 브라우저 설정에서 마이크 접근을 허용해주세요.");
+      toast.error("마이크 권한이 필요합니다. 브라우저 설정에서 마이크 접근을 허용해주세요.");
       setSpeakingStartTime(null);
       setRecordingDuration(0);
     }
@@ -152,7 +153,7 @@ export function VoiceChat({
     }
 
     if (!transcript || transcript.trim().length === 0) {
-      alert("음성이 인식되지 않았습니다. 다시 시도해주세요.");
+      toast.error("음성이 인식되지 않았습니다. 다시 시도해주세요.");
       setSpeakingStartTime(null);
       setRecordingDuration(0);
       return;
@@ -180,13 +181,13 @@ export function VoiceChat({
 
   const handleHelpClick = async () => {
     if (messages.length === 0) {
-      alert("먼저 대화를 시작해주세요! 대화 내용을 바탕으로 문장을 제안해드립니다.");
+      toast("먼저 대화를 시작해주세요! 대화 내용을 바탕으로 문장을 제안해드립니다.");
       return;
     }
 
     const success = await getSuggestions(sessionId);
     if (!success && assistantError) {
-      alert(assistantError || "제안을 가져오는데 실패했습니다. 다시 시도해주세요.");
+      toast.error(assistantError || "제안을 가져오는데 실패했습니다. 다시 시도해주세요.");
     }
   };
 
@@ -195,7 +196,7 @@ export function VoiceChat({
     resetTranscript();
     // Trigger a voice input with this text
     // For now, we'll just show it to the user
-    alert(`제안 문장을 사용하려면 다음과 같이 말해보세요:\n\n"${suggestionText}"`);
+    toast.success(`제안 문장을 사용하려면 다음과 같이 말해보세요:\n\n"${suggestionText}"`, { duration: 6000 });
     clearSuggestions();
   };
 
@@ -218,7 +219,7 @@ export function VoiceChat({
 
   const sendTranscript = async () => {
     if (!transcript || transcript.trim().length === 0) {
-      alert("녹음된 내용이 없습니다.");
+      toast.error("녹음된 내용이 없습니다.");
       return;
     }
 
@@ -274,7 +275,7 @@ export function VoiceChat({
       playAudio(response.audioContent);
     } else {
       console.error("❌ No response received from backend");
-      alert("AI 응답을 받지 못했습니다. 다시 시도해주세요.");
+      toast.error("AI 응답을 받지 못했습니다. 다시 시도해주세요.");
     }
 
     // Clean up recording state

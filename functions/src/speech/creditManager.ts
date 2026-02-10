@@ -213,6 +213,16 @@ export async function checkAnalysisUsage(userId: string): Promise<boolean> {
 
   // Pro/Pro+: Reset daily
   const lastReset = user.lastAnalysisReset;
+
+  // First-time Pro user: initialize analysis tracking
+  if (!lastReset) {
+    await userRef.update({
+      dailyAnalysisUsed: 0,
+      lastAnalysisReset: now,
+    });
+    return true;
+  }
+
   const daysSinceReset = (now.toMillis() - lastReset.toMillis()) / (24 * 60 * 60 * 1000);
 
   if (daysSinceReset >= 1) {

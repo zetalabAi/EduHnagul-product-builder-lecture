@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import toast from "react-hot-toast";
 import { httpsCallable } from "firebase/functions";
 import Sidebar from "@/components/Sidebar";
 import Chat from "@/components/Chat";
@@ -229,10 +230,10 @@ export default function AppPage() {
       });
 
       const data = result.data as any;
-      alert(`Translation:\n\n${data.original}\n\n→\n\n${data.translated}`);
+      toast.success(`Translation:\n\n${data.original}\n\n→\n\n${data.translated}`, { duration: 6000 });
     } catch (error: any) {
       console.error("Translation failed:", error);
-      alert(`Translation failed: ${error.message}`);
+      toast.error(`Translation failed: ${error.message}`);
     }
   };
 
@@ -247,10 +248,10 @@ export default function AppPage() {
       });
 
       const data = result.data as any;
-      alert(`Translation:\n\n${data.original}\n\n→\n\n${data.translated}`);
+      toast.success(`Translation:\n\n${data.original}\n\n→\n\n${data.translated}`, { duration: 6000 });
     } catch (error: any) {
       console.error("Translation failed:", error);
-      alert(`Translation failed: ${error.message}`);
+      toast.error(`Translation failed: ${error.message}`);
     }
   };
 

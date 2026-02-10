@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
 import { useTextChat } from "@/hooks/useTextChat";
 import { useAssistant } from "@/hooks/useAssistant";
 import { SessionSummary } from "./SessionSummary";
@@ -168,13 +169,13 @@ export function TextChat({
 
   const handleHelpClick = async () => {
     if (messages.length === 0) {
-      alert("먼저 대화를 시작해주세요! 대화 내용을 바탕으로 문장을 제안해드립니다.");
+      toast("먼저 대화를 시작해주세요! 대화 내용을 바탕으로 문장을 제안해드립니다.");
       return;
     }
 
     const success = await getSuggestions(sessionId);
     if (!success && assistantError) {
-      alert(assistantError || "제안을 가져오는데 실패했습니다. 다시 시도해주세요.");
+      toast.error(assistantError || "제안을 가져오는데 실패했습니다. 다시 시도해주세요.");
     }
   };
 

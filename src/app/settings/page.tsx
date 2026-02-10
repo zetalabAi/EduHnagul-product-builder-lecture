@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import { onAuthStateChanged } from "firebase/auth";
 import { httpsCallable } from "firebase/functions";
 import { auth, functions } from "@/lib/firebase";
@@ -77,7 +78,7 @@ export default function SettingsPage() {
       window.location.href = result.data.url;
     } catch (error: any) {
       console.error("Failed to open portal:", error);
-      alert("구독 관리 페이지를 열 수 없습니다.");
+      toast.error("구독 관리 페이지를 열 수 없습니다.");
     } finally {
       setIsLoading(false);
     }

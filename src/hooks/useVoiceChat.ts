@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import toast from "react-hot-toast";
 import { httpsCallable } from "firebase/functions";
 import { functions } from "@/lib/firebase";
 
@@ -58,7 +59,7 @@ export function useVoiceChat() {
         details: err.details,
       });
       setError(err.message || "Failed to send voice message");
-      alert(`음성 채팅 오류:\n\n${err.message || "알 수 없는 오류"}\n\n${err.details || ""}`);
+      toast.error(`음성 채팅 오류:\n\n${err.message || "알 수 없는 오류"}\n\n${err.details || ""}`);
       return null;
     } finally {
       setIsLoading(false);
