@@ -15,11 +15,14 @@ function getDb() {
   return admin.firestore();
 }
 
+function getBucket() {
+  return admin.storage().bucket("edu-hangul-tts-audio");
+}
+
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY || "",
 });
 const ttsClient = new TextToSpeechClient();
-const bucket = admin.storage().bucket("edu-hangul-tts-audio");
 
 /**
  * Generate hash for TTS caching
@@ -41,6 +44,7 @@ async function uploadTTSToStorage(
   text: string,
   voiceName: string
 ): Promise<string> {
+  const bucket = getBucket();
   const hash = generateTTSHash(text, voiceName);
   const fileName = `tts/${hash}.mp3`;
   const file = bucket.file(fileName);
