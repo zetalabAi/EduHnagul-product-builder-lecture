@@ -58,7 +58,7 @@ export function AdInterstitial({ onClose, countdown = 5 }: AdInterstitialProps) 
           <div className="mt-4 text-center">
             <p className="text-xs text-gray-500 mb-2">광고 없이 사용하고 싶으신가요?</p>
             <button className="text-blue-400 hover:text-blue-300 text-sm font-medium">
-              Free+ 업그레이드 ($5.5/월)
+              Free+ 업그레이드 ($4.9/월)
             </button>
           </div>
         </div>

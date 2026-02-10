@@ -11,6 +11,7 @@ export type Session = {
   title: string;
   lastMessage: string;
   timestamp: Date;
+  isPinned?: boolean;
 };
 
 export type Persona = "same-sex-friend" | "opposite-sex-friend" | "boyfriend" | "girlfriend";

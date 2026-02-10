@@ -120,7 +120,7 @@ export const textChat = functions.https.onCall(
 
     try {
       const response = await anthropic.messages.create({
-        model: "claude-3-5-sonnet-20241022",
+        model: "claude-3-5-sonnet-20240620",
         max_tokens: 1024,
         system: systemPrompt,
         messages: conversationMessages,
@@ -153,7 +153,7 @@ export const textChat = functions.https.onCall(
       content: aiResponse,
       audioUrl: null,
       durationSeconds: null,
-      modelUsed: "claude-3-5-sonnet-20241022",
+      modelUsed: "claude-3-5-sonnet-20240620",
       inputTokens,
       outputTokens,
       latencyMs: Date.now() - startTime,
@@ -162,14 +162,22 @@ export const textChat = functions.https.onCall(
     await aiMessageRef.set(aiMessageData);
 
     // 9. Update session
+    const sessionUpdates: any = {
+      messageCount: admin.firestore.FieldValue.increment(2),
+      lastMessageAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      lastMessagePreview: userMessage.slice(0, 100),
+    };
+
+    // Auto-generate title from first message
+    if (session.messageCount === 0 && (session.title === "New conversation" || session.title === "Voice conversation")) {
+      sessionUpdates.title = userMessage.slice(0, 50);
+    }
+
     await db
       .collection("sessions")
       .doc(sessionId)
-      .update({
-        messageCount: admin.firestore.FieldValue.increment(2),
-        lastMessageAt: admin.firestore.FieldValue.serverTimestamp(),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
+      .update(sessionUpdates);
 
     // 10. Deduct credits (estimate: 1 text message = 30 seconds)
     // This is generous - text is much cheaper than voice

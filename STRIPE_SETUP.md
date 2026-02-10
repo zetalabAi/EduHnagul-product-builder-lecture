@@ -12,7 +12,7 @@
 
 **Free+ Yearly**
 - Product Name: `Free+ Yearly`
-- Price: `$49.00 USD / year`
+- Price: `$59.00 USD / year`
 - Billing Period: Yearly
 - Copy Price ID and set as env var: `STRIPE_PRICE_FREE_PLUS_YEARLY`
 
@@ -143,7 +143,7 @@ Access via:
 
 | Plan | Monthly | Yearly | Student Monthly | Student Yearly |
 |------|---------|--------|----------------|---------------|
-| Free+ | $4.9 | $49 (10mo+2mo free) | - | - |
+| Free+ | $4.9 | $59 | - | - |
 | Pro | $20.9 | $209 (10mo+2mo free) | - | - |
 | Pro+ | $30.9 | $309 (10mo+2mo free) | $25 | $200 (8mo+4mo free) |
 

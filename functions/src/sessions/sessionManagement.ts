@@ -42,6 +42,10 @@ export const createSession = functions.https.onCall(async (data, context) => {
       summaryVersion: 0,
       messageCount: 0,
       lastMessageAt: now,
+      // Session management
+      isPinned: false,
+      lastMessagePreview: "",
+      isArchived: false,
       createdAt: now,
       updatedAt: now,
     });
@@ -95,6 +99,141 @@ export const updateSession = functions.https.onCall(async (data, context) => {
     return { success: true };
   } catch (error: any) {
     functions.logger.error("updateSession error:", error);
+
+    if (error instanceof AppError) {
+      throw new functions.https.HttpsError(
+        error.statusCode === 401 ? "unauthenticated" :
+        error.statusCode === 404 ? "not-found" : "invalid-argument",
+        error.message,
+        { code: error.code }
+      );
+    }
+
+    throw new functions.https.HttpsError("internal", "Internal server error");
+  }
+});
+
+export const renameSession = functions.https.onCall(async (data, context) => {
+  try {
+    const userId = requireAuth(context);
+    const { sessionId, title } = data;
+
+    if (!sessionId) {
+      throw new AppError("INVALID_INPUT", "Session ID is required", 400);
+    }
+
+    if (!title || typeof title !== "string" || title.trim().length === 0) {
+      throw new AppError("INVALID_INPUT", "Title must be a non-empty string", 400);
+    }
+
+    if (title.length > 100) {
+      throw new AppError("INVALID_INPUT", "Title must be 100 characters or less", 400);
+    }
+
+    const db = admin.firestore();
+    const sessionDoc = await db.collection("sessions").doc(sessionId).get();
+
+    if (!sessionDoc.exists || sessionDoc.data()?.userId !== userId) {
+      throw new AppError("INVALID_SESSION", "Session not found or not owned by user", 404);
+    }
+
+    await sessionDoc.ref.update({
+      title: title.trim(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    return { success: true };
+  } catch (error: any) {
+    functions.logger.error("renameSession error:", error);
+
+    if (error instanceof AppError) {
+      throw new functions.https.HttpsError(
+        error.statusCode === 401 ? "unauthenticated" :
+        error.statusCode === 404 ? "not-found" : "invalid-argument",
+        error.message,
+        { code: error.code }
+      );
+    }
+
+    throw new functions.https.HttpsError("internal", "Internal server error");
+  }
+});
+
+export const togglePinSession = functions.https.onCall(async (data, context) => {
+  try {
+    const userId = requireAuth(context);
+    const { sessionId } = data;
+
+    if (!sessionId) {
+      throw new AppError("INVALID_INPUT", "Session ID is required", 400);
+    }
+
+    const db = admin.firestore();
+    const sessionDoc = await db.collection("sessions").doc(sessionId).get();
+
+    if (!sessionDoc.exists || sessionDoc.data()?.userId !== userId) {
+      throw new AppError("INVALID_SESSION", "Session not found or not owned by user", 404);
+    }
+
+    const currentPinned = sessionDoc.data()?.isPinned || false;
+
+    await sessionDoc.ref.update({
+      isPinned: !currentPinned,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    return { success: true, isPinned: !currentPinned };
+  } catch (error: any) {
+    functions.logger.error("togglePinSession error:", error);
+
+    if (error instanceof AppError) {
+      throw new functions.https.HttpsError(
+        error.statusCode === 401 ? "unauthenticated" :
+        error.statusCode === 404 ? "not-found" : "invalid-argument",
+        error.message,
+        { code: error.code }
+      );
+    }
+
+    throw new functions.https.HttpsError("internal", "Internal server error");
+  }
+});
+
+export const deleteSession = functions.https.onCall(async (data, context) => {
+  try {
+    const userId = requireAuth(context);
+    const { sessionId } = data;
+
+    if (!sessionId) {
+      throw new AppError("INVALID_INPUT", "Session ID is required", 400);
+    }
+
+    const db = admin.firestore();
+    const sessionDoc = await db.collection("sessions").doc(sessionId).get();
+
+    if (!sessionDoc.exists || sessionDoc.data()?.userId !== userId) {
+      throw new AppError("INVALID_SESSION", "Session not found or not owned by user", 404);
+    }
+
+    // Delete all messages in this session
+    const messagesSnapshot = await db
+      .collection("messages")
+      .where("sessionId", "==", sessionId)
+      .get();
+
+    const batch = db.batch();
+    messagesSnapshot.docs.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+
+    // Delete the session document
+    batch.delete(sessionDoc.ref);
+
+    await batch.commit();
+
+    return { success: true };
+  } catch (error: any) {
+    functions.logger.error("deleteSession error:", error);
 
     if (error instanceof AppError) {
       throw new functions.https.HttpsError(

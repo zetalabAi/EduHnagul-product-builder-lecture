@@ -5,6 +5,12 @@ import { functions } from "@/lib/firebase";
 interface TextChatRequest {
   sessionId: string;
   userMessage: string;
+  settings?: {
+    persona: string;
+    responseStyle: string;
+    correctionStrength: string;
+    formalityLevel: string;
+  };
 }
 
 interface TextChatResponse {

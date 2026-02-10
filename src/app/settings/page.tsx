@@ -11,7 +11,6 @@ export default function SettingsPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [displayName, setDisplayName] = useState("");
-  const [birthDate, setBirthDate] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
   const { credits } = useUserCredits(user?.uid || null);
@@ -29,12 +28,6 @@ export default function SettingsPage() {
     return () => unsubscribe();
   }, [router]);
 
-  useEffect(() => {
-    if (credits?.birthDate) {
-      setBirthDate(credits.birthDate.toISOString().split("T")[0]);
-    }
-  }, [credits]);
-
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!functions) return;
@@ -44,16 +37,13 @@ export default function SettingsPage() {
       setMessage("");
 
       const updateFn = httpsCallable<
-        { birthDate?: string; displayName?: string },
-        { success: boolean; isStudent: boolean; message: string }
+        { displayName?: string },
+        { success: boolean; message: string }
       >(functions, "updateProfile");
 
       const updates: any = {};
       if (displayName !== user?.displayName) {
         updates.displayName = displayName;
-      }
-      if (birthDate) {
-        updates.birthDate = birthDate;
       }
 
       const result = await updateFn(updates);
@@ -102,18 +92,19 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white py-12 px-6">
+    <div className="min-h-screen bg-gray-900 text-white py-8 px-4 md:py-12 md:px-6">
       <div className="max-w-2xl mx-auto">
         <div className="mb-6">
           <button
             onClick={() => router.push("/")}
-            className="text-blue-400 hover:text-blue-300 text-sm"
+            className="flex items-center space-x-2 px-4 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg text-blue-400 hover:text-blue-300 transition-colors active:scale-95 touch-manipulation"
           >
-            ← 홈으로
+            <span className="text-lg">←</span>
+            <span className="font-medium">홈으로</span>
           </button>
         </div>
 
-        <h1 className="text-4xl font-bold mb-8">설정</h1>
+        <h1 className="text-4xl font-bold mb-8">프로필 설정</h1>
 
         {/* Account Info */}
         <div className="bg-gray-800 rounded-xl p-6 mb-6">
@@ -140,30 +131,6 @@ export default function SettingsPage() {
                 placeholder="이름을 입력하세요"
               />
             </div>
-
-            <div>
-              <label className="block text-sm text-gray-400 mb-1">
-                생년월일 (학생 할인용)
-              </label>
-              <input
-                type="date"
-                value={birthDate}
-                onChange={(e) => setBirthDate(e.target.value)}
-                max={new Date().toISOString().split("T")[0]}
-                className="w-full bg-gray-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                만 20세 이하는 Pro+ 플랜 학생 할인 적용
-              </p>
-            </div>
-
-            {credits.isStudent && (
-              <div className="bg-green-900 bg-opacity-30 rounded-lg p-3">
-                <p className="text-green-200 text-sm">
-                  🎓 학생 할인 적용 가능! (만 20세 이하)
-                </p>
-              </div>
-            )}
 
             {message && (
               <div className="bg-blue-900 bg-opacity-50 rounded-lg p-3">

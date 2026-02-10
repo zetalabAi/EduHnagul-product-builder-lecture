@@ -60,7 +60,7 @@ export default function HomePage() {
                   href="/settings"
                   className="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg transition"
                 >
-                  ⚙️ 설정
+                  👤 프로필
                 </a>
               </>
             ) : (
@@ -72,7 +72,7 @@ export default function HomePage() {
                   로그인
                 </a>
                 <a
-                  href="/auth/signup"
+                  href="/auth/signin"
                   className="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg font-bold transition"
                 >
                   시작하기
@@ -116,7 +116,7 @@ export default function HomePage() {
             ) : (
               <>
                 <a
-                  href="/auth/signup"
+                  href="/auth/signin"
                   className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 px-8 py-4 rounded-xl font-bold text-lg transition shadow-lg shadow-blue-500/50"
                 >
                   무료로 시작하기
@@ -189,14 +189,6 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* Feature 6 */}
-          <div className="bg-gray-800 rounded-xl p-6 hover:bg-gray-750 transition">
-            <div className="text-4xl mb-4">🎓</div>
-            <h3 className="text-xl font-bold mb-2">학생 할인</h3>
-            <p className="text-gray-400">
-              만 20세 이하는 Pro+ 플랜을 특별 가격으로! 월 $25, 연 $200 (8개월 + 4개월 무료)
-            </p>
-          </div>
         </div>
       </section>
 
@@ -210,7 +202,7 @@ export default function HomePage() {
         </p>
         {!user && (
           <a
-            href="/auth/signup"
+            href="/auth/signin"
             className="inline-block bg-blue-600 hover:bg-blue-700 px-12 py-4 rounded-xl font-bold text-xl transition shadow-lg shadow-blue-500/50"
           >
             무료 회원가입
@@ -232,7 +224,7 @@ export default function HomePage() {
                 요금제
               </a>
               <a href="/settings" className="text-gray-400 hover:text-white transition">
-                설정
+                프로필
               </a>
             </div>
           </div>
@@ -275,8 +267,8 @@ export default function HomePage() {
               href="/settings"
               className="flex flex-col items-center text-gray-400 hover:text-white transition"
             >
-              <span className="text-2xl mb-1">⚙️</span>
-              <span className="text-xs">설정</span>
+              <span className="text-2xl mb-1">👤</span>
+              <span className="text-xs">프로필</span>
             </a>
           </div>
         </nav>

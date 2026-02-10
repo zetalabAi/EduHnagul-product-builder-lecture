@@ -109,7 +109,7 @@ export const voiceChat = functions.https.onCall(
       const systemPrompt = assemblePrompt(session, user, session.rollingSummary);
 
       const response = await anthropic.messages.create({
-        model: "claude-3-5-sonnet-20241022",
+        model: "claude-3-5-sonnet-20240620",
         max_tokens: 1024,
         system: systemPrompt,
         messages: conversationMessages,
@@ -155,7 +155,7 @@ export const voiceChat = functions.https.onCall(
         content: aiMessage,
         audioUrl: null, // Could upload to Cloud Storage if needed
         durationSeconds: estimatedDuration,
-        modelUsed: "claude-3-5-sonnet-20241022",
+        modelUsed: "claude-3-5-sonnet-20240620",
         inputTokens,
         outputTokens,
         latencyMs: Date.now() - startTime,
@@ -165,14 +165,22 @@ export const voiceChat = functions.https.onCall(
 
       // 9. Update session
       const totalConversationTime = userSpeakingDuration + estimatedDuration;
-      await getDb().collection("sessions").doc(sessionId).update({
+      const sessionUpdates: any = {
         messageCount: admin.firestore.FieldValue.increment(2),
         lastMessageAt: Timestamp.now(),
         totalDurationSeconds: admin.firestore.FieldValue.increment(totalConversationTime),
         userSpeakingSeconds: admin.firestore.FieldValue.increment(userSpeakingDuration),
         aiSpeakingSeconds: admin.firestore.FieldValue.increment(estimatedDuration),
         updatedAt: Timestamp.now(),
-      });
+        lastMessagePreview: userMessage.slice(0, 100),
+      };
+
+      // Auto-generate title from first message
+      if (session.messageCount === 0 && (session.title === "New conversation" || session.title === "Voice conversation")) {
+        sessionUpdates.title = userMessage.slice(0, 50);
+      }
+
+      await getDb().collection("sessions").doc(sessionId).update(sessionUpdates);
 
       // 10. Deduct credits (based on total conversation time)
       if (user.subscriptionTier === "free" || user.subscriptionTier === "free+") {

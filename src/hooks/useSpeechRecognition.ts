@@ -27,11 +27,21 @@ export function useSpeechRecognition(
 ): UseSpeechRecognitionReturn {
   const { lang = "ko-KR", continuous = false, onResult, onError } = options;
 
+  // Use refs for callbacks to prevent re-initialization
+  const onResultRef = useRef(onResult);
+  const onErrorRef = useRef(onError);
+
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [isSupported, setIsSupported] = useState(false);
 
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+
+  // Update refs when callbacks change
+  useEffect(() => {
+    onResultRef.current = onResult;
+    onErrorRef.current = onError;
+  }, [onResult, onError]);
 
   useEffect(() => {
     // Check if Speech Recognition is supported
@@ -53,6 +63,7 @@ export function useSpeechRecognition(
     recognition.maxAlternatives = 1;
 
     recognition.onstart = () => {
+      console.log("🎤 Speech recognition started - setting isListening to true");
       setIsListening(true);
     };
 
@@ -74,8 +85,8 @@ export function useSpeechRecognition(
       const currentTranscript = finalTranscript || interimTranscript;
       setTranscript(currentTranscript);
 
-      if (onResult) {
-        onResult(currentTranscript, !!finalTranscript);
+      if (onResultRef.current) {
+        onResultRef.current(currentTranscript, !!finalTranscript);
       }
     };
 
@@ -83,12 +94,13 @@ export function useSpeechRecognition(
       console.error("Speech recognition error:", event.error);
       setIsListening(false);
 
-      if (onError) {
-        onError(event.error);
+      if (onErrorRef.current) {
+        onErrorRef.current(event.error);
       }
     };
 
     recognition.onend = () => {
+      console.log("⏹️ Speech recognition ended - setting isListening to false");
       setIsListening(false);
     };
 
@@ -99,15 +111,23 @@ export function useSpeechRecognition(
         recognitionRef.current.stop();
       }
     };
-  }, [lang, continuous, onResult, onError]);
+  }, [lang, continuous]);
 
   const startListening = () => {
+    console.log("🔊 startListening called. recognitionRef:", !!recognitionRef.current, "isListening:", isListening);
     if (recognitionRef.current && !isListening) {
       try {
+        console.log("🚀 Calling recognition.start()");
         recognitionRef.current.start();
-      } catch (error) {
-        console.error("Failed to start recognition:", error);
+        console.log("✅ recognition.start() called successfully");
+      } catch (error: any) {
+        console.error("❌ Failed to start recognition:", error);
+        if (onErrorRef.current) {
+          onErrorRef.current(error.message || "Failed to start speech recognition");
+        }
       }
+    } else {
+      console.warn("⚠️ Cannot start: recognitionRef =", !!recognitionRef.current, ", isListening =", isListening);
     }
   };
 

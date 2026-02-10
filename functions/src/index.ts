@@ -2,7 +2,7 @@ import * as admin from "firebase-admin";
 import { chatStream } from "./chat/chatStream";
 import { textChat } from "./chat/textChat";
 import { translateLast } from "./translation/translateLast";
-import { createSession, updateSession } from "./sessions/sessionManagement";
+import { createSession, updateSession, renameSession, togglePinSession, deleteSession } from "./sessions/sessionManagement";
 import { resetDailyQuotas } from "./scheduled/resetQuotas";
 import { onUserCreate } from "./auth/onUserCreate";
 import { synthesizeSpeech } from "./speech/synthesizeSpeech";
@@ -24,6 +24,9 @@ export {
   translateLast,
   createSession,
   updateSession,
+  renameSession,
+  togglePinSession,
+  deleteSession,
   resetDailyQuotas,
   onUserCreate,
   synthesizeSpeech,

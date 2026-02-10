@@ -138,6 +138,10 @@ export interface MessageDocument {
   role: "user" | "assistant";
   content: string;
 
+  // Voice message specific
+  audioUrl: string | null;
+  durationSeconds: number | null;
+
   // AI metadata
   modelUsed: "claude-3-haiku-20240307" | "claude-3-5-sonnet-20241022" | null;
   inputTokens: number | null;

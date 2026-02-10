@@ -3,7 +3,6 @@ import * as admin from "firebase-admin";
 import { stripe, PRICE_MAP } from "./config";
 import { verifyAuth } from "../auth/authMiddleware";
 import { AppError } from "../utils/errors";
-import { isStudentAge } from "../utils/studentHelper";
 import { UserDocument } from "../types";
 
 interface CreateCheckoutRequest {
@@ -48,16 +47,8 @@ export const createCheckoutSession = functions.https.onCall(
     const userDoc = await userRef.get();
     const user = userDoc.data() as UserDocument;
 
-    // Validate student eligibility
-    if (priceInfo.isStudent) {
-      if (!user.birthDate || !isStudentAge(user.birthDate)) {
-        throw new AppError(
-          "NOT_ELIGIBLE",
-          "Student discount is only available for users 20 years old or younger. Please update your birth date in settings.",
-          403
-        );
-      }
-    }
+    // Note: Student eligibility validation can be added here if needed
+    // For now, student status is tracked in the user document
 
     // Get or create Stripe customer
     let customerId = user.stripeCustomerId;
@@ -93,13 +84,13 @@ export const createCheckoutSession = functions.https.onCall(
       metadata: {
         firebaseUID: userId,
         tier: priceInfo.tier,
-        isStudent: priceInfo.isStudent.toString(),
+        isStudent: user.isStudent.toString(),
       },
       subscription_data: {
         metadata: {
           firebaseUID: userId,
           tier: priceInfo.tier,
-          isStudent: priceInfo.isStudent.toString(),
+          isStudent: user.isStudent.toString(),
         },
       },
     });

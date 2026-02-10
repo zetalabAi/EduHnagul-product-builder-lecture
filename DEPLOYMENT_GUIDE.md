@@ -45,16 +45,14 @@ firebase functions:config:set \
 ### 3. Stripe 설정
 
 #### Products & Prices 생성
-STRIPE_SETUP.md 참고하여 8개 상품 생성:
+STRIPE_SETUP.md 참고하여 6개 상품 생성:
 
 1. **Free+ Monthly**: $4.9/월
-2. **Free+ Yearly**: $49/년
+2. **Free+ Yearly**: $59/년
 3. **Pro Monthly**: $20.9/월
 4. **Pro Yearly**: $209/년
 5. **Pro+ Monthly**: $30.9/월
 6. **Pro+ Yearly**: $309/년
-7. **Pro+ Student Monthly**: $25/월
-8. **Pro+ Student Yearly**: $200/년
 
 #### Webhook 설정
 ```

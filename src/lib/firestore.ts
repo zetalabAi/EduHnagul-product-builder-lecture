@@ -114,11 +114,20 @@ export async function deleteSession(sessionId: string): Promise<void> {
 // Messages
 // ============================================================================
 
-export async function getMessagesBySession(sessionId: string): Promise<MessageDocument[]> {
-  const q = query(
-    collection(db, "messages"),
+export async function getMessagesBySession(sessionId: string, userId?: string): Promise<MessageDocument[]> {
+  const constraints = [
     where("sessionId", "==", sessionId),
     orderBy("createdAt", "asc")
+  ];
+
+  // Add userId filter if provided (for Firestore security rules)
+  if (userId) {
+    constraints.unshift(where("userId", "==", userId));
+  }
+
+  const q = query(
+    collection(db, "messages"),
+    ...constraints
   );
 
   const querySnapshot = await getDocs(q);

@@ -275,6 +275,9 @@ export default function AppPage() {
               currentSessionId={currentSessionId || ""}
               onSessionSelect={handleSessionSelect}
               onNewSession={handleNewSession}
+              onRenameSession={() => {}}
+              onPinSession={() => {}}
+              onDeleteSession={() => {}}
             />
           </div>
 

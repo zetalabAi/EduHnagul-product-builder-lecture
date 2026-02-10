@@ -56,8 +56,6 @@ export default function PricingPage() {
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
-  const [birthDate, setBirthDate] = useState("");
-  const [isStudent, setIsStudent] = useState(false);
   const { credits } = useUserCredits(user?.uid || null);
 
   useEffect(() => {
@@ -70,13 +68,6 @@ export default function PricingPage() {
 
     return () => unsubscribe();
   }, [router]);
-
-  useEffect(() => {
-    if (credits?.birthDate) {
-      setBirthDate(credits.birthDate.toISOString().split("T")[0]);
-      setIsStudent(credits.isStudent);
-    }
-  }, [credits]);
 
   const handleSubscribe = async (tier: "free+" | "pro" | "pro+", annual: boolean) => {
     if (!functions) return;
@@ -91,12 +82,7 @@ export default function PricingPage() {
       } else if (tier === "pro") {
         priceKey = annual ? "PRO_YEARLY" : "PRO_MONTHLY";
       } else if (tier === "pro+") {
-        // Check if student eligible
-        if (isStudent && tier === "pro+") {
-          priceKey = annual ? "PRO_PLUS_STUDENT_YEARLY" : "PRO_PLUS_STUDENT_MONTHLY";
-        } else {
-          priceKey = annual ? "PRO_PLUS_YEARLY" : "PRO_PLUS_MONTHLY";
-        }
+        priceKey = annual ? "PRO_PLUS_YEARLY" : "PRO_PLUS_MONTHLY";
       }
 
       const priceId = `price_${priceKey.toLowerCase()}`;
@@ -199,18 +185,6 @@ export default function PricingPage() {
           </div>
         )}
 
-        {/* Student Eligibility */}
-        {isStudent && (
-          <div className="bg-green-900 bg-opacity-30 rounded-lg p-4 mb-8 text-center">
-            <p className="text-green-200">
-              🎓 학생 할인 적용 가능! (만 20세 이하)
-            </p>
-            <p className="text-sm text-gray-400 mt-1">
-              Pro+ 플랜이 특별 가격으로 제공됩니다
-            </p>
-          </div>
-        )}
-
         {/* Pricing Cards */}
         <div className="grid md:grid-cols-4 gap-6 mb-8">
           {/* Free */}
@@ -251,7 +225,7 @@ export default function PricingPage() {
             <h3 className="text-2xl font-bold mb-2">Free+</h3>
             <p className="text-gray-400 text-sm mb-4">광고 제거</p>
             <p className="text-4xl font-bold mb-6">
-              ${billingCycle === "monthly" ? "4.9" : "49"}
+              ${billingCycle === "monthly" ? "4.9" : "59"}
               <span className="text-lg text-gray-400">
                 /{billingCycle === "monthly" ? "월" : "년"}
               </span>
@@ -332,19 +306,12 @@ export default function PricingPage() {
 
             <h3 className="text-2xl font-bold mb-2">Pro+</h3>
             <p className="text-gray-100 text-sm mb-4">최고 플랜</p>
-            <p className="text-4xl font-bold mb-2">
-              ${billingCycle === "monthly"
-                ? (isStudent ? "25" : "30.9")
-                : (isStudent ? "200" : "309")}
+            <p className="text-4xl font-bold mb-6">
+              ${billingCycle === "monthly" ? "30.9" : "309"}
               <span className="text-lg text-gray-100">
                 /{billingCycle === "monthly" ? "월" : "년"}
               </span>
             </p>
-            {isStudent && (
-              <p className="text-xs text-yellow-200 mb-4">
-                🎓 학생 할인 적용됨!
-              </p>
-            )}
 
             <ul className="space-y-3 mb-6 text-sm">
               <li className="flex items-start">

@@ -243,16 +243,16 @@ async function checkQuotaAndTrial(
   }
 }
 
-function getModelName(user: UserDocument): "claude-3-haiku-20240307" | "claude-3-5-sonnet-20241022" {
+function getModelName(user: UserDocument): "claude-3-haiku-20240307" | "claude-3-5-sonnet-20240620" {
   // Pro users get Claude 3.5 Sonnet
   if (user.subscriptionTier === "pro" && user.subscriptionStatus === "active") {
-    return "claude-3-5-sonnet-20241022";
+    return "claude-3-5-sonnet-20240620";
   }
 
   // Trial users get Claude 3.5 Sonnet
   const now = Date.now();
   if (user.trialUsed && user.trialEndedAt && user.trialEndedAt.toMillis() > now) {
-    return "claude-3-5-sonnet-20241022";
+    return "claude-3-5-sonnet-20240620";
   }
 
   // Free tier gets Claude 3 Haiku
