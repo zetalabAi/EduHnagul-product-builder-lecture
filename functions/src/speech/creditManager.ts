@@ -12,10 +12,11 @@ function getDb() {
  * Get weekly minute limits based on subscription tier
  *
  * 🧪 TEST MODE: All tiers unlimited during testing
+ * Note: -1 represents unlimited (Infinity cannot be JSON serialized)
  */
 export function getWeeklyMinuteLimit(tier: UserDocument["subscriptionTier"]): number {
   // 🧪 TEST MODE: Unlimited for all tiers
-  return Infinity;
+  return -1;
 
   /* Original limits (restore after testing):
   switch (tier) {
@@ -25,7 +26,7 @@ export function getWeeklyMinuteLimit(tier: UserDocument["subscriptionTier"]): nu
     return 25;
   case "pro":
   case "pro+":
-    return Infinity; // Unlimited
+    return -1; // Unlimited (was Infinity)
   default:
     return 15;
   }
@@ -71,9 +72,9 @@ export async function checkVoiceCredits(userId: string): Promise<number> {
 
   const limit = getWeeklyMinuteLimit(user.subscriptionTier);
   const used = user.weeklyMinutesUsed || 0;
-  const remaining = limit === Infinity ? Infinity : limit - used;
+  const remaining = limit < 0 ? -1 : limit - used;
 
-  if (remaining <= 0) {
+  if (remaining <= 0 && remaining !== -1) {
     const resetDate = user.weeklyResetAt.toDate();
     throw new AppError(
       "QUOTA_EXCEEDED",
@@ -117,7 +118,7 @@ export async function deductVoiceCredits(
     const weeklyLimit = getWeeklyMinuteLimit(user.subscriptionTier);
 
     // Pro/Pro+ have unlimited
-    if (weeklyLimit === Infinity) {
+    if (weeklyLimit < 0) {
       const updateData: any = {
         weeklyMinutesUsed: admin.firestore.FieldValue.increment(minutes),
       };
@@ -127,7 +128,7 @@ export async function deductVoiceCredits(
         );
       }
       transaction.update(userRef, updateData);
-      return Infinity;
+      return -1; // Unlimited (was Infinity)
     }
 
     // Check if deduction would exceed limit

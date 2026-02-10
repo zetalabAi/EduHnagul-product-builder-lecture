@@ -277,7 +277,8 @@ export const voiceChat = functions.https.onCall(
         finalRemaining = await deductVoiceCredits(userId, totalConversationTime);
       } else {
         // Pro/Pro+ users have unlimited
-        finalRemaining = Infinity;
+        // Use -1 to represent unlimited (Infinity cannot be JSON serialized)
+        finalRemaining = -1;
       }
 
       // Performance: Total time

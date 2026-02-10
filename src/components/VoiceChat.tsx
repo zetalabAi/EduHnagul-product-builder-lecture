@@ -477,7 +477,7 @@ export function VoiceChat({
         {/* Status Text at Top */}
         <div className="absolute top-20 text-center space-y-2">
           <div className="text-sm text-gray-400">
-            {remainingMinutes === Infinity ? "무제한" : `${remainingMinutes}분 남음`}
+            {remainingMinutes < 0 ? "무제한" : `${remainingMinutes}분 남음`}
           </div>
           {aiStatus === "thinking" && (
             <div className="text-sm text-blue-400 animate-pulse">

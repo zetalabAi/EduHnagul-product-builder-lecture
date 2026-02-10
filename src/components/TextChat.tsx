@@ -259,7 +259,7 @@ export function TextChat({
           <div className="text-sm">
             <span className="text-gray-400">남은:</span>{" "}
             <span className="font-bold text-blue-400">
-              {remainingMinutes === Infinity ? "∞" : `${remainingMinutes}분`}
+              {remainingMinutes < 0 ? "∞" : `${remainingMinutes}분`}
             </span>
           </div>
         </div>
