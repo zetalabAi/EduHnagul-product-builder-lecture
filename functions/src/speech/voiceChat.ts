@@ -219,11 +219,11 @@ export const voiceChat = functions.https.onCall(
         formalityLevel: effectiveSession.formalityLevel,
       });
 
-      // Generate high-quality TTS
-      functions.logger.info("🎤 Generating TTS audio...");
+      // Generate high-quality TTS with Gemini
+      functions.logger.info("🎤 Generating Gemini TTS audio...");
       const audioUrl = await generateGeminiTTS({
         text: dialogue, // Only dialogue, NOT full message!
-        voiceName: "ko-KR-Wavenet-A", // Highest quality Korean female voice
+        voiceName: "Kore", // Gemini's natural Korean voice
         temperature: 1.5,
         styleInstructions,
       });

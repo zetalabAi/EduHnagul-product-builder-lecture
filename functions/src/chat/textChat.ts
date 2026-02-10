@@ -3,7 +3,6 @@ import * as admin from "firebase-admin";
 import Anthropic from "@anthropic-ai/sdk";
 import { verifyAuth } from "../auth/authMiddleware";
 import { AppError } from "../utils/errors";
-import { checkVoiceCredits, deductVoiceCredits } from "../speech/creditManager";
 import { assemblePrompt } from "./prompts";
 import { UserDocument, SessionDocument, MessageDocument } from "../types";
 
@@ -52,16 +51,9 @@ export const textChat = functions.https.onCall(
 
     const db = admin.firestore();
 
-    // 1. Check credits (text chat uses same voice credits for now)
-    // TODO: Consider separate text message quota
-    const remainingMinutes = await checkVoiceCredits(userId);
-    if (remainingMinutes <= 0) {
-      throw new AppError(
-        "QUOTA_EXCEEDED",
-        "You have used all your weekly minutes. Please upgrade or wait for reset.",
-        429
-      );
-    }
+    // 1. Text chat does NOT consume voice credits
+    // Text-only chat is unlimited for all users
+    // Voice credits only apply to voice chat (TTS generation)
 
     // 2. Get user document
     const userDoc = await db.collection("users").doc(userId).get();
@@ -189,16 +181,15 @@ export const textChat = functions.https.onCall(
       .doc(sessionId)
       .update(sessionUpdates);
 
-    // 10. Deduct credits (estimate: 1 text message = 30 seconds)
-    // This is generous - text is much cheaper than voice
-    const secondsToDeduct = 30; // 0.5 minutes
-    const newRemainingMinutes = await deductVoiceCredits(userId, secondsToDeduct);
+    // 10. Text chat does NOT deduct voice credits
+    // Text is unlimited for all users
+    // Use -1 to represent unlimited (matches voiceChat for Pro users)
 
     // 11. Return response
     return {
       messageId: aiMessageRef.id,
       aiMessage: aiResponse,
-      remainingMinutes: newRemainingMinutes,
+      remainingMinutes: -1, // Unlimited for text chat
       inputTokens,
       outputTokens,
       latencyMs: Date.now() - startTime,
