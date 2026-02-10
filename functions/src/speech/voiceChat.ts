@@ -8,6 +8,7 @@ import {AppError} from "../utils/errors";
 import {UserDocument, SessionDocument, MessageDocument} from "../types";
 import {assemblePrompt} from "../chat/prompts";
 import {checkVoiceCredits, deductVoiceCredits} from "./creditManager";
+import * as crypto from "crypto";
 
 // Lazy initialization
 function getDb() {
@@ -18,6 +19,60 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY || "",
 });
 const ttsClient = new TextToSpeechClient();
+const bucket = admin.storage().bucket("edu-hangul-tts-audio");
+
+/**
+ * Generate hash for TTS caching
+ * Same text + voice = same hash = reuse audio file
+ */
+function generateTTSHash(text: string, voiceName: string): string {
+  return crypto
+    .createHash("sha256")
+    .update(`${text}:${voiceName}`)
+    .digest("hex");
+}
+
+/**
+ * Upload TTS audio to Cloud Storage and return public URL
+ * Uses hash-based caching to avoid duplicate synthesis
+ */
+async function uploadTTSToStorage(
+  audioBuffer: Buffer,
+  text: string,
+  voiceName: string
+): Promise<string> {
+  const hash = generateTTSHash(text, voiceName);
+  const fileName = `tts/${hash}.mp3`;
+  const file = bucket.file(fileName);
+
+  // Check if file already exists (cache hit)
+  const [exists] = await file.exists();
+  if (exists) {
+    functions.logger.info(`TTS cache hit for hash: ${hash}`);
+    const [url] = await file.getSignedUrl({
+      action: "read",
+      expires: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+    return url;
+  }
+
+  // Upload new file
+  await file.save(audioBuffer, {
+    metadata: {
+      contentType: "audio/mpeg",
+      cacheControl: "public, max-age=604800", // 7 days
+    },
+  });
+
+  // Make file publicly readable
+  await file.makePublic();
+
+  // Get public URL
+  const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+  functions.logger.info(`TTS audio uploaded: ${fileName}`);
+
+  return publicUrl;
+}
 
 interface VoiceChatRequest {
   sessionId: string;
@@ -34,7 +89,7 @@ interface VoiceChatRequest {
 interface VoiceChatResponse {
   messageId: string;
   aiMessage: string;
-  audioContent: string; // base64 encoded MP3
+  audioUrl: string; // Cloud Storage URL
   inputTokens: number;
   outputTokens: number;
   remainingMinutes: number;
@@ -150,7 +205,9 @@ export const voiceChat = functions.https.onCall(
         throw new AppError("TTS_ERROR", "Failed to synthesize speech", 500);
       }
 
-      const audioBase64 = ttsResponse.audioContent.toString("base64");
+      // Upload to Cloud Storage and get URL (with caching)
+      const audioBuffer = Buffer.from(ttsResponse.audioContent);
+      const audioUrl = await uploadTTSToStorage(audioBuffer, aiMessage, "ko-KR-Journey-F");
 
       // Estimate AI speaking duration (rough: 150 chars per minute)
       const estimatedDuration = Math.ceil(aiMessage.length / 2.5); // ~150 chars/min = 2.5 chars/sec
@@ -163,7 +220,7 @@ export const voiceChat = functions.https.onCall(
         userId,
         role: "assistant",
         content: aiMessage,
-        audioUrl: null, // Could upload to Cloud Storage if needed
+        audioUrl: audioUrl, // Cloud Storage URL
         durationSeconds: estimatedDuration,
         modelUsed: "claude-3-5-sonnet-20240620",
         inputTokens,
@@ -204,7 +261,7 @@ export const voiceChat = functions.https.onCall(
       return {
         messageId: aiMessageRef.id,
         aiMessage,
-        audioContent: audioBase64,
+        audioUrl: audioUrl,
         inputTokens,
         outputTokens,
         remainingMinutes: finalRemaining,

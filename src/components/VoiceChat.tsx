@@ -270,9 +270,9 @@ export function VoiceChat({
       // Update remaining minutes
       onMinutesUpdate(response.remainingMinutes);
 
-      // Play TTS audio
+      // Play TTS audio from Cloud Storage URL
       console.log("🔊 Playing TTS audio");
-      playAudio(response.audioContent);
+      playAudio(response.audioUrl);
     } else {
       console.error("❌ No response received from backend");
       toast.error("AI 응답을 받지 못했습니다. 다시 시도해주세요.");
@@ -289,11 +289,8 @@ export function VoiceChat({
     }
   };
 
-  const playAudio = (base64Audio: string) => {
+  const playAudio = (audioUrl: string) => {
     try {
-      const audioBlob = base64ToBlob(base64Audio, "audio/mp3");
-      const audioUrl = URL.createObjectURL(audioBlob);
-
       if (audioRef.current) {
         audioRef.current.src = audioUrl;
         audioRef.current.play();
@@ -302,18 +299,6 @@ export function VoiceChat({
     } catch (error) {
       console.error("Failed to play audio:", error);
     }
-  };
-
-  const base64ToBlob = (base64: string, mimeType: string): Blob => {
-    const byteCharacters = atob(base64);
-    const byteNumbers = new Array(byteCharacters.length);
-
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i);
-    }
-
-    const byteArray = new Uint8Array(byteNumbers);
-    return new Blob([byteArray], { type: mimeType });
   };
 
   // Load existing messages on mount

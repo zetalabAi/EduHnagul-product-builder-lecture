@@ -4,6 +4,63 @@ import { stripe } from "./config";
 import Stripe from "stripe";
 
 /**
+ * Retry wrapper with exponential backoff
+ * Attempts: 3 times with 1s, 2s, 4s delays
+ */
+async function retryWithBackoff<T>(
+  operation: () => Promise<T>,
+  context: { userId?: string; subscriptionId?: string; customerId?: string }
+): Promise<T> {
+  const delays = [1000, 2000, 4000]; // 1s, 2s, 4s
+  let lastError: any;
+
+  for (let attempt = 0; attempt < delays.length; attempt++) {
+    try {
+      return await operation();
+    } catch (error: any) {
+      lastError = error;
+      functions.logger.warn(
+        `Attempt ${attempt + 1} failed: ${error.message}. Retrying in ${delays[attempt]}ms...`
+      );
+
+      if (attempt < delays.length - 1) {
+        await new Promise((resolve) => setTimeout(resolve, delays[attempt]));
+      }
+    }
+  }
+
+  // All retries failed - log to webhook_errors collection
+  await logWebhookError(context, lastError);
+  throw lastError;
+}
+
+/**
+ * Log webhook error to Firestore for manual recovery
+ */
+async function logWebhookError(
+  context: { userId?: string; subscriptionId?: string; customerId?: string },
+  error: any
+): Promise<void> {
+  try {
+    await admin
+      .firestore()
+      .collection("webhook_errors")
+      .add({
+        userId: context.userId || null,
+        subscriptionId: context.subscriptionId || null,
+        customerId: context.customerId || null,
+        error: error.message || "Unknown error",
+        stack: error.stack || null,
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+        resolved: false,
+      });
+    functions.logger.error("Webhook error logged to Firestore", context);
+  } catch (logError: any) {
+    functions.logger.error("Failed to log webhook error:", logError.message);
+  }
+}
+
+/**
  * Stripe Webhook Handler
  * Handles subscription lifecycle events
  */
@@ -109,18 +166,27 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     subscriptionStatus = "past_due";
   }
 
-  // Update user document
-  await admin
-    .firestore()
-    .collection("users")
-    .doc(userId)
-    .update({
-      subscriptionTier: tier,
-      subscriptionStatus: subscriptionStatus,
-      stripeSubscriptionId: subscription.id,
-      isStudent: isStudent,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
+  // Update user document with retry logic
+  await retryWithBackoff(
+    async () => {
+      await admin
+        .firestore()
+        .collection("users")
+        .doc(userId)
+        .update({
+          subscriptionTier: tier,
+          subscriptionStatus: subscriptionStatus,
+          stripeSubscriptionId: subscription.id,
+          isStudent: isStudent,
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+    },
+    {
+      userId,
+      subscriptionId: subscription.id,
+      customerId: subscription.customer as string,
+    }
+  );
 
   functions.logger.info(
     `Updated subscription for user ${userId}: ${tier} (${subscriptionStatus})`
@@ -134,17 +200,26 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     return;
   }
 
-  // Downgrade to free tier
-  await admin
-    .firestore()
-    .collection("users")
-    .doc(userId)
-    .update({
-      subscriptionTier: "free",
-      subscriptionStatus: null,
-      stripeSubscriptionId: null,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
+  // Downgrade to free tier with retry logic
+  await retryWithBackoff(
+    async () => {
+      await admin
+        .firestore()
+        .collection("users")
+        .doc(userId)
+        .update({
+          subscriptionTier: "free",
+          subscriptionStatus: null,
+          stripeSubscriptionId: null,
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+    },
+    {
+      userId,
+      subscriptionId: subscription.id,
+      customerId: subscription.customer as string,
+    }
+  );
 
   functions.logger.info(`Subscription deleted for user ${userId}, downgraded to free`);
 }
@@ -168,15 +243,24 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
   const userId = subscription.metadata?.firebaseUID;
   if (!userId) return;
 
-  // Mark as past_due
-  await admin
-    .firestore()
-    .collection("users")
-    .doc(userId)
-    .update({
-      subscriptionStatus: "past_due",
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
+  // Mark as past_due with retry logic
+  await retryWithBackoff(
+    async () => {
+      await admin
+        .firestore()
+        .collection("users")
+        .doc(userId)
+        .update({
+          subscriptionStatus: "past_due",
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+    },
+    {
+      userId,
+      subscriptionId: subscriptionId,
+      customerId: invoice.customer as string,
+    }
+  );
 
   functions.logger.warn(`Payment failed for subscription ${subscriptionId}`);
 }

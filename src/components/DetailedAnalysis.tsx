@@ -86,12 +86,19 @@ export function DetailedAnalysis({ sessionId, onClose }: DetailedAnalysisProps) 
           </button>
         </div>
 
-        <p className="text-sm text-purple-300 mb-6">{analysis.usageInfo}</p>
+        <p className="text-sm text-purple-300 mb-4">{analysis.usageInfo}</p>
+
+        {/* Disclaimer */}
+        <div className="bg-yellow-900 bg-opacity-30 border border-yellow-600 rounded-lg p-3 mb-6">
+          <p className="text-xs text-yellow-200">
+            ℹ️ <strong>발음 피드백</strong>은 텍스트 기반 분석입니다. 정확한 오디오 기반 발음 분석은 준비 중입니다.
+          </p>
+        </div>
 
         {/* Score Cards */}
         <div className="grid grid-cols-2 gap-4 mb-6">
           <ScoreCard
-            title="🗣️ 발음"
+            title="🗣️ 발음 피드백 (베타)"
             score={analysis.pronunciation.score}
             feedback={analysis.pronunciation.feedback}
           />

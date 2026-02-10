@@ -20,7 +20,7 @@ interface VoiceChatRequest {
 interface VoiceChatResponse {
   messageId: string;
   aiMessage: string;
-  audioContent: string; // base64 MP3
+  audioUrl: string; // Cloud Storage URL
   inputTokens: number;
   outputTokens: number;
   remainingMinutes: number;
