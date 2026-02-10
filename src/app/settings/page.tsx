@@ -48,10 +48,7 @@ export default function SettingsPage() {
       }
 
       const result = await updateFn(updates);
-      setMessage(result.data.message);
-
-      // Reload user to get updated display name
-      await user?.reload();
+      toast.success(result.data.message);
     } catch (error: any) {
       console.error("Failed to update profile:", error);
       setMessage(error.message || "프로필 업데이트에 실패했습니다.");
@@ -267,7 +264,7 @@ export default function SettingsPage() {
         <div className="bg-gray-800 rounded-xl p-6">
           <button
             onClick={handleLogout}
-            className="w-full bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg font-bold transition-colors flex items-center justify-center space-x-2"
+            className="w-full bg-gray-700 hover:bg-gray-600 px-6 py-3 rounded-lg font-bold transition-colors flex items-center justify-center space-x-2 text-red-500 hover:text-red-400"
           >
             <span>🚪</span>
             <span>로그아웃</span>

@@ -25,7 +25,7 @@ export default function TextChatPage() {
   const [renameSession, setRenameSession] = useState<{ id: string; title: string } | null>(null);
 
   const { credits, isLoading: creditsLoading } = useUserCredits(user?.uid || null);
-  const { sessions, isLoading: sessionsLoading } = useSessionHistory(user?.uid || null);
+  const { sessions, isLoading: sessionsLoading } = useSessionHistory(user?.uid || null, false); // false = text sessions only
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {

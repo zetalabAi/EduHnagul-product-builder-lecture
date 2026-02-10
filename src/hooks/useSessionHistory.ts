@@ -5,7 +5,7 @@ import { collection, query, where, orderBy, limit, onSnapshot } from "firebase/f
 import { db } from "@/lib/firebase";
 import { Session } from "@/types";
 
-export function useSessionHistory(userId: string | null) {
+export function useSessionHistory(userId: string | null, isVoiceSession: boolean = false) {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -16,10 +16,11 @@ export function useSessionHistory(userId: string | null) {
     }
 
     const sessionsRef = collection(db, "sessions");
-    // Simplified query without composite index for now
+    // Filter by userId AND isVoiceSession to separate voice/text histories
     const q = query(
       sessionsRef,
       where("userId", "==", userId),
+      where("isVoiceSession", "==", isVoiceSession),
       orderBy("lastMessageAt", "desc"),
       limit(50)
     );

@@ -210,8 +210,17 @@ export const voiceChat = functions.https.onCall(
       }
 
       // Upload to Cloud Storage and get URL (with caching)
-      const audioBuffer = Buffer.from(ttsResponse.audioContent);
-      const audioUrl = await uploadTTSToStorage(audioBuffer, aiMessage, "ko-KR-Journey-F");
+      // Fallback to base64 if Storage upload fails
+      let audioUrl: string;
+      try {
+        const audioBuffer = Buffer.from(ttsResponse.audioContent);
+        audioUrl = await uploadTTSToStorage(audioBuffer, aiMessage, "ko-KR-Journey-F");
+      } catch (storageError: any) {
+        functions.logger.warn("Storage upload failed, using base64 fallback:", storageError.message);
+        // Fallback: return base64 data URL
+        const audioBase64 = ttsResponse.audioContent.toString("base64");
+        audioUrl = `data:audio/mp3;base64,${audioBase64}`;
+      }
 
       // Estimate AI speaking duration (rough: 150 chars per minute)
       const estimatedDuration = Math.ceil(aiMessage.length / 2.5); // ~150 chars/min = 2.5 chars/sec

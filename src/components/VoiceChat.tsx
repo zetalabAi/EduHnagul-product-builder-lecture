@@ -386,25 +386,46 @@ export function VoiceChat({
           )}
           <button
             onClick={handleBackClick}
-            className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-800 rounded-full transition"
+            className="text-gray-400 hover:text-white transition"
+            title="뒤로가기"
           >
-            ←
+            ← 뒤로
           </button>
+          <h1 className="text-xl font-bold">🎤 음성 대화</h1>
         </div>
 
         <div className="flex items-center space-x-2">
           <button
             onClick={() => setShowSettings(true)}
-            className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-800 rounded-full transition text-lg"
+            disabled={isLoading}
+            className="px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm font-medium disabled:opacity-50"
+            title="대화 설정"
           >
             ⚙️
           </button>
           <button
             onClick={handleHelpClick}
             disabled={assistantLoading || isLoading || !canUseAgain}
-            className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-800 rounded-full transition disabled:opacity-30 text-lg"
+            className="px-3 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            title="대화 도우미"
           >
             💡
+          </button>
+          <button
+            onClick={() => setShowSummary(true)}
+            disabled={isLoading}
+            className="px-3 py-2 bg-orange-600 hover:bg-orange-700 rounded-lg text-sm font-medium disabled:opacity-50"
+            title="학습 분석"
+          >
+            📊
+          </button>
+          <button
+            onClick={handleEndConversation}
+            disabled={isLoading}
+            className="px-3 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm font-medium disabled:opacity-50"
+            title="대화 종료"
+          >
+            ✕
           </button>
         </div>
       </div>

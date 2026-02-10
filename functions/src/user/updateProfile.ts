@@ -89,14 +89,9 @@ export const updateProfile = functions.https.onCall(
         );
       }
       updates.displayName = displayName.trim();
-
-      // Also update Firebase Auth display name
-      await admin.auth().updateUser(userId, {
-        displayName: displayName.trim(),
-      });
     }
 
-    // Update Firestore
+    // Update Firestore (source of truth)
     await userRef.update(updates);
 
     let message = "프로필이 업데이트되었습니다.";
