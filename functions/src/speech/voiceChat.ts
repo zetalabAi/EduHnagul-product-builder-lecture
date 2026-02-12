@@ -1,22 +1,22 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import {Timestamp} from "firebase-admin/firestore";
-import Anthropic from "@anthropic-ai/sdk";
+import * as crypto from "crypto";
+import {TextToSpeechClient} from "@google-cloud/text-to-speech";
 import {verifyAuth} from "../auth/authMiddleware";
 import {AppError} from "../utils/errors";
 import {UserDocument, SessionDocument, MessageDocument} from "../types";
 import {assemblePrompt} from "../chat/prompts";
 import {checkVoiceCredits, deductVoiceCredits} from "./creditManager";
 import {generateGeminiTTS, buildStyleInstructions} from "./geminiTTS";
+import {getGeminiModel} from "../ai/gemini";
 
 // Lazy initialization
 function getDb() {
   return admin.firestore();
 }
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || "",
-});
+const ttsClient = new TextToSpeechClient();
 
 /**
  * Parse AI response into dialogue (for TTS) and learning tip (text only)
@@ -117,8 +117,8 @@ export const voiceChat = functions.https.onCall(
     const {sessionId, userMessage, userSpeakingDuration = 0, settings} = data;
 
     // Performance tracking
-    let claudeStartTime = 0;
-    let claudeTime = 0;
+    let geminiStartTime = 0;
+    let geminiTime = 0;
     let ttsStartTime = 0;
     let ttsTime = 0;
 
@@ -176,39 +176,47 @@ export const voiceChat = functions.https.onCall(
         .reverse()
         .map((doc) => doc.data() as MessageDocument);
 
-      // 5. Build Claude API messages
-      const conversationMessages: Anthropic.MessageParam[] = messages.map((msg) => ({
-        role: msg.role === "user" ? "user" : "assistant",
-        content: msg.content,
-      }));
-
-      // 6. Call Claude API (Sonnet for all plans)
+      // 5. Build Gemini API contents
       // Apply settings from request if provided
       const effectiveSession = settings
         ? ({ ...session, ...settings } as SessionDocument)
         : session;
       const systemPrompt = assemblePrompt(effectiveSession, user, session.rollingSummary);
 
-      // Performance: Claude API start
-      claudeStartTime = Date.now();
-      const response = await anthropic.messages.create({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 1024,
-        system: systemPrompt,
-        messages: conversationMessages,
-      });
-      claudeTime = Date.now() - claudeStartTime;
-      functions.logger.info(`⚡ Claude API: ${claudeTime}ms`);
+      const conversationContents = messages.map((msg) => ({
+        role: msg.role === "user" ? "user" : "model",
+        parts: [{text: msg.content}],
+      }));
 
-      const fullAIMessage = response.content[0].type === "text" ? response.content[0].text : "";
-      const inputTokens = response.usage.input_tokens;
-      const outputTokens = response.usage.output_tokens;
+      const contents = [
+        {role: "user", parts: [{text: systemPrompt}]},
+        ...conversationContents,
+      ];
+
+      // 6. Call Gemini 2.5 Flash for text response
+      const model = getGeminiModel("gemini-2.5-flash");
+
+      geminiStartTime = Date.now();
+      const result = await model.generateContent({
+        contents,
+        generationConfig: {
+          temperature: 1.0,
+          maxOutputTokens: 1024,
+        },
+      });
+      geminiTime = Date.now() - geminiStartTime;
+      functions.logger.info(`⚡ Gemini API: ${geminiTime}ms`);
+
+      const fullAIMessage = result.response.text();
+      const usage = result.response?.usageMetadata;
+      const inputTokens = usage?.promptTokenCount ?? 0;
+      const outputTokens = usage?.candidatesTokenCount ?? 0;
 
       // Parse response: separate dialogue (for TTS) and learning tip (text only)
       const {dialogue, learningTip} = parseAIResponse(fullAIMessage);
       functions.logger.info(`📝 Parsed - Dialogue: ${dialogue.length} chars, Learning Tip: ${learningTip.length} chars`);
 
-      // 7. Synthesize speech (dialogue only, NOT learning tip!)
+      // 7. Extract audio (dialogue only, NOT learning tip!)
       // Performance: TTS start
       ttsStartTime = Date.now();
 
@@ -219,14 +227,21 @@ export const voiceChat = functions.https.onCall(
         formalityLevel: effectiveSession.formalityLevel,
       });
 
-      // Generate high-quality TTS with Google Cloud
-      functions.logger.info("🎤 Generating Google Cloud TTS audio...");
-      const audioUrl = await generateGeminiTTS({
-        text: dialogue, // Only dialogue, NOT full message!
-        voiceName: "ko-KR-Neural2-C", // Google Cloud female voice (or Neural2-A for male)
-        temperature: 1.5,
-        styleInstructions,
-      });
+      let audioUrl = "";
+      try {
+        functions.logger.info("🎤 Generating Gemini TTS audio...");
+        audioUrl = await generateGeminiTTS({
+          text: dialogue, // Only dialogue, NOT full message!
+          voiceName: "Kore",
+          temperature: 1.5,
+          styleInstructions,
+        });
+        functions.logger.info("✅ Gemini TTS 사용");
+      } catch (ttsError) {
+        functions.logger.warn("⚠️ Gemini TTS 실패, Google Cloud TTS fallback 사용", ttsError);
+        const fallbackBuffer = await generateGoogleTTS(dialogue);
+        audioUrl = await saveTTSToStorage(fallbackBuffer, dialogue, "gcloud");
+      }
 
       ttsTime = Date.now() - ttsStartTime;
       functions.logger.info(`🔊 TTS: ${ttsTime}ms`);
@@ -234,17 +249,18 @@ export const voiceChat = functions.https.onCall(
       // Estimate AI speaking duration based on dialogue only (not learning tip)
       const estimatedDuration = Math.ceil(dialogue.length / 2.5); // ~150 chars/min = 2.5 chars/sec
 
-      // 8. Save AI message (full message with dialogue + learning tip)
+      // 8. Save AI message (dialogue + learning tip stored separately)
       const aiMessageRef = getDb().collection("messages").doc();
-      const aiMessageDoc: MessageDocument = {
+      const aiMessageDoc: Partial<MessageDocument> = {
         id: aiMessageRef.id,
         sessionId,
         userId,
         role: "assistant",
-        content: fullAIMessage, // Store full message (dialogue + learning tip)
+        content: dialogue, // Store dialogue only (not learningTip)
+        learningTip: learningTip || null, // Store learning tip separately
         audioUrl: audioUrl, // Cloud Storage URL (dialogue only)
         durationSeconds: estimatedDuration,
-        modelUsed: "claude-sonnet-4-20250514",
+        modelUsed: "gemini-2.5-flash",
         inputTokens,
         outputTokens,
         latencyMs: Date.now() - startTime,
@@ -285,7 +301,7 @@ export const voiceChat = functions.https.onCall(
       const totalTime = Date.now() - startTime;
       functions.logger.info(
         `📊 Performance Summary - Total: ${totalTime}ms | ` +
-        `Claude: ${claudeTime}ms (${Math.round((claudeTime / totalTime) * 100)}%) | ` +
+        `Gemini: ${geminiTime}ms (${Math.round((geminiTime / totalTime) * 100)}%) | ` +
         `TTS: ${ttsTime}ms (${Math.round((ttsTime / totalTime) * 100)}%)`
       );
 
@@ -313,3 +329,67 @@ export const voiceChat = functions.https.onCall(
     }
   }
 );
+
+function getBucket() {
+  return admin.storage().bucket("edu-hangul-tts-audio");
+}
+
+function detectAudioFormat(buffer: Buffer): {ext: string; contentType: string} {
+  const header = buffer.subarray(0, 4).toString("ascii");
+
+  if (header === "RIFF") {
+    return {ext: "wav", contentType: "audio/wav"};
+  }
+
+  const mp3Header = buffer.subarray(0, 3).toString("ascii");
+  if (mp3Header === "ID3" || (buffer[0] === 0xff && (buffer[1] & 0xe0) === 0xe0)) {
+    return {ext: "mp3", contentType: "audio/mpeg"};
+  }
+
+  return {ext: "mp3", contentType: "audio/mpeg"};
+}
+
+async function saveTTSToStorage(buffer: Buffer, text: string, prefix: string): Promise<string> {
+  const hash = crypto.createHash("sha256").update(text).digest("hex").substring(0, 16);
+  const {ext, contentType} = detectAudioFormat(buffer);
+  const fileName = `tts/${prefix}-${hash}.${ext}`;
+  const bucket = getBucket();
+  const file = bucket.file(fileName);
+
+  await file.save(buffer, {
+    metadata: {
+      contentType,
+      cacheControl: "public, max-age=604800",
+    },
+  });
+
+  await file.makePublic();
+
+  return `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+}
+
+async function generateGoogleTTS(text: string): Promise<Buffer> {
+  const request = {
+    input: {text: text.trim()},
+    voice: {
+      languageCode: "ko-KR",
+      name: "ko-KR-Journey-F",
+    },
+    audioConfig: {
+      audioEncoding: "MP3" as const,
+      speakingRate: 1.0,
+      pitch: 0.0,
+      effectsProfileId: ["small-bluetooth-speaker-class-device"],
+    },
+  };
+
+  const [response] = await ttsClient.synthesizeSpeech(request);
+
+  if (!response.audioContent) {
+    throw new AppError("TTS_ERROR", "Google Cloud TTS returned empty audio", 500);
+  }
+
+  return Buffer.isBuffer(response.audioContent)
+    ? response.audioContent
+    : Buffer.from(response.audioContent as Uint8Array);
+}

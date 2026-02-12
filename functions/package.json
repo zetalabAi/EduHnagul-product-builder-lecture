@@ -15,7 +15,6 @@
     "node": "20"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.74.0",
     "@google-cloud/text-to-speech": "^6.4.0",
     "@google/generative-ai": "^0.21.0",
     "@stripe/stripe-js": "^8.7.0",

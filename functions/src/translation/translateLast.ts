@@ -1,14 +1,9 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
-import Anthropic from "@anthropic-ai/sdk";
-import { config } from "../config";
 import { AppError, MessageDocument, UserDocument } from "../types";
 import { requireAuth } from "../utils/auth";
 import { getTranslationPrompt } from "../chat/prompts";
-
-const anthropic = new Anthropic({
-  apiKey: config.anthropic.apiKey,
-});
+import {getGeminiModel} from "../ai/gemini";
 
 const LANGUAGE_NAMES: Record<string, string> = {
   en: "English",
@@ -59,22 +54,20 @@ export const translateLast = functions.https.onCall(async (data, context) => {
     const message = messagesSnapshot.docs[0].data() as MessageDocument;
     const koreanText = message.content;
 
-    // Translate using Claude Haiku (fast and cheap)
+    // Translate using Gemini Flash
     const targetLanguage = LANGUAGE_NAMES[user.nativeLanguage];
     const prompt = getTranslationPrompt(koreanText, targetLanguage, user.nativeLanguage);
 
-    const response = await anthropic.messages.create({
-      model: "claude-3-haiku-20240307",
-      max_tokens: 1024,
-      messages: [
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
+    const model = getGeminiModel("gemini-2.5-flash");
+    const result = await model.generateContent({
+      contents: [{role: "user", parts: [{text: prompt}]}],
+      generationConfig: {
+        temperature: 0.3,
+        maxOutputTokens: 1024,
+      },
     });
 
-    const translated = response.content[0].type === "text" ? response.content[0].text : "";
+    const translated = result.response.text() || "";
 
     return {
       original: koreanText,

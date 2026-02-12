@@ -1,18 +1,14 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
-import Anthropic from "@anthropic-ai/sdk";
 import {verifyAuth} from "../auth/authMiddleware";
 import {AppError} from "../utils/errors";
 import {UserDocument, SessionDocument, MessageDocument} from "../types";
 import {checkAnalysisUsage, incrementAnalysisUsage} from "./creditManager";
+import {getGeminiModel} from "../ai/gemini";
 
 function getDb() {
   return admin.firestore();
 }
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || "",
-});
 
 interface DetailedAnalysisRequest {
   sessionId: string;
@@ -133,14 +129,17 @@ Provide detailed analysis in JSON format:
 
 Scores are 0-100. Be encouraging but honest. Focus on actionable feedback.`;
 
-      // 5. Call Claude for analysis
-      const response = await anthropic.messages.create({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 2048,
-        messages: [{role: "user", content: prompt}],
+      // 5. Call Gemini for analysis
+      const model = getGeminiModel("gemini-2.5-flash");
+      const result = await model.generateContent({
+        contents: [{role: "user", parts: [{text: prompt}]}],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 2048,
+        },
       });
 
-      const aiText = response.content[0].type === "text" ? response.content[0].text : "{}";
+      const aiText = result.response.text() || "{}";
 
       // Parse JSON
       let analysis;

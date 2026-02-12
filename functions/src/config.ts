@@ -1,9 +1,6 @@
 import * as functions from "firebase-functions";
 
 export const config = {
-  anthropic: {
-    apiKey: functions.config().anthropic?.api_key || process.env.ANTHROPIC_API_KEY || "",
-  },
   stripe: {
     secretKey: functions.config().stripe?.secret_key || process.env.STRIPE_SECRET_KEY || "",
     webhookSecret: functions.config().stripe?.webhook_secret || process.env.STRIPE_WEBHOOK_SECRET || "",

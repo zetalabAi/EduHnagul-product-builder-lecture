@@ -1,14 +1,9 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
-import Anthropic from "@anthropic-ai/sdk";
-import { config } from "../config";
 import { AppError, SessionDocument, UserDocument, MessageDocument } from "../types";
 import { requireAuth } from "../utils/auth";
 import { assemblePrompt } from "./prompts";
-
-const anthropic = new Anthropic({
-  apiKey: config.anthropic.apiKey,
-});
+import {getGeminiModel} from "../ai/gemini";
 
 export const chatStream = functions.https.onCall(async (data, context) => {
   try {
@@ -55,46 +50,50 @@ export const chatStream = functions.https.onCall(async (data, context) => {
       .limit(10)
       .get();
 
-    const recentMessages: Anthropic.MessageParam[] = messagesSnapshot.docs
+    const recentMessages = messagesSnapshot.docs
       .reverse()
       .map((doc) => {
         const msg = doc.data() as MessageDocument;
         return {
-          role: msg.role === "user" ? "user" : "assistant",
-          content: msg.content,
-        } as Anthropic.MessageParam;
+          role: msg.role === "user" ? "user" : "model",
+          parts: [{text: msg.content}],
+        };
       });
 
     // Add current user message to history
     recentMessages.push({
       role: "user",
-      content: message,
+      parts: [{text: message}],
     });
 
     // Assemble system prompt
     const systemPrompt = assemblePrompt(session, user, session.rollingSummary);
 
-    // Determine model based on tier
-    const modelName = getModelName(user);
+    // Gemini 2.5 Flash for all tiers
+    const modelName = "gemini-2.5-flash";
     const maxTokens = user.subscriptionTier === "pro" ? 2048 : 1024;
 
     // Create streaming request
+    const model = getGeminiModel(modelName);
     const startTime = Date.now();
-    const stream = await anthropic.messages.stream({
-      model: modelName,
-      max_tokens: maxTokens,
-      system: systemPrompt,
-      messages: recentMessages,
-      temperature: 0.9,
+    const result = await model.generateContentStream({
+      contents: [
+        {role: "user", parts: [{text: systemPrompt}]},
+        ...recentMessages,
+      ],
+      generationConfig: {
+        temperature: 0.9,
+        maxOutputTokens: maxTokens,
+      },
     });
 
     let fullResponse = "";
     const chunks: string[] = [];
 
     // Process stream
-    for await (const chunk of stream) {
-      if (chunk.type === "content_block_delta" && chunk.delta.type === "text_delta") {
-        const chunkText = chunk.delta.text;
+    for await (const chunk of result.stream) {
+      const chunkText = chunk.text();
+      if (chunkText) {
         fullResponse += chunkText;
         chunks.push(chunkText);
       }
@@ -103,8 +102,8 @@ export const chatStream = functions.https.onCall(async (data, context) => {
     const latencyMs = Date.now() - startTime;
 
     // Get final message with usage data
-    const finalMessage = await stream.finalMessage();
-    const usage = finalMessage.usage;
+    const finalResponse = await result.response;
+    const usage = finalResponse?.usageMetadata;
 
     // Save messages to Firestore
     const batch = db.batch();
@@ -133,8 +132,8 @@ export const chatStream = functions.https.onCall(async (data, context) => {
       role: "assistant",
       content: fullResponse,
       modelUsed: modelName,
-      inputTokens: usage.input_tokens,
-      outputTokens: usage.output_tokens,
+      inputTokens: usage?.promptTokenCount ?? 0,
+      outputTokens: usage?.candidatesTokenCount ?? 0,
       latencyMs,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
@@ -174,8 +173,8 @@ export const chatStream = functions.https.onCall(async (data, context) => {
       messageId: assistantMessageRef.id,
       content: fullResponse,
       chunks,
-      inputTokens: usage.input_tokens,
-      outputTokens: usage.output_tokens,
+      inputTokens: usage?.promptTokenCount ?? 0,
+      outputTokens: usage?.candidatesTokenCount ?? 0,
       modelUsed: modelName,
     };
   } catch (error: any) {
@@ -241,20 +240,4 @@ async function checkQuotaAndTrial(
       429
     );
   }
-}
-
-function getModelName(user: UserDocument): "claude-3-haiku-20240307" | "claude-sonnet-4-20250514" {
-  // Pro users get Claude 3.5 Sonnet
-  if (user.subscriptionTier === "pro" && user.subscriptionStatus === "active") {
-    return "claude-sonnet-4-20250514";
-  }
-
-  // Trial users get Claude 3.5 Sonnet
-  const now = Date.now();
-  if (user.trialUsed && user.trialEndedAt && user.trialEndedAt.toMillis() > now) {
-    return "claude-sonnet-4-20250514";
-  }
-
-  // Free tier gets Claude 3 Haiku
-  return "claude-3-haiku-20240307";
 }

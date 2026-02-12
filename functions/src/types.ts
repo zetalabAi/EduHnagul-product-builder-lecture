@@ -81,12 +81,13 @@ export interface MessageDocument {
 
   role: "user" | "assistant";
   content: string;
+  learningTip?: string | null; // Learning tip for assistant messages (separate from content)
 
   // Voice message specific
   audioUrl: string | null; // TTS audio URL (assistant only)
   durationSeconds: number | null; // Speaking duration
 
-  modelUsed: "claude-3-haiku-20240307" | "claude-sonnet-4-20250514" | null;
+  modelUsed: "gemini-2.5-flash" | "gemini-2.5-flash-preview-tts" | null;
   inputTokens: number | null;
   outputTokens: number | null;
   latencyMs: number | null;

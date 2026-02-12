@@ -1,18 +1,14 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
-import Anthropic from "@anthropic-ai/sdk";
 import {verifyAuth} from "../auth/authMiddleware";
 import {AppError} from "../utils/errors";
 import {UserDocument, SessionDocument, MessageDocument} from "../types";
 import {checkAssistantUsage, incrementAssistantUsage} from "./creditManager";
+import {getGeminiModel} from "../ai/gemini";
 
 function getDb() {
   return admin.firestore();
 }
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || "",
-});
 
 interface AssistantSuggestionRequest {
   sessionId: string;
@@ -142,14 +138,17 @@ Example:
   ]
 }`;
 
-      // 4. Call Claude for suggestions
-      const response = await anthropic.messages.create({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 1024,
-        messages: [{role: "user", content: prompt}],
+      // 4. Call Gemini for suggestions
+      const model = getGeminiModel("gemini-2.5-flash");
+      const result = await model.generateContent({
+        contents: [{role: "user", parts: [{text: prompt}]}],
+        generationConfig: {
+          temperature: 0.9,
+          maxOutputTokens: 1024,
+        },
       });
 
-      const aiText = response.content[0].type === "text" ? response.content[0].text : "{}";
+      const aiText = result.response.text() || "{}";
 
       // Parse JSON response
       let suggestions;
