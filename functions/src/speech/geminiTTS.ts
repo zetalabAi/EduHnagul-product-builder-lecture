@@ -86,10 +86,10 @@ export async function generateGeminiTTS(options: TTSOptions): Promise<string> {
       throw new Error("GOOGLE_AI_API_KEY not configured");
     }
 
-    // Call Gemini Multimodal Live API for TTS
-    // Documentation: https://ai.google.dev/api/multimodal-live
+    // Call Gemini TTS API (2.5 Flash Preview TTS)
+    // Documentation: https://ai.google.dev/api/generate-content
     const response = await axios.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`,
       {
         contents: [
           {
