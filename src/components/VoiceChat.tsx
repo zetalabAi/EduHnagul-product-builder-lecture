@@ -211,7 +211,17 @@ export function VoiceChat({
   };
 
   const handleBackClick = () => {
+    console.log("🔙 Back button clicked. isListening:", isListening);
+
+    // If recording, show confirmation
+    if (isListening) {
+      console.log("⚠️ Recording in progress, showing confirmation");
+      setShowBackConfirm(true);
+      return;
+    }
+
     // Session is auto-saved, just navigate back
+    console.log("✅ Navigating back");
     window.history.back();
   };
 
@@ -346,15 +356,42 @@ export function VoiceChat({
     }
   };
 
-  const playAudio = (audioUrl: string) => {
+  const playAudio = async (audioUrl: string) => {
     try {
+      // Validate audioUrl
+      if (!audioUrl || audioUrl.trim() === '') {
+        console.error("❌ Empty audio URL");
+        toast.error("음성 URL이 없습니다. 텍스트를 확인하세요.");
+        setAiStatus("idle");
+        return;
+      }
+
+      console.log("🔊 Playing audio from:", audioUrl);
+
       if (audioRef.current) {
         audioRef.current.src = audioUrl;
-        audioRef.current.play();
+
+        // Wait for audio to be ready
+        await audioRef.current.play();
+
         setIsPlayingAudio(true);
+        console.log("✅ Audio playback started");
       }
-    } catch (error) {
-      console.error("Failed to play audio:", error);
+    } catch (error: any) {
+      console.error("❌ Failed to play audio:", error);
+      setIsPlayingAudio(false);
+      setAiStatus("idle");
+
+      // Handle autoplay policy error
+      if (error.name === 'NotAllowedError') {
+        toast.error("음성 재생이 차단되었습니다. 브라우저 설정을 확인하세요.", {
+          duration: 5000,
+        });
+      } else if (error.name === 'NotSupportedError') {
+        toast.error("음성 파일 형식이 지원되지 않습니다.");
+      } else {
+        toast.error(`음성 재생 실패: ${error.message}`);
+      }
     }
   };
 
@@ -691,12 +728,34 @@ export function VoiceChat({
       <audio
         ref={audioRef}
         onEnded={() => {
+          console.log("🔊 Audio playback ended");
           setIsPlayingAudio(false);
           setAiStatus("idle");
         }}
-        onError={() => {
+        onError={(e) => {
+          console.error("❌ Audio element error:", e);
+          const audioElement = e.currentTarget;
+          console.error("Error code:", audioElement.error?.code);
+          console.error("Error message:", audioElement.error?.message);
+          console.error("Audio src:", audioElement.src);
+
           setIsPlayingAudio(false);
           setAiStatus("idle");
+
+          // Show user-friendly error based on error code
+          const errorCode = audioElement.error?.code;
+          if (errorCode === 2) {
+            toast.error("음성 파일을 찾을 수 없습니다. (404)");
+          } else if (errorCode === 3) {
+            toast.error("음성 파일 형식이 지원되지 않습니다.");
+          } else if (errorCode === 4) {
+            toast.error("음성 파일이 재생 가능하지 않습니다.");
+          } else {
+            toast.error("음성 재생 중 오류가 발생했습니다.");
+          }
+        }}
+        onLoadedData={() => {
+          console.log("✅ Audio loaded successfully");
         }}
       />
 
@@ -874,12 +933,12 @@ export function VoiceChat({
       {showBackConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 px-4">
           <div className="bg-gray-800 rounded-xl p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold mb-4">⚠️ 대화 중지</h3>
+            <h3 className="text-xl font-bold mb-4">⚠️ 녹음 중</h3>
             <p className="text-gray-300 mb-6">
-              현재 대화를 중지하고 뒤로 가시겠습니까?
+              녹음이 진행 중입니다. 정말 뒤로 가시겠습니까?
               <br />
               <span className="text-sm text-gray-400 mt-2 block">
-                (대화 기록은 저장되지 않습니다)
+                (녹음이 취소되고 대화 내역은 저장됩니다)
               </span>
             </p>
             <div className="flex space-x-3">
@@ -887,11 +946,26 @@ export function VoiceChat({
                 onClick={() => setShowBackConfirm(false)}
                 className="flex-1 px-4 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-bold transition"
               >
-                계속 대화
+                계속 녹음
               </button>
               <button
-                onClick={() => window.history.back()}
-                className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-bold transition"
+                onClick={() => {
+                  console.log("🛑 Stopping recording and going back");
+                  // Stop recording
+                  stopListening();
+                  resetTranscript();
+                  setSpeakingStartTime(null);
+                  setRecordingDuration(0);
+
+                  if (recordingTimerRef.current) {
+                    clearInterval(recordingTimerRef.current);
+                    recordingTimerRef.current = null;
+                  }
+
+                  // Navigate back
+                  window.history.back();
+                }}
+                className="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 rounded-lg font-bold transition"
               >
                 뒤로가기
               </button>
