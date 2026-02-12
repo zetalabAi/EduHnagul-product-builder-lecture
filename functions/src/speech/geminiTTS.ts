@@ -1,7 +1,7 @@
 import * as admin from "firebase-admin";
 import * as crypto from "crypto";
 import * as functions from "firebase-functions";
-import axios from "axios";
+import {TextToSpeechClient} from "@google-cloud/text-to-speech";
 
 // Lazy initialization
 function getBucket() {
@@ -31,36 +31,34 @@ function preprocessText(text: string): string {
 }
 
 /**
- * Generate high-quality TTS using Gemini 2.5 Pro with Multimodal Live API
- * Uses natural, expressive Korean voice (Kore or Aoede)
+ * Generate high-quality TTS using Google Cloud Text-to-Speech
+ * Uses Journey voices (ko-KR-Neural2-A/C) for natural Korean speech
  */
 export async function generateGeminiTTS(options: TTSOptions): Promise<string> {
   const startTime = Date.now();
 
   const {
     text,
-    voiceName = "Kore", // Gemini's natural Korean voice
-    temperature = 1.5,
+    voiceName = "ko-KR-Neural2-C", // Female voice (Neural2-C) or Male (Neural2-A)
     styleInstructions = "친근하고 따뜻한 목소리로 자연스럽게 말해주세요.",
   } = options;
 
   // Preprocess text
   const cleanText = preprocessText(text);
 
-  functions.logger.info("🎤 === Gemini TTS Generation Start ===");
+  functions.logger.info("🎤 === Google Cloud TTS Generation Start ===");
   functions.logger.info(`📝 Text: ${cleanText.substring(0, 100)}...`);
   functions.logger.info(`🎵 Voice: ${voiceName}`);
-  functions.logger.info(`🌡️ Temperature: ${temperature}`);
   functions.logger.info(`🎭 Style: ${styleInstructions}`);
 
   // Cache key
   const hash = crypto
     .createHash("sha256")
-    .update(`${cleanText}-${voiceName}-${temperature}`)
+    .update(`${cleanText}-${voiceName}`)
     .digest("hex")
     .substring(0, 16);
 
-  const fileName = `tts/gemini-${hash}.wav`;
+  const fileName = `tts/gcloud-${hash}.mp3`;
   const bucket = getBucket();
   const file = bucket.file(fileName);
 
@@ -77,68 +75,41 @@ export async function generateGeminiTTS(options: TTSOptions): Promise<string> {
     functions.logger.warn("⚠️ Cache check failed:", error);
   }
 
-  functions.logger.info("🚀 Generating new Gemini TTS audio...");
+  functions.logger.info("🚀 Generating new Google Cloud TTS audio...");
 
   try {
-    // Get API key from environment
-    const apiKey = functions.config().google?.ai_api_key || process.env.GOOGLE_AI_API_KEY;
-    if (!apiKey) {
-      throw new Error("GOOGLE_AI_API_KEY not configured");
-    }
+    // Initialize Google Cloud TTS client
+    const ttsClient = new TextToSpeechClient();
 
-    // Call Gemini TTS API (2.5 Flash Preview TTS)
-    // Documentation: https://ai.google.dev/api/generate-content
-    const response = await axios.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`,
-      {
-        contents: [
-          {
-            parts: [
-              {
-                text: `You are a natural Korean voice assistant. Speak the following text with warmth and clarity.
-
-Style instructions: ${styleInstructions}
-
-Text to speak: ${cleanText}`,
-              },
-            ],
-          },
-        ],
-        generationConfig: {
-          temperature: temperature,
-          responseModalities: ["AUDIO"], // Request audio output
-          speechConfig: {
-            voiceConfig: {
-              prebuiltVoiceConfig: {
-                voiceName: voiceName, // "Kore", "Aoede", "Charon", "Fenrir", "Puck"
-              },
-            },
-          },
-        },
+    // Construct the request
+    const request = {
+      input: {text: cleanText},
+      voice: {
+        languageCode: "ko-KR",
+        name: voiceName, // ko-KR-Neural2-C (female) or ko-KR-Neural2-A (male)
       },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        timeout: 30000, // 30 second timeout
-      }
-    );
+      audioConfig: {
+        audioEncoding: "MP3" as const,
+        speakingRate: 1.0,
+        pitch: 0.0,
+      },
+    };
 
-    // Extract audio data from response
-    if (!response.data?.candidates?.[0]?.content?.parts?.[0]?.inlineData) {
-      functions.logger.error("❌ No audio in Gemini response:", JSON.stringify(response.data));
-      throw new Error("No audio content in Gemini response");
+    // Perform the text-to-speech request
+    const [response] = await ttsClient.synthesizeSpeech(request);
+
+    if (!response.audioContent) {
+      throw new Error("No audio content in Google Cloud TTS response");
     }
 
-    const audioBase64 = response.data.candidates[0].content.parts[0].inlineData.data;
-    const audioBuffer = Buffer.from(audioBase64, "base64");
+    const audioBuffer = Buffer.from(response.audioContent as Uint8Array);
 
     functions.logger.info(`💾 Saving to Storage (${audioBuffer.length} bytes)...`);
 
     // Save to Cloud Storage
     await file.save(audioBuffer, {
       metadata: {
-        contentType: "audio/wav",
+        contentType: "audio/mpeg",
         cacheControl: "public, max-age=604800", // 7 days
       },
     });
@@ -147,18 +118,18 @@ Text to speak: ${cleanText}`,
     await file.makePublic();
 
     const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
-    functions.logger.info("✅ === Gemini TTS Generation Complete ===");
+    functions.logger.info("✅ === Google Cloud TTS Generation Complete ===");
     functions.logger.info(`🔗 URL: ${publicUrl}`);
     functions.logger.info(`⏱️ Total time: ${Date.now() - startTime}ms`);
 
     return publicUrl;
   } catch (error: any) {
-    functions.logger.error("❌ === Gemini TTS Generation Failed ===");
+    functions.logger.error("❌ === Google Cloud TTS Generation Failed ===");
     functions.logger.error("Error:", error.message);
-    if (error.response) {
-      functions.logger.error("Response data:", JSON.stringify(error.response.data));
+    if (error.code) {
+      functions.logger.error("Error code:", error.code);
     }
-    throw new Error(`Gemini TTS generation failed: ${error.message}`);
+    throw new Error(`Google Cloud TTS generation failed: ${error.message}`);
   }
 }
 

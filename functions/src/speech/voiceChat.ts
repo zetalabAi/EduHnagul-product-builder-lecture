@@ -219,11 +219,11 @@ export const voiceChat = functions.https.onCall(
         formalityLevel: effectiveSession.formalityLevel,
       });
 
-      // Generate high-quality TTS with Gemini
-      functions.logger.info("🎤 Generating Gemini TTS audio...");
+      // Generate high-quality TTS with Google Cloud
+      functions.logger.info("🎤 Generating Google Cloud TTS audio...");
       const audioUrl = await generateGeminiTTS({
         text: dialogue, // Only dialogue, NOT full message!
-        voiceName: "Kore", // Gemini's natural Korean voice
+        voiceName: "ko-KR-Neural2-C", // Google Cloud female voice (or Neural2-A for male)
         temperature: 1.5,
         styleInstructions,
       });
