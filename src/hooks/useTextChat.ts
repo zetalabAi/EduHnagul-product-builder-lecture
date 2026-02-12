@@ -16,6 +16,7 @@ interface TextChatRequest {
 interface TextChatResponse {
   messageId: string;
   aiMessage: string;
+  learningTip?: string;
   remainingMinutes: number;
   inputTokens: number;
   outputTokens: number;

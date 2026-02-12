@@ -138,6 +138,7 @@ export interface MessageDocument {
 
   role: "user" | "assistant";
   content: string;
+  learningTip?: string | null; // Learning tip for assistant messages
 
   // Voice message specific
   audioUrl: string | null;

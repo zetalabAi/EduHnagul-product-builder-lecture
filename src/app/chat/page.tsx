@@ -134,10 +134,10 @@ export default function TextChatPage() {
 
   if (isLoading || creditsLoading || sessionsLoading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-900">
-        <div className="text-white text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-          <p>로딩 중...</p>
+      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50">
+        <div className="text-gray-900 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
+          <p className="text-lg font-medium">로딩 중...</p>
         </div>
       </div>
     );
@@ -146,10 +146,10 @@ export default function TextChatPage() {
   // Check if user has credits
   if (credits && credits.remainingMinutes <= 0 && credits.subscriptionTier !== "pro" && credits.subscriptionTier !== "pro+") {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-900 text-white">
-        <div className="text-center max-w-md px-6">
-          <h2 className="text-3xl font-bold mb-4">⏰ 시간 소진</h2>
-          <p className="text-gray-400 mb-2">이번 주 무료 시간을 모두 사용했어요!</p>
+      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50">
+        <div className="text-center max-w-md px-6 bg-white rounded-2xl shadow-xl p-8">
+          <h2 className="text-3xl font-bold mb-4 text-gray-900">⏰ 시간 소진</h2>
+          <p className="text-gray-600 mb-2">이번 주 무료 시간을 모두 사용했어요!</p>
           <p className="text-sm text-gray-500 mb-6">
             다음 충전: {credits.weeklyResetAt?.toLocaleDateString("ko-KR")}
           </p>
@@ -157,21 +157,21 @@ export default function TextChatPage() {
           <div className="space-y-3">
             <button
               onClick={() => router.push("/pricing")}
-              className="w-full bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-bold"
+              className="w-full bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-white px-6 py-3 rounded-lg font-bold shadow-md"
             >
               Pro로 업그레이드 (무제한!)
             </button>
             {credits.subscriptionTier === "free+" && (
               <button
                 onClick={() => toast("추가 구매 기능 준비 중")}
-                className="w-full bg-gray-700 hover:bg-gray-600 px-6 py-3 rounded-lg"
+                className="w-full bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-300 px-6 py-3 rounded-lg font-medium"
               >
                 추가 60분 구매 ($2)
               </button>
             )}
             <button
               onClick={() => router.push("/")}
-              className="w-full bg-gray-800 hover:bg-gray-700 px-6 py-3 rounded-lg"
+              className="w-full bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-300 px-6 py-3 rounded-lg font-medium"
             >
               홈으로
             </button>
@@ -184,7 +184,7 @@ export default function TextChatPage() {
   // If no session selected, show session selector
   if (!sessionId) {
     return (
-      <div className="flex h-screen bg-gray-900">
+      <div className="flex h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50">
         {/* Desktop sidebar - always visible */}
         <div className="hidden lg:block">
           <Sidebar
@@ -200,22 +200,22 @@ export default function TextChatPage() {
 
         {/* Mobile/tablet view */}
         <div className="flex-1 flex items-center justify-center lg:hidden">
-          <div className="text-center text-white px-6">
-            <h1 className="text-3xl font-bold mb-6">텍스트 대화</h1>
-            <p className="text-gray-400 mb-8">새 대화를 시작하거나 기존 대화를 선택하세요</p>
+          <div className="text-center px-6">
+            <h1 className="text-4xl font-bold mb-6 bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">텍스트 대화</h1>
+            <p className="text-gray-600 mb-8">새 대화를 시작하거나 기존 대화를 선택하세요</p>
             <div className="space-y-4">
               <button
                 onClick={handleNewSession}
-                className="w-full max-w-xs bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-bold"
+                className="w-full max-w-xs bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-white px-6 py-3 rounded-lg font-bold shadow-md"
               >
-                새 대화 시작
+                💬 새 대화 시작
               </button>
               {sessions.length > 0 && (
                 <button
                   onClick={() => setShowSidebar(true)}
-                  className="w-full max-w-xs bg-gray-700 hover:bg-gray-600 px-6 py-3 rounded-lg"
+                  className="w-full max-w-xs bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-300 px-6 py-3 rounded-lg font-medium"
                 >
-                  대화 기록 보기 ({sessions.length})
+                  📚 대화 기록 보기 ({sessions.length})
                 </button>
               )}
             </div>
@@ -224,9 +224,10 @@ export default function TextChatPage() {
 
         {/* Desktop empty state */}
         <div className="hidden lg:flex flex-1 items-center justify-center">
-          <div className="text-center text-white">
-            <h2 className="text-2xl font-bold mb-4">새 대화를 시작하세요</h2>
-            <p className="text-gray-400 mb-6">
+          <div className="text-center">
+            <div className="text-6xl mb-4">💬</div>
+            <h2 className="text-2xl font-bold mb-4 text-gray-900">새 대화를 시작하세요</h2>
+            <p className="text-gray-600 mb-6">
               왼쪽 사이드바에서 "New Session"을 클릭하거나<br />
               기존 대화를 선택하세요
             </p>
@@ -240,7 +241,7 @@ export default function TextChatPage() {
               className="absolute inset-0 bg-black/50"
               onClick={() => setShowSidebar(false)}
             />
-            <div className="absolute left-0 top-0 bottom-0 w-64 bg-white dark:bg-gray-900 transform transition-transform">
+            <div className="absolute left-0 top-0 bottom-0 w-64 bg-white transform transition-transform shadow-2xl">
               <Sidebar
                 sessions={sessions}
                 currentSessionId=""
@@ -274,7 +275,7 @@ export default function TextChatPage() {
   const isPro = credits.subscriptionTier === "pro" || credits.subscriptionTier === "pro+";
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50">
       {/* Desktop sidebar - always visible on large screens */}
       <div className="hidden lg:block">
         <Sidebar
@@ -295,7 +296,7 @@ export default function TextChatPage() {
             className="absolute inset-0 bg-black/50"
             onClick={() => setShowSidebar(false)}
           />
-          <div className="absolute left-0 top-0 bottom-0 w-64 bg-white dark:bg-gray-900 transform transition-transform">
+          <div className="absolute left-0 top-0 bottom-0 w-64 bg-white transform transition-transform shadow-2xl">
             <Sidebar
               sessions={sessions}
               currentSessionId={sessionId}

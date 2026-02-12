@@ -24,9 +24,9 @@ export function AdBanner({ adSlot = "1234567890", adFormat = "auto" }: AdBannerP
   // For development: Show placeholder
   if (process.env.NODE_ENV === "development") {
     return (
-      <div className="bg-gray-100 border-2 border-yellow-500 rounded-lg p-4 text-center">
+      <div className="bg-gray-700 border-2 border-yellow-500 rounded-lg p-4 text-center">
         <p className="text-yellow-400 text-sm font-bold mb-1">📺 광고 영역</p>
-        <p className="text-gray-500 text-xs">Google AdSense Banner</p>
+        <p className="text-gray-400 text-xs">Google AdSense Banner</p>
       </div>
     );
   }

@@ -50,10 +50,10 @@ export function DetailedAnalysis({ sessionId, onClose }: DetailedAnalysisProps) 
   if (isLoading) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-        <div className="bg-white rounded-xl p-8 text-center">
+        <div className="bg-gray-800 rounded-xl p-8 text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
-          <p className="text-gray-900 font-bold">AI가 대화를 분석 중...</p>
-          <p className="text-gray-500 text-sm mt-2">잠시만 기다려주세요</p>
+          <p className="text-white font-bold">AI가 대화를 분석 중...</p>
+          <p className="text-gray-400 text-sm mt-2">잠시만 기다려주세요</p>
         </div>
       </div>
     );
@@ -62,12 +62,12 @@ export function DetailedAnalysis({ sessionId, onClose }: DetailedAnalysisProps) 
   if (error || !analysis) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 px-4">
-        <div className="bg-white rounded-xl p-6 max-w-md w-full">
+        <div className="bg-gray-800 rounded-xl p-6 max-w-md w-full">
           <h3 className="text-xl font-bold mb-4 text-red-400">분석 실패</h3>
-          <p className="text-gray-600 mb-6">{error}</p>
+          <p className="text-gray-300 mb-6">{error}</p>
           <button
             onClick={onClose}
-            className="w-full bg-gray-100 hover:bg-gray-600 px-6 py-3 rounded-lg"
+            className="w-full bg-gray-700 hover:bg-gray-600 px-6 py-3 rounded-lg"
           >
             닫기
           </button>
@@ -78,10 +78,10 @@ export function DetailedAnalysis({ sessionId, onClose }: DetailedAnalysisProps) 
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 px-4 overflow-y-auto">
-      <div className="bg-white rounded-xl p-6 max-w-2xl w-full my-8">
+      <div className="bg-gray-800 rounded-xl p-6 max-w-2xl w-full my-8">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold">📊 디테일 대화 분석</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-900 text-2xl">
+          <button onClick={onClose} className="text-gray-400 hover:text-white text-2xl">
             ✕
           </button>
         </div>
@@ -126,7 +126,7 @@ export function DetailedAnalysis({ sessionId, onClose }: DetailedAnalysisProps) 
           </h3>
           <ul className="space-y-2">
             {analysis.suggestions.map((suggestion, idx) => (
-              <li key={idx} className="text-sm text-gray-700 flex items-start">
+              <li key={idx} className="text-sm text-gray-200 flex items-start">
                 <span className="text-blue-400 mr-2">•</span>
                 <span>{suggestion}</span>
               </li>
@@ -149,7 +149,7 @@ export function DetailedAnalysis({ sessionId, onClose }: DetailedAnalysisProps) 
                 setError(null);
                 loadAnalysis();
               }}
-              className="px-6 py-3 bg-gray-100 hover:bg-gray-600 rounded-lg"
+              className="px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg"
             >
               🔄
             </button>
@@ -173,7 +173,7 @@ function ScoreCard({
     score >= 80 ? "text-green-400" : score >= 60 ? "text-yellow-400" : "text-orange-400";
 
   return (
-    <div className="bg-gray-100 rounded-lg p-4">
+    <div className="bg-gray-700 rounded-lg p-4">
       <div className="flex items-center justify-between mb-2">
         <h4 className="font-bold text-sm">{title}</h4>
         <span className={`text-2xl font-bold ${color}`}>{score}</span>
@@ -188,7 +188,7 @@ function ScoreCard({
       </div>
       <ul className="space-y-1">
         {feedback.slice(0, 2).map((item, idx) => (
-          <li key={idx} className="text-xs text-gray-600 flex items-start">
+          <li key={idx} className="text-xs text-gray-300 flex items-start">
             <span className="mr-1">{idx === 0 ? "✅" : "⚠️"}</span>
             <span>{item}</span>
           </li>

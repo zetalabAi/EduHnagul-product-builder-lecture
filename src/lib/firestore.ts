@@ -141,11 +141,14 @@ export async function getMessagesBySession(sessionId: string, userId?: string): 
       userId: data.userId,
       role: data.role,
       content: data.content,
+      learningTip: data.learningTip || null,
+      audioUrl: data.audioUrl || null,
+      durationSeconds: data.durationSeconds || null,
       modelUsed: data.modelUsed || null,
       inputTokens: data.inputTokens || null,
       outputTokens: data.outputTokens || null,
       latencyMs: data.latencyMs || null,
-      createdAt: data.createdAt instanceof Timestamp ? data.createdAt : Timestamp.now(),
+      createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : new Date(),
     } as unknown as MessageDocument);
   });
 

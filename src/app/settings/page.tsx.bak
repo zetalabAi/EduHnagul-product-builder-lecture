@@ -131,7 +131,7 @@ export default function SettingsPage() {
         <div className="mb-6">
           <button
             onClick={() => router.push("/")}
-            className="flex items-center space-x-2 px-4 py-3 bg-white shadow-lg hover:bg-gray-100 rounded-lg text-blue-400 hover:text-blue-300 transition-colors active:scale-95 touch-manipulation"
+            className="flex items-center space-x-2 px-4 py-3 bg-white shadow-lg hover:bg-gray-700 rounded-lg text-blue-400 hover:text-blue-300 transition-colors active:scale-95 touch-manipulation"
           >
             <span className="text-lg">←</span>
             <span className="font-medium">홈으로</span>
@@ -151,7 +151,7 @@ export default function SettingsPage() {
                 type="email"
                 value={user.email || ""}
                 disabled
-                className="w-full bg-gray-100 text-gray-600 px-4 py-2 rounded-lg cursor-not-allowed"
+                className="w-full bg-gray-700 text-gray-600 px-4 py-2 rounded-lg cursor-not-allowed"
               />
             </div>
 
@@ -161,7 +161,7 @@ export default function SettingsPage() {
                 type="text"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                className="w-full bg-gray-100 text-gray-900 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-gray-700 text-gray-900 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="이름을 입력하세요"
               />
             </div>
@@ -175,7 +175,7 @@ export default function SettingsPage() {
             <button
               onClick={handleUpdateProfile}
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 disabled:bg-gray-100 px-6 py-3 rounded-lg font-bold"
+              className="w-full bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 disabled:bg-gray-700 px-6 py-3 rounded-lg font-bold"
             >
               {isLoading ? "업데이트 중..." : "프로필 업데이트"}
             </button>
@@ -192,7 +192,7 @@ export default function SettingsPage() {
           </p>
 
           <div className="space-y-3">
-            <label className="flex items-start space-x-3 p-4 bg-gray-100 hover:bg-gray-650 rounded-lg cursor-pointer transition">
+            <label className="flex items-start space-x-3 p-4 bg-gray-700 hover:bg-gray-650 rounded-lg cursor-pointer transition">
               <input
                 type="radio"
                 name="koreanLevel"
@@ -209,7 +209,7 @@ export default function SettingsPage() {
               </div>
             </label>
 
-            <label className="flex items-start space-x-3 p-4 bg-gray-100 hover:bg-gray-650 rounded-lg cursor-pointer transition">
+            <label className="flex items-start space-x-3 p-4 bg-gray-700 hover:bg-gray-650 rounded-lg cursor-pointer transition">
               <input
                 type="radio"
                 name="koreanLevel"
@@ -226,7 +226,7 @@ export default function SettingsPage() {
               </div>
             </label>
 
-            <label className="flex items-start space-x-3 p-4 bg-gray-100 hover:bg-gray-650 rounded-lg cursor-pointer transition">
+            <label className="flex items-start space-x-3 p-4 bg-gray-700 hover:bg-gray-650 rounded-lg cursor-pointer transition">
               <input
                 type="radio"
                 name="koreanLevel"
@@ -299,7 +299,7 @@ export default function SettingsPage() {
               <button
                 onClick={handleManageSubscription}
                 disabled={isLoading}
-                className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-100 px-6 py-3 rounded-lg font-bold mt-4"
+                className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-700 px-6 py-3 rounded-lg font-bold mt-4"
               >
                 구독 관리
               </button>
@@ -352,7 +352,7 @@ export default function SettingsPage() {
         <div className="bg-white shadow-lg rounded-xl p-6">
           <button
             onClick={handleLogout}
-            className="w-full bg-gray-100 hover:bg-gray-600 px-6 py-3 rounded-lg font-bold transition-colors flex items-center justify-center space-x-2 text-red-500 hover:text-red-400"
+            className="w-full bg-gray-700 hover:bg-gray-600 px-6 py-3 rounded-lg font-bold transition-colors flex items-center justify-center space-x-2 text-red-500 hover:text-red-400"
           >
             <span>🚪</span>
             <span>로그아웃</span>

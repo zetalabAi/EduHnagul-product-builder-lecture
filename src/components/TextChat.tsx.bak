@@ -23,7 +23,6 @@ interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
-  learningNote?: string; // 학습 노트 (텍스트만 표시)
   timestamp: Date;
   tokens?: {
     input: number;
@@ -45,7 +44,6 @@ export function TextChat({
   const [showSettings, setShowSettings] = useState(false);
   const [showBackConfirm, setShowBackConfirm] = useState(false);
   const [showEndConfirm, setShowEndConfirm] = useState(false);
-  const [expandedNotes, setExpandedNotes] = useState<Set<string>>(new Set()); // 펼쳐진 학습 노트 ID
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -96,7 +94,6 @@ export function TextChat({
             id: m.id,
             role: m.role,
             content: m.content,
-            learningNote: m.learningTip || undefined,
             timestamp: m.createdAt,
             tokens: m.inputTokens && m.outputTokens
               ? { input: m.inputTokens, output: m.outputTokens }
@@ -148,7 +145,6 @@ export function TextChat({
         id: response.messageId,
         role: "assistant",
         content: response.aiMessage,
-        learningNote: response.learningTip || undefined,
         timestamp: new Date(),
         tokens: {
           input: response.inputTokens,
@@ -203,15 +199,15 @@ export function TextChat({
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50 text-gray-900">
+    <div className="flex flex-col h-screen bg-gray-900 text-white">
       {/* Header */}
-      <div className="flex-shrink-0 bg-white px-6 py-4 flex items-center justify-between border-b border-gray-300">
+      <div className="flex-shrink-0 bg-gray-800 px-6 py-4 flex items-center justify-between border-b border-gray-700">
         <div className="flex items-center space-x-3">
           {/* Mobile: Menu button */}
           {onMenuClick && (
             <button
               onClick={onMenuClick}
-              className="lg:hidden text-gray-500 hover:text-gray-900 transition"
+              className="lg:hidden text-gray-400 hover:text-white transition"
               title="메뉴"
             >
               ☰
@@ -220,7 +216,7 @@ export function TextChat({
           {/* Back button - always visible */}
           <button
             onClick={handleBackClick}
-            className="text-gray-500 hover:text-gray-900 transition"
+            className="text-gray-400 hover:text-white transition"
             title="뒤로가기"
           >
             ← 뒤로
@@ -231,7 +227,7 @@ export function TextChat({
           <button
             onClick={() => setShowSettings(true)}
             disabled={isLoading}
-            className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium disabled:opacity-50"
+            className="px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm font-medium disabled:opacity-50"
             title="대화 설정"
           >
             ⚙️
@@ -261,7 +257,7 @@ export function TextChat({
             ✕
           </button>
           <div className="text-sm">
-            <span className="text-gray-500">남은:</span>{" "}
+            <span className="text-gray-400">남은:</span>{" "}
             <span className="font-bold text-blue-400">
               {remainingMinutes < 0 ? "∞" : `${remainingMinutes}분`}
             </span>
@@ -291,10 +287,10 @@ export function TextChat({
             className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
           >
             <div
-              className={`max-w-[70%] md:max-w-[60%] rounded-2xl px-4 py-3 ${
+              className={`max-w-[70%] md:max-w-[60%] rounded-lg px-4 py-3 ${
                 msg.role === "user"
-                  ? "bg-gradient-to-r from-primary-500 to-secondary-500 text-white"
-                  : "bg-white border border-gray-200 text-gray-900 shadow-sm"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-700 text-gray-100"
               }`}
             >
               <p className="whitespace-pre-wrap break-words">{msg.content}</p>
@@ -306,47 +302,18 @@ export function TextChat({
                   })}
                 </span>
                 {msg.tokens && isPro && (
-                  <span className="text-gray-500 ml-2">
+                  <span className="text-gray-400 ml-2">
                     {msg.tokens.input + msg.tokens.output} tokens
                   </span>
                 )}
               </div>
-
-              {/* 학습 노트 (AI 메시지에만) */}
-              {msg.role === "assistant" && msg.learningNote && (
-                <div className="mt-3 pt-3 border-t border-gray-300">
-                  <button
-                    onClick={() => {
-                      setExpandedNotes((prev) => {
-                        const next = new Set(prev);
-                        if (next.has(msg.id)) {
-                          next.delete(msg.id);
-                        } else {
-                          next.add(msg.id);
-                        }
-                        return next;
-                      });
-                    }}
-                    className="flex items-center justify-between w-full text-left text-sm text-amber-700 hover:text-amber-800 transition"
-                  >
-                    <span className="font-medium">💡 학습 팁 보기</span>
-                    <span className="text-xs">{expandedNotes.has(msg.id) ? '▲' : '▼'}</span>
-                  </button>
-
-                  {expandedNotes.has(msg.id) && (
-                    <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                      <p className="text-xs text-amber-900 whitespace-pre-wrap">{msg.learningNote}</p>
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
           </div>
         ))}
 
         {isLoading && (
           <div className="flex justify-start">
-            <div className="bg-gray-100 rounded-lg px-4 py-3">
+            <div className="bg-gray-700 rounded-lg px-4 py-3">
               <div className="flex space-x-2">
                 <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                 <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100"></div>
@@ -357,7 +324,7 @@ export function TextChat({
         )}
 
         {error && (
-          <div className="bg-red-50 rounded-lg px-4 py-3 text-red-700 border border-red-200 text-sm">
+          <div className="bg-red-900 bg-opacity-50 rounded-lg px-4 py-3 text-red-200 text-sm">
             ⚠️ {error}
           </div>
         )}
@@ -368,31 +335,31 @@ export function TextChat({
       {/* Assistant suggestions modal */}
       {suggestions.length > 0 && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 px-4">
-          <div className="bg-white rounded-xl p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto">
+          <div className="bg-gray-800 rounded-xl p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold">💡 이렇게 말해보세요!</h3>
               <button
                 onClick={clearSuggestions}
-                className="text-gray-500 hover:text-gray-900"
+                className="text-gray-400 hover:text-white"
               >
                 ✕
               </button>
             </div>
 
-            <p className="text-sm text-gray-500 mb-4">{usageInfo}</p>
+            <p className="text-sm text-gray-400 mb-4">{usageInfo}</p>
 
             <div className="space-y-3">
               {suggestions.map((suggestion, index) => (
                 <div
                   key={index}
                   onClick={() => handleUseSuggestion(suggestion.text)}
-                  className="bg-gray-100 hover:bg-gray-200 rounded-lg p-4 cursor-pointer transition"
+                  className="bg-gray-700 hover:bg-gray-600 rounded-lg p-4 cursor-pointer transition"
                 >
                   <p className="font-bold text-lg mb-2">{suggestion.text}</p>
-                  <p className="text-sm text-gray-600 mb-2">
+                  <p className="text-sm text-gray-300 mb-2">
                     {suggestion.translation}
                   </p>
-                  <p className="text-xs text-gray-500 italic">
+                  <p className="text-xs text-gray-400 italic">
                     💬 {suggestion.situation}
                   </p>
                 </div>
@@ -400,7 +367,7 @@ export function TextChat({
             </div>
 
             {assistantError && (
-              <div className="mt-4 bg-red-50 rounded-lg p-3 border border-red-200">
+              <div className="mt-4 bg-red-900 bg-opacity-50 rounded-lg p-3">
                 <p className="text-sm text-red-200">{assistantError}</p>
               </div>
             )}
@@ -409,7 +376,7 @@ export function TextChat({
       )}
 
       {/* Input Area */}
-      <div className="flex-shrink-0 bg-white border-t border-gray-300 p-4">
+      <div className="flex-shrink-0 bg-gray-800 border-t border-gray-700 p-4">
         <div className="max-w-4xl mx-auto">
           <div className="flex gap-2">
             <textarea
@@ -420,7 +387,7 @@ export function TextChat({
               placeholder="메시지 입력... (Enter: 전송, Shift+Enter: 줄바꿈)"
               disabled={isLoading}
               rows={1}
-              className="flex-1 bg-gray-100 text-gray-900 px-4 py-3 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 min-h-[48px] max-h-32"
+              className="flex-1 bg-gray-700 text-white px-4 py-3 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 min-h-[48px] max-h-32"
               style={{
                 height: "auto",
                 minHeight: "48px",
@@ -434,7 +401,7 @@ export function TextChat({
             <button
               onClick={handleSendMessage}
               disabled={!inputText.trim() || isLoading}
-              className="px-6 bg-primary-500 hover:bg-primary-600 disabled:bg-gray-100 disabled:text-gray-500 rounded-lg font-bold transition-colors min-w-[80px]"
+              className="px-6 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:text-gray-500 rounded-lg font-bold transition-colors min-w-[80px]"
             >
               {isLoading ? "..." : "전송"}
             </button>
@@ -461,12 +428,12 @@ export function TextChat({
       {/* Settings Modal */}
       {showSettings && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 px-4">
-          <div className="bg-white rounded-xl p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto">
+          <div className="bg-gray-800 rounded-xl p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold">⚙️ 대화 설정</h3>
               <button
                 onClick={() => setShowSettings(false)}
-                className="text-gray-500 hover:text-gray-900 text-xl"
+                className="text-gray-400 hover:text-white text-xl"
               >
                 ✕
               </button>
@@ -475,7 +442,7 @@ export function TextChat({
             <div className="space-y-6">
               {/* Persona */}
               <div>
-                <label className="block text-sm font-semibold text-gray-600 mb-2">
+                <label className="block text-sm font-semibold text-gray-300 mb-2">
                   👤 대화 상대 (Persona)
                 </label>
                 <select
@@ -483,12 +450,12 @@ export function TextChat({
                   onChange={(e) =>
                     setSessionSettings({ ...sessionSettings, persona: e.target.value })
                   }
-                  className="w-full px-4 py-2 bg-gray-100 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="friend">👥 친구 (Friend)</option>
                   <option value="lover">❤️ 연인 (Lover)</option>
                 </select>
-                <p className="mt-2 text-xs text-gray-500">
+                <p className="mt-2 text-xs text-gray-400">
                   {sessionSettings.persona === "friend" && "친구처럼 편안한 대화"}
                   {sessionSettings.persona === "lover" && "연인처럼 다정한 대화"}
                 </p>
@@ -496,7 +463,7 @@ export function TextChat({
 
               {/* Response Style */}
               <div>
-                <label className="block text-sm font-semibold text-gray-600 mb-2">
+                <label className="block text-sm font-semibold text-gray-300 mb-2">
                   💬 응답 스타일 (Response Style)
                 </label>
                 <select
@@ -504,13 +471,13 @@ export function TextChat({
                   onChange={(e) =>
                     setSessionSettings({ ...sessionSettings, responseStyle: e.target.value })
                   }
-                  className="w-full px-4 py-2 bg-gray-100 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="empathetic">😊 공감적 (Empathetic)</option>
                   <option value="balanced">⚖️ 균형적 (Balanced)</option>
                   <option value="blunt">💭 직설적 (Blunt)</option>
                 </select>
-                <p className="mt-2 text-xs text-gray-500">
+                <p className="mt-2 text-xs text-gray-400">
                   {sessionSettings.responseStyle === "empathetic" && "따뜻하고 공감적인 응답"}
                   {sessionSettings.responseStyle === "balanced" && "균형잡힌 자연스러운 응답"}
                   {sessionSettings.responseStyle === "blunt" && "솔직하고 직설적인 응답"}
@@ -519,7 +486,7 @@ export function TextChat({
 
               {/* Correction Strength */}
               <div>
-                <label className="block text-sm font-semibold text-gray-600 mb-2">
+                <label className="block text-sm font-semibold text-gray-300 mb-2">
                   ✏️ 교정 강도 (Correction Strength)
                 </label>
                 <select
@@ -527,12 +494,12 @@ export function TextChat({
                   onChange={(e) =>
                     setSessionSettings({ ...sessionSettings, correctionStrength: e.target.value })
                   }
-                  className="w-full px-4 py-2 bg-gray-100 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="minimal">🟢 최소 (Minimal)</option>
                   <option value="strict">🔴 엄격 (Strict)</option>
                 </select>
-                <p className="mt-2 text-xs text-gray-500">
+                <p className="mt-2 text-xs text-gray-400">
                   {sessionSettings.correctionStrength === "minimal" && "자연스러운 대화 우선, 큰 실수만 교정"}
                   {sessionSettings.correctionStrength === "strict" && "문법과 표현을 세밀하게 교정"}
                 </p>
@@ -540,7 +507,7 @@ export function TextChat({
 
               {/* Formality Level */}
               <div>
-                <label className="block text-sm font-semibold text-gray-600 mb-2">
+                <label className="block text-sm font-semibold text-gray-300 mb-2">
                   🎭 격식 수준 (Formality Level)
                 </label>
                 <select
@@ -548,14 +515,14 @@ export function TextChat({
                   onChange={(e) =>
                     setSessionSettings({ ...sessionSettings, formalityLevel: e.target.value })
                   }
-                  className="w-full px-4 py-2 bg-gray-100 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="formal">📋 격식체 (Formal)</option>
                   <option value="polite">🙂 존댓말 (Polite)</option>
                   <option value="casual">😊 반말 (Casual)</option>
                   <option value="intimate">🔥 친근한 반말 (Intimate)</option>
                 </select>
-                <p className="mt-2 text-xs text-gray-500">
+                <p className="mt-2 text-xs text-gray-400">
                   {sessionSettings.formalityLevel === "formal" && "격식있는 정중한 말투"}
                   {sessionSettings.formalityLevel === "polite" && "기본적인 존댓말"}
                   {sessionSettings.formalityLevel === "casual" && "친구같은 편한 반말"}
@@ -565,7 +532,7 @@ export function TextChat({
 
               {/* Korean Level */}
               <div>
-                <label className="block text-sm font-semibold text-gray-600 mb-2">
+                <label className="block text-sm font-semibold text-gray-300 mb-2">
                   📚 한국어 레벨 (Korean Level)
                 </label>
                 <select
@@ -586,13 +553,13 @@ export function TextChat({
                       }
                     }
                   }}
-                  className="w-full px-4 py-2 bg-gray-100 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="beginner">🌱 초급 (Beginner)</option>
                   <option value="intermediate">🌿 중급 (Intermediate)</option>
                   <option value="advanced">🌳 고급 (Advanced)</option>
                 </select>
-                <p className="mt-2 text-xs text-gray-500">
+                <p className="mt-2 text-xs text-gray-400">
                   {koreanLevel === "beginner" && "짧은 문장, 기본 어휘, 한 번에 1개 질문"}
                   {koreanLevel === "intermediate" && "자연스러운 대화, 일상 어휘, 한 번에 1-2개 질문"}
                   {koreanLevel === "advanced" && "원어민 수준, 다양한 표현, 질문 개수 제한 없음"}
@@ -600,8 +567,8 @@ export function TextChat({
               </div>
 
               {/* Info box */}
-              <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                <p className="text-sm text-blue-700">
+              <div className="bg-blue-900 bg-opacity-30 rounded-lg p-4 border border-blue-700">
+                <p className="text-sm text-blue-200">
                   💡 설정을 변경하면 다음 대화부터 즉시 적용됩니다.
                 </p>
               </div>
@@ -609,7 +576,7 @@ export function TextChat({
               {/* Close button */}
               <button
                 onClick={() => setShowSettings(false)}
-                className="w-full bg-primary-500 hover:bg-primary-600 px-6 py-3 rounded-lg font-bold transition"
+                className="w-full bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-bold transition"
               >
                 완료
               </button>
@@ -621,25 +588,25 @@ export function TextChat({
       {/* Back Confirmation Dialog */}
       {showBackConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 px-4">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full">
+          <div className="bg-gray-800 rounded-xl p-6 max-w-md w-full">
             <h3 className="text-xl font-bold mb-4">⚠️ 대화 중지</h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-300 mb-6">
               현재 대화를 중지하고 뒤로 가시겠습니까?
               <br />
-              <span className="text-sm text-gray-500 mt-2 block">
+              <span className="text-sm text-gray-400 mt-2 block">
                 (대화 기록은 저장되지 않습니다)
               </span>
             </p>
             <div className="flex space-x-3">
               <button
                 onClick={() => setShowBackConfirm(false)}
-                className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg font-bold transition"
+                className="flex-1 px-4 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-bold transition"
               >
                 계속 대화
               </button>
               <button
                 onClick={() => window.history.back()}
-                className="flex-1 px-4 py-3 bg-primary-500 hover:bg-primary-600 rounded-lg font-bold transition"
+                className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-bold transition"
               >
                 뒤로가기
               </button>
@@ -651,19 +618,19 @@ export function TextChat({
       {/* End Conversation Confirmation Dialog */}
       {showEndConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 px-4">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full">
+          <div className="bg-gray-800 rounded-xl p-6 max-w-md w-full">
             <h3 className="text-xl font-bold mb-4">✕ 대화 끝내기</h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-300 mb-6">
               대화를 종료하고 홈으로 돌아가시겠습니까?
               <br />
-              <span className="text-sm text-gray-500 mt-2 block">
+              <span className="text-sm text-gray-400 mt-2 block">
                 (현재 세션 데이터는 서버에 저장됩니다)
               </span>
             </p>
             <div className="flex space-x-3">
               <button
                 onClick={() => setShowEndConfirm(false)}
-                className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg font-bold transition"
+                className="flex-1 px-4 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-bold transition"
               >
                 취소
               </button>

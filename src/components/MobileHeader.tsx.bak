@@ -12,15 +12,15 @@ export default function MobileHeader({
   currentSettings,
 }: MobileHeaderProps) {
   return (
-    <div className="lg:hidden bg-white dark:bg-gray-50 border-b border-gray-200 dark:border-gray-200 px-4 py-3 flex items-center justify-between">
+    <div className="lg:hidden bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-4 py-3 flex items-center justify-between">
       {/* Menu Button */}
       <button
         onClick={onMenuClick}
-        className="p-2 hover:bg-gray-100 dark:hover:bg-white rounded-lg"
+        className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
         aria-label="Open menu"
       >
         <svg
-          className="w-6 h-6 text-gray-700 dark:text-gray-600"
+          className="w-6 h-6 text-gray-700 dark:text-gray-300"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -36,10 +36,10 @@ export default function MobileHeader({
 
       {/* Title & Settings Badge */}
       <div className="flex-1 text-center">
-        <h1 className="text-lg font-bold text-gray-800 dark:text-gray-700">
+        <h1 className="text-lg font-bold text-gray-800 dark:text-gray-200">
           Edu_Hangul
         </h1>
-        <div className="text-xs text-gray-500 dark:text-gray-500 mt-0.5">
+        <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
           {currentSettings}
         </div>
       </div>
@@ -47,11 +47,11 @@ export default function MobileHeader({
       {/* Settings Button */}
       <button
         onClick={onSettingsClick}
-        className="p-2 hover:bg-gray-100 dark:hover:bg-white rounded-lg"
+        className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
         aria-label="Open settings"
       >
         <svg
-          className="w-6 h-6 text-gray-700 dark:text-gray-600"
+          className="w-6 h-6 text-gray-700 dark:text-gray-300"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"

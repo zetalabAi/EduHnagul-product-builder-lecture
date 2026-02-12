@@ -137,22 +137,22 @@ export default function PricingPage() {
   const hasActiveSubscription = currentTier !== "free";
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 py-12 px-6">
+    <div className="min-h-screen bg-gray-900 text-white py-12 px-6">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-4xl font-bold text-center mb-4">요금제</h1>
-        <p className="text-gray-500 text-center mb-8">
+        <p className="text-gray-400 text-center mb-8">
           한국어 학습에 딱 맞는 플랜을 선택하세요
         </p>
 
         {/* Billing Cycle Toggle */}
         <div className="flex justify-center mb-8">
-          <div className="bg-white rounded-lg p-1 flex">
+          <div className="bg-gray-800 rounded-lg p-1 flex">
             <button
               onClick={() => setBillingCycle("monthly")}
               className={`px-6 py-2 rounded-md font-medium transition ${
                 billingCycle === "monthly"
-                  ? "bg-primary-500 text-gray-900"
-                  : "text-gray-500 hover:text-gray-900"
+                  ? "bg-blue-600 text-white"
+                  : "text-gray-400 hover:text-white"
               }`}
             >
               월간
@@ -161,8 +161,8 @@ export default function PricingPage() {
               onClick={() => setBillingCycle("yearly")}
               className={`px-6 py-2 rounded-md font-medium transition ${
                 billingCycle === "yearly"
-                  ? "bg-primary-500 text-gray-900"
-                  : "text-gray-500 hover:text-gray-900"
+                  ? "bg-blue-600 text-white"
+                  : "text-gray-400 hover:text-white"
               }`}
             >
               연간 <span className="text-green-400 text-sm ml-1">2개월 무료!</span>
@@ -174,7 +174,7 @@ export default function PricingPage() {
         {hasActiveSubscription && (
           <div className="bg-blue-900 bg-opacity-50 rounded-lg p-4 mb-8 text-center">
             <p className="text-blue-200">
-              현재 플랜: <span className="font-bold text-gray-900 uppercase">{currentTier}</span>
+              현재 플랜: <span className="font-bold text-white uppercase">{currentTier}</span>
             </p>
             <button
               onClick={handleManageSubscription}
@@ -189,9 +189,9 @@ export default function PricingPage() {
         {/* Pricing Cards */}
         <div className="grid md:grid-cols-4 gap-6 mb-8">
           {/* Free */}
-          <div className="bg-white rounded-xl p-6 border-2 border-gray-300">
+          <div className="bg-gray-800 rounded-xl p-6 border-2 border-gray-700">
             <h3 className="text-2xl font-bold mb-2">Free</h3>
-            <p className="text-gray-500 text-sm mb-4">맛보기</p>
+            <p className="text-gray-400 text-sm mb-4">맛보기</p>
             <p className="text-4xl font-bold mb-6">$0</p>
 
             <ul className="space-y-3 mb-6 text-sm">
@@ -215,19 +215,19 @@ export default function PricingPage() {
 
             <button
               disabled
-              className="w-full bg-gray-100 text-gray-500 px-6 py-3 rounded-lg font-bold cursor-not-allowed"
+              className="w-full bg-gray-700 text-gray-500 px-6 py-3 rounded-lg font-bold cursor-not-allowed"
             >
               현재 플랜
             </button>
           </div>
 
           {/* Free+ */}
-          <div className="bg-white rounded-xl p-6 border-2 border-blue-500">
+          <div className="bg-gray-800 rounded-xl p-6 border-2 border-blue-500">
             <h3 className="text-2xl font-bold mb-2">Free+</h3>
-            <p className="text-gray-500 text-sm mb-4">광고 제거</p>
+            <p className="text-gray-400 text-sm mb-4">광고 제거</p>
             <p className="text-4xl font-bold mb-6">
               ${billingCycle === "monthly" ? "4.9" : "59"}
-              <span className="text-lg text-gray-500">
+              <span className="text-lg text-gray-400">
                 /{billingCycle === "monthly" ? "월" : "년"}
               </span>
             </p>
@@ -254,19 +254,19 @@ export default function PricingPage() {
             <button
               onClick={() => handleSubscribe("free+", billingCycle === "yearly")}
               disabled={isLoading || currentTier === "free+"}
-              className="w-full bg-primary-500 hover:bg-primary-600 disabled:bg-gray-100 disabled:text-gray-500 px-6 py-3 rounded-lg font-bold"
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:text-gray-500 px-6 py-3 rounded-lg font-bold"
             >
               {currentTier === "free+" ? "현재 플랜" : "선택하기"}
             </button>
           </div>
 
           {/* Pro */}
-          <div className="bg-white rounded-xl p-6 border-2 border-purple-500">
+          <div className="bg-gray-800 rounded-xl p-6 border-2 border-purple-500">
             <h3 className="text-2xl font-bold mb-2">Pro</h3>
-            <p className="text-gray-500 text-sm mb-4">무제한 대화</p>
+            <p className="text-gray-400 text-sm mb-4">무제한 대화</p>
             <p className="text-4xl font-bold mb-6">
               ${billingCycle === "monthly" ? "20.9" : "209"}
-              <span className="text-lg text-gray-500">
+              <span className="text-lg text-gray-400">
                 /{billingCycle === "monthly" ? "월" : "년"}
               </span>
             </p>
@@ -293,7 +293,7 @@ export default function PricingPage() {
             <button
               onClick={() => handleSubscribe("pro", billingCycle === "yearly")}
               disabled={isLoading || currentTier === "pro"}
-              className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-100 disabled:text-gray-500 px-6 py-3 rounded-lg font-bold"
+              className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-700 disabled:text-gray-500 px-6 py-3 rounded-lg font-bold"
             >
               {currentTier === "pro" ? "현재 플랜" : "선택하기"}
             </button>
@@ -306,10 +306,10 @@ export default function PricingPage() {
             </div>
 
             <h3 className="text-2xl font-bold mb-2">Pro+</h3>
-            <p className="text-gray-900 text-sm mb-4">최고 플랜</p>
+            <p className="text-gray-100 text-sm mb-4">최고 플랜</p>
             <p className="text-4xl font-bold mb-6">
               ${billingCycle === "monthly" ? "30.9" : "309"}
-              <span className="text-lg text-gray-900">
+              <span className="text-lg text-gray-100">
                 /{billingCycle === "monthly" ? "월" : "년"}
               </span>
             </p>
@@ -336,7 +336,7 @@ export default function PricingPage() {
             <button
               onClick={() => handleSubscribe("pro+", billingCycle === "yearly")}
               disabled={isLoading || currentTier === "pro+"}
-              className="w-full bg-white text-orange-600 hover:bg-gray-100 disabled:bg-gray-100 disabled:text-gray-500 px-6 py-3 rounded-lg font-bold"
+              className="w-full bg-white text-orange-600 hover:bg-gray-100 disabled:bg-gray-700 disabled:text-gray-500 px-6 py-3 rounded-lg font-bold"
             >
               {currentTier === "pro+" ? "현재 플랜" : "선택하기"}
             </button>
@@ -344,12 +344,12 @@ export default function PricingPage() {
         </div>
 
         {/* Feature Comparison Table */}
-        <div className="bg-white rounded-xl p-6">
+        <div className="bg-gray-800 rounded-xl p-6">
           <h3 className="text-2xl font-bold mb-6 text-center">상세 비교</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-300">
+                <tr className="border-b border-gray-700">
                   <th className="text-left py-3 px-4">기능</th>
                   <th className="text-center py-3 px-4">Free</th>
                   <th className="text-center py-3 px-4">Free+</th>
@@ -358,35 +358,35 @@ export default function PricingPage() {
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-b border-gray-300">
+                <tr className="border-b border-gray-700">
                   <td className="py-3 px-4">주간 대화 시간</td>
                   <td className="text-center py-3 px-4">15분</td>
                   <td className="text-center py-3 px-4">25분</td>
                   <td className="text-center py-3 px-4 text-green-400">무제한</td>
                   <td className="text-center py-3 px-4 text-green-400">무제한</td>
                 </tr>
-                <tr className="border-b border-gray-300">
+                <tr className="border-b border-gray-700">
                   <td className="py-3 px-4">광고</td>
                   <td className="text-center py-3 px-4 text-red-400">있음</td>
                   <td className="text-center py-3 px-4 text-green-400">없음</td>
                   <td className="text-center py-3 px-4 text-green-400">없음</td>
                   <td className="text-center py-3 px-4 text-green-400">없음</td>
                 </tr>
-                <tr className="border-b border-gray-300">
+                <tr className="border-b border-gray-700">
                   <td className="py-3 px-4">대화 분석</td>
                   <td className="text-center py-3 px-4">평생 1회</td>
                   <td className="text-center py-3 px-4">평생 1회</td>
                   <td className="text-center py-3 px-4">일 3회</td>
                   <td className="text-center py-3 px-4 text-yellow-400">일 7회</td>
                 </tr>
-                <tr className="border-b border-gray-300">
+                <tr className="border-b border-gray-700">
                   <td className="py-3 px-4">대화 도우미</td>
                   <td className="text-center py-3 px-4 text-gray-500">없음</td>
                   <td className="text-center py-3 px-4">주 1회</td>
                   <td className="text-center py-3 px-4 text-green-400">무제한</td>
                   <td className="text-center py-3 px-4 text-green-400">무제한</td>
                 </tr>
-                <tr className="border-b border-gray-300">
+                <tr className="border-b border-gray-700">
                   <td className="py-3 px-4">AI 모델</td>
                   <td className="text-center py-3 px-4">Sonnet 3.5</td>
                   <td className="text-center py-3 px-4">Sonnet 3.5</td>
@@ -407,7 +407,7 @@ export default function PricingPage() {
 
         {/* FAQ */}
         <div className="mt-12 text-center">
-          <p className="text-gray-500 text-sm mb-2">질문이 있으신가요?</p>
+          <p className="text-gray-400 text-sm mb-2">질문이 있으신가요?</p>
           <button
             onClick={() => router.push("/")}
             className="text-blue-400 hover:text-blue-300 text-sm underline"

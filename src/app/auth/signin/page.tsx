@@ -173,11 +173,20 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo/Title */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-indigo-600 mb-2">Edu_Hangul</h1>
+          <div className="flex justify-center mb-4">
+            <img
+              src="/icons/icon-192x192.png"
+              alt="Edu_Hangul"
+              width={80}
+              height={80}
+              className="rounded-xl shadow-lg"
+            />
+          </div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent mb-2">Edu_Hangul</h1>
           <p className="text-gray-600">AI 한국어 학습 플랫폼</p>
         </div>
 
@@ -202,7 +211,7 @@ export default function SignInPage() {
               disabled={isLoading}
               className={`flex-1 py-2 rounded-md font-medium transition-all ${
                 mode === "signin"
-                  ? "bg-indigo-600 text-white shadow-sm"
+                  ? "bg-primary-500 text-white shadow-sm"
                   : "text-gray-600 hover:text-gray-900"
               }`}
             >
@@ -213,7 +222,7 @@ export default function SignInPage() {
               disabled={isLoading}
               className={`flex-1 py-2 rounded-md font-medium transition-all ${
                 mode === "signup"
-                  ? "bg-indigo-600 text-white shadow-sm"
+                  ? "bg-primary-500 text-white shadow-sm"
                   : "text-gray-600 hover:text-gray-900"
               }`}
             >
@@ -270,7 +279,7 @@ export default function SignInPage() {
                   type="text"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent outline-none transition-all"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
                   placeholder="홍길동"
                   required
                   disabled={isLoading}
@@ -287,7 +296,7 @@ export default function SignInPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent outline-none transition-all"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
                 placeholder="example@email.com"
                 required
                 disabled={isLoading}
@@ -303,7 +312,7 @@ export default function SignInPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent outline-none transition-all"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
                 placeholder="최소 6자 이상"
                 required
                 disabled={isLoading}
@@ -323,7 +332,7 @@ export default function SignInPage() {
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent outline-none transition-all"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
                   placeholder="비밀번호를 다시 입력하세요"
                   required
                   disabled={isLoading}
@@ -334,7 +343,7 @@ export default function SignInPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 px-4 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
+              className="w-full py-3 px-4 bg-primary-500 text-white font-medium rounded-lg hover:bg-primary-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
             >
               {isLoading ? "처리 중..." : mode === "signin" ? "로그인" : "회원가입"}
             </button>
@@ -344,8 +353,8 @@ export default function SignInPage() {
         {/* Footer */}
         <p className="text-center text-sm text-gray-600 mt-6">
           계정을 생성하면{" "}
-          <button className="text-indigo-600 hover:underline">이용약관</button>과{" "}
-          <button className="text-indigo-600 hover:underline">개인정보처리방침</button>에 동의하는
+          <button className="text-primary-600 hover:underline">이용약관</button>과{" "}
+          <button className="text-primary-600 hover:underline">개인정보처리방침</button>에 동의하는
           것으로 간주됩니다.
         </p>
       </div>

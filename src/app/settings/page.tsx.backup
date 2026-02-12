@@ -119,19 +119,19 @@ export default function SettingsPage() {
 
   if (!user || !credits) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50">
-        <div className="text-gray-900">로딩 중...</div>
+      <div className="flex items-center justify-center h-screen bg-gray-900">
+        <div className="text-white">로딩 중...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 text-gray-900 py-8 px-4 md:py-12 md:px-6">
+    <div className="min-h-screen bg-gray-900 text-white py-8 px-4 md:py-12 md:px-6">
       <div className="max-w-2xl mx-auto">
         <div className="mb-6">
           <button
             onClick={() => router.push("/")}
-            className="flex items-center space-x-2 px-4 py-3 bg-white shadow-lg hover:bg-gray-100 rounded-lg text-blue-400 hover:text-blue-300 transition-colors active:scale-95 touch-manipulation"
+            className="flex items-center space-x-2 px-4 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg text-blue-400 hover:text-blue-300 transition-colors active:scale-95 touch-manipulation"
           >
             <span className="text-lg">←</span>
             <span className="font-medium">홈으로</span>
@@ -141,27 +141,27 @@ export default function SettingsPage() {
         <h1 className="text-4xl font-bold mb-8">프로필</h1>
 
         {/* Account Info */}
-        <div className="bg-white shadow-lg rounded-xl p-6 mb-6">
+        <div className="bg-gray-800 rounded-xl p-6 mb-6">
           <h2 className="text-2xl font-bold mb-4">계정 정보</h2>
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm text-gray-600 mb-1">이메일</label>
+              <label className="block text-sm text-gray-400 mb-1">이메일</label>
               <input
                 type="email"
                 value={user.email || ""}
                 disabled
-                className="w-full bg-gray-100 text-gray-600 px-4 py-2 rounded-lg cursor-not-allowed"
+                className="w-full bg-gray-700 text-gray-400 px-4 py-2 rounded-lg cursor-not-allowed"
               />
             </div>
 
             <div>
-              <label className="block text-sm text-gray-600 mb-1">이름</label>
+              <label className="block text-sm text-gray-400 mb-1">이름</label>
               <input
                 type="text"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                className="w-full bg-gray-100 text-gray-900 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-gray-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="이름을 입력하세요"
               />
             </div>
@@ -175,7 +175,7 @@ export default function SettingsPage() {
             <button
               onClick={handleUpdateProfile}
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 disabled:bg-gray-100 px-6 py-3 rounded-lg font-bold"
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 px-6 py-3 rounded-lg font-bold"
             >
               {isLoading ? "업데이트 중..." : "프로필 업데이트"}
             </button>
@@ -183,16 +183,16 @@ export default function SettingsPage() {
         </div>
 
         {/* Korean Level Selection */}
-        <div className="bg-white shadow-lg rounded-xl p-6 mb-6">
+        <div className="bg-gray-800 rounded-xl p-6 mb-6">
           <h2 className="text-2xl font-bold mb-4">📚 한국어 레벨</h2>
-          <p className="text-sm text-gray-600 mb-4">
+          <p className="text-sm text-gray-400 mb-4">
             AI가 당신의 레벨에 맞춰 대화합니다. 레벨이 높을수록 더 많은 질문과 복잡한 표현을 사용합니다.
             <br />
             <span className="text-blue-400">💡 선택하면 즉시 저장되며, 모든 대화에 자동으로 적용됩니다.</span>
           </p>
 
           <div className="space-y-3">
-            <label className="flex items-start space-x-3 p-4 bg-gray-100 hover:bg-gray-650 rounded-lg cursor-pointer transition">
+            <label className="flex items-start space-x-3 p-4 bg-gray-700 hover:bg-gray-650 rounded-lg cursor-pointer transition">
               <input
                 type="radio"
                 name="koreanLevel"
@@ -202,14 +202,14 @@ export default function SettingsPage() {
                 className="mt-1 w-4 h-4 text-blue-600"
               />
               <div className="flex-1">
-                <div className="font-bold text-gray-900">🌱 초급 (Beginner)</div>
-                <div className="text-sm text-gray-600 mt-1">
+                <div className="font-bold text-white">🌱 초급 (Beginner)</div>
+                <div className="text-sm text-gray-400 mt-1">
                   짧은 문장, 기본 어휘, 한 번에 1개 질문
                 </div>
               </div>
             </label>
 
-            <label className="flex items-start space-x-3 p-4 bg-gray-100 hover:bg-gray-650 rounded-lg cursor-pointer transition">
+            <label className="flex items-start space-x-3 p-4 bg-gray-700 hover:bg-gray-650 rounded-lg cursor-pointer transition">
               <input
                 type="radio"
                 name="koreanLevel"
@@ -219,14 +219,14 @@ export default function SettingsPage() {
                 className="mt-1 w-4 h-4 text-blue-600"
               />
               <div className="flex-1">
-                <div className="font-bold text-gray-900">🌿 중급 (Intermediate)</div>
-                <div className="text-sm text-gray-600 mt-1">
+                <div className="font-bold text-white">🌿 중급 (Intermediate)</div>
+                <div className="text-sm text-gray-400 mt-1">
                   자연스러운 대화, 일상 어휘, 한 번에 1-2개 질문
                 </div>
               </div>
             </label>
 
-            <label className="flex items-start space-x-3 p-4 bg-gray-100 hover:bg-gray-650 rounded-lg cursor-pointer transition">
+            <label className="flex items-start space-x-3 p-4 bg-gray-700 hover:bg-gray-650 rounded-lg cursor-pointer transition">
               <input
                 type="radio"
                 name="koreanLevel"
@@ -236,8 +236,8 @@ export default function SettingsPage() {
                 className="mt-1 w-4 h-4 text-blue-600"
               />
               <div className="flex-1">
-                <div className="font-bold text-gray-900">🌳 고급 (Advanced)</div>
-                <div className="text-sm text-gray-600 mt-1">
+                <div className="font-bold text-white">🌳 고급 (Advanced)</div>
+                <div className="text-sm text-gray-400 mt-1">
                   원어민 수준, 다양한 표현, 질문 개수 제한 없음
                 </div>
               </div>
@@ -246,18 +246,18 @@ export default function SettingsPage() {
         </div>
 
         {/* Subscription Info */}
-        <div className="bg-white shadow-lg rounded-xl p-6 mb-6">
+        <div className="bg-gray-800 rounded-xl p-6 mb-6">
           <h2 className="text-2xl font-bold mb-4">구독 정보</h2>
 
           <div className="space-y-3">
             <div className="flex justify-between">
-              <span className="text-gray-600">현재 플랜</span>
+              <span className="text-gray-400">현재 플랜</span>
               <span className="font-bold uppercase">{credits.subscriptionTier}</span>
             </div>
 
             {credits.subscriptionStatus && (
               <div className="flex justify-between">
-                <span className="text-gray-600">상태</span>
+                <span className="text-gray-400">상태</span>
                 <span
                   className={`font-medium ${
                     credits.subscriptionStatus === "active"
@@ -277,7 +277,7 @@ export default function SettingsPage() {
             )}
 
             <div className="flex justify-between">
-              <span className="text-gray-600">주간 사용 시간</span>
+              <span className="text-gray-400">주간 사용 시간</span>
               <span>
                 {credits.weeklyMinutesUsed}분 /{" "}
                 {credits.subscriptionTier === "pro" || credits.subscriptionTier === "pro+"
@@ -290,7 +290,7 @@ export default function SettingsPage() {
 
             {credits.weeklyResetAt && (
               <div className="flex justify-between">
-                <span className="text-gray-600">다음 충전</span>
+                <span className="text-gray-400">다음 충전</span>
                 <span>{credits.weeklyResetAt.toLocaleDateString("ko-KR")}</span>
               </div>
             )}
@@ -299,7 +299,7 @@ export default function SettingsPage() {
               <button
                 onClick={handleManageSubscription}
                 disabled={isLoading}
-                className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-100 px-6 py-3 rounded-lg font-bold mt-4"
+                className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-700 px-6 py-3 rounded-lg font-bold mt-4"
               >
                 구독 관리
               </button>
@@ -308,7 +308,7 @@ export default function SettingsPage() {
             {credits.subscriptionTier === "free" && (
               <button
                 onClick={() => router.push("/pricing")}
-                className="w-full bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 px-6 py-3 rounded-lg font-bold mt-4"
+                className="w-full bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-bold mt-4"
               >
                 플랜 업그레이드
               </button>
@@ -317,12 +317,12 @@ export default function SettingsPage() {
         </div>
 
         {/* Usage Stats */}
-        <div className="bg-white shadow-lg rounded-xl p-6 mb-6">
+        <div className="bg-gray-800 rounded-xl p-6 mb-6">
           <h2 className="text-2xl font-bold mb-4">사용 현황</h2>
 
           <div className="space-y-3">
             <div className="flex justify-between">
-              <span className="text-gray-600">대화 도우미 사용</span>
+              <span className="text-gray-400">대화 도우미 사용</span>
               <span>
                 {credits.weeklyAssistantUsed}회 /{" "}
                 {credits.subscriptionTier === "pro" || credits.subscriptionTier === "pro+"
@@ -334,7 +334,7 @@ export default function SettingsPage() {
             </div>
 
             <div className="flex justify-between">
-              <span className="text-gray-600">분석 사용</span>
+              <span className="text-gray-400">분석 사용</span>
               <span>
                 {credits.subscriptionTier === "free" || credits.subscriptionTier === "free+"
                   ? credits.analysisUsedLifetime
@@ -349,10 +349,10 @@ export default function SettingsPage() {
         </div>
 
         {/* Logout Button */}
-        <div className="bg-white shadow-lg rounded-xl p-6">
+        <div className="bg-gray-800 rounded-xl p-6">
           <button
             onClick={handleLogout}
-            className="w-full bg-gray-100 hover:bg-gray-600 px-6 py-3 rounded-lg font-bold transition-colors flex items-center justify-center space-x-2 text-red-500 hover:text-red-400"
+            className="w-full bg-gray-700 hover:bg-gray-600 px-6 py-3 rounded-lg font-bold transition-colors flex items-center justify-center space-x-2 text-red-500 hover:text-red-400"
           >
             <span>🚪</span>
             <span>로그아웃</span>

@@ -27,15 +27,15 @@ export function AdInterstitial({ onClose, countdown = 5 }: AdInterstitialProps) 
   if (process.env.NODE_ENV === "development") {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-95 flex items-center justify-center z-50">
-        <div className="bg-white rounded-xl p-8 max-w-md w-full mx-4">
+        <div className="bg-gray-800 rounded-xl p-8 max-w-md w-full mx-4">
           <div className="text-center mb-6">
             <p className="text-yellow-400 text-2xl font-bold mb-2">📺 전면 광고</p>
-            <p className="text-gray-500 text-sm">Google AdSense Interstitial</p>
+            <p className="text-gray-400 text-sm">Google AdSense Interstitial</p>
           </div>
 
-          <div className="bg-gray-100 rounded-lg p-8 mb-6 text-center">
+          <div className="bg-gray-700 rounded-lg p-8 mb-6 text-center">
             <p className="text-6xl mb-4">🎬</p>
-            <p className="text-gray-600">광고 영역</p>
+            <p className="text-gray-300">광고 영역</p>
             <p className="text-gray-500 text-sm mt-2">
               실제 배포 시 AdSense 광고 표시
             </p>
@@ -50,8 +50,8 @@ export function AdInterstitial({ onClose, countdown = 5 }: AdInterstitialProps) 
             </button>
           ) : (
             <div className="text-center">
-              <p className="text-gray-500 text-sm mb-2">광고를 보는 중...</p>
-              <p className="text-gray-900 text-3xl font-bold">{secondsLeft}초</p>
+              <p className="text-gray-400 text-sm mb-2">광고를 보는 중...</p>
+              <p className="text-white text-3xl font-bold">{secondsLeft}초</p>
             </div>
           )}
 
@@ -69,7 +69,7 @@ export function AdInterstitial({ onClose, countdown = 5 }: AdInterstitialProps) 
   // Production: Real AdSense
   return (
     <div className="fixed inset-0 bg-black bg-opacity-95 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+      <div className="bg-gray-800 rounded-xl p-6 max-w-md w-full mx-4">
         <div className="ad-interstitial-container mb-4">
           <ins
             className="adsbygoogle"
@@ -90,7 +90,7 @@ export function AdInterstitial({ onClose, countdown = 5 }: AdInterstitialProps) 
           </button>
         ) : (
           <div className="text-center">
-            <p className="text-gray-500 text-sm">{secondsLeft}초 후 건너뛸 수 있습니다</p>
+            <p className="text-gray-400 text-sm">{secondsLeft}초 후 건너뛸 수 있습니다</p>
           </div>
         )}
       </div>
