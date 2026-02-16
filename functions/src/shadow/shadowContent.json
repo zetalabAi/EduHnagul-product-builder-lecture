@@ -1,0 +1,248 @@
+{
+  "daily_greeting": {
+    "id": "daily_greeting",
+    "title": "일상 인사",
+    "category": "daily",
+    "difficulty": 1,
+    "duration": 10,
+    "audioUrl": "/audio/shadow/daily_greeting.mp3",
+    "transcript": "안녕하세요! 오늘 날씨가 정말 좋네요. 산책하기 딱 좋은 날씨예요.",
+    "sentences": [
+      {
+        "text": "안녕하세요!",
+        "startTime": 0,
+        "endTime": 1.5,
+        "speed": 1.0,
+        "emphasis": [0],
+        "tone": "friendly"
+      },
+      {
+        "text": "오늘 날씨가 정말 좋네요.",
+        "startTime": 2.0,
+        "endTime": 4.5,
+        "speed": 1.0,
+        "emphasis": [2, 3],
+        "tone": "cheerful"
+      },
+      {
+        "text": "산책하기 딱 좋은 날씨예요.",
+        "startTime": 5.0,
+        "endTime": 8.0,
+        "speed": 1.0,
+        "emphasis": [1, 3],
+        "tone": "pleasant"
+      }
+    ],
+    "learningPoints": [
+      "'-네요' 억양: 끝을 올려서 말하기",
+      "'딱'의 강조: 짧고 강하게",
+      "문장 끝 '요'의 자연스러운 발음"
+    ],
+    "settings": {
+      "level1": { "speed": 0.7, "delay": 1000, "pause": true },
+      "level2": { "speed": 1.0, "delay": 500, "pause": false },
+      "level3": { "speed": 1.2, "delay": 200, "pause": false },
+      "level4": { "speed": 1.5, "delay": 0, "pause": false }
+    }
+  },
+  "business_meeting": {
+    "id": "business_meeting",
+    "title": "회의 발표",
+    "category": "business",
+    "difficulty": 3,
+    "duration": 20,
+    "audioUrl": "/audio/shadow/business_meeting.mp3",
+    "transcript": "안녕하세요, 여러분. 이번 분기 실적에 대해 말씀드리겠습니다. 매출이 전년 대비 15% 증가했고, 고객 만족도도 크게 향상되었습니다.",
+    "sentences": [
+      {
+        "text": "안녕하세요, 여러분.",
+        "startTime": 0,
+        "endTime": 2.0,
+        "speed": 0.9,
+        "emphasis": [1],
+        "tone": "professional"
+      },
+      {
+        "text": "이번 분기 실적에 대해 말씀드리겠습니다.",
+        "startTime": 2.5,
+        "endTime": 5.5,
+        "speed": 1.0,
+        "emphasis": [1, 2],
+        "tone": "formal"
+      },
+      {
+        "text": "매출이 전년 대비 15% 증가했고,",
+        "startTime": 6.0,
+        "endTime": 9.0,
+        "speed": 1.0,
+        "emphasis": [0, 3, 4],
+        "tone": "confident"
+      },
+      {
+        "text": "고객 만족도도 크게 향상되었습니다.",
+        "startTime": 9.5,
+        "endTime": 12.5,
+        "speed": 1.0,
+        "emphasis": [0, 2, 3],
+        "tone": "positive"
+      }
+    ],
+    "learningPoints": [
+      "비즈니스 톤: 안정적이고 자신감 있게",
+      "숫자 발음: '15%' 명확하게",
+      "전문 용어의 자연스러운 리듬"
+    ],
+    "settings": {
+      "level1": { "speed": 0.7, "delay": 1000, "pause": true },
+      "level2": { "speed": 1.0, "delay": 500, "pause": false },
+      "level3": { "speed": 1.2, "delay": 200, "pause": false },
+      "level4": { "speed": 1.5, "delay": 0, "pause": false }
+    }
+  },
+  "casual_chat": {
+    "id": "casual_chat",
+    "title": "친구와 대화",
+    "category": "casual",
+    "difficulty": 2,
+    "duration": 15,
+    "audioUrl": "/audio/shadow/casual_chat.mp3",
+    "transcript": "야, 주말에 뭐 해? 우리 영화 보러 갈래? 새로 나온 거 진짜 재밌대!",
+    "sentences": [
+      {
+        "text": "야, 주말에 뭐 해?",
+        "startTime": 0,
+        "endTime": 2.0,
+        "speed": 1.1,
+        "emphasis": [0, 2],
+        "tone": "casual"
+      },
+      {
+        "text": "우리 영화 보러 갈래?",
+        "startTime": 2.5,
+        "endTime": 4.5,
+        "speed": 1.0,
+        "emphasis": [1, 3],
+        "tone": "inviting"
+      },
+      {
+        "text": "새로 나온 거 진짜 재밌대!",
+        "startTime": 5.0,
+        "endTime": 7.5,
+        "speed": 1.2,
+        "emphasis": [0, 3],
+        "tone": "excited"
+      }
+    ],
+    "learningPoints": [
+      "반말 톤: 편하고 자연스럽게",
+      "'야'의 자연스러운 사용",
+      "'-래?' 억양: 끝을 올려서"
+    ],
+    "settings": {
+      "level1": { "speed": 0.7, "delay": 1000, "pause": true },
+      "level2": { "speed": 1.0, "delay": 500, "pause": false },
+      "level3": { "speed": 1.2, "delay": 200, "pause": false },
+      "level4": { "speed": 1.5, "delay": 0, "pause": false }
+    }
+  },
+  "drama_scene": {
+    "id": "drama_scene",
+    "title": "드라마 명장면",
+    "category": "drama",
+    "difficulty": 4,
+    "duration": 25,
+    "audioUrl": "/audio/shadow/drama_scene.mp3",
+    "transcript": "정말... 정말 미안해. 내가 잘못했어. 다시 한 번만 기회를 줘. 제발...",
+    "sentences": [
+      {
+        "text": "정말... 정말 미안해.",
+        "startTime": 0,
+        "endTime": 3.0,
+        "speed": 0.8,
+        "emphasis": [0, 1, 2],
+        "tone": "apologetic"
+      },
+      {
+        "text": "내가 잘못했어.",
+        "startTime": 3.5,
+        "endTime": 5.5,
+        "speed": 0.9,
+        "emphasis": [0, 1],
+        "tone": "regretful"
+      },
+      {
+        "text": "다시 한 번만 기회를 줘.",
+        "startTime": 6.0,
+        "endTime": 9.0,
+        "speed": 0.9,
+        "emphasis": [0, 2, 4],
+        "tone": "pleading"
+      },
+      {
+        "text": "제발...",
+        "startTime": 9.5,
+        "endTime": 11.0,
+        "speed": 0.7,
+        "emphasis": [0],
+        "tone": "desperate"
+      }
+    ],
+    "learningPoints": [
+      "감정 표현: 진심을 담아서",
+      "말줄임(...): 감정적인 멈춤",
+      "간절함의 톤: 목소리 떨림"
+    ],
+    "settings": {
+      "level1": { "speed": 0.7, "delay": 1000, "pause": true },
+      "level2": { "speed": 1.0, "delay": 500, "pause": false },
+      "level3": { "speed": 1.2, "delay": 200, "pause": false },
+      "level4": { "speed": 1.5, "delay": 0, "pause": false }
+    }
+  },
+  "kdrama_confession": {
+    "id": "kdrama_confession",
+    "title": "고백 장면",
+    "category": "drama",
+    "difficulty": 3,
+    "duration": 18,
+    "audioUrl": "/audio/shadow/kdrama_confession.mp3",
+    "transcript": "사실은... 너를 좋아해. 오래전부터. 이제야 말하게 됐네.",
+    "sentences": [
+      {
+        "text": "사실은... 너를 좋아해.",
+        "startTime": 0,
+        "endTime": 4.0,
+        "speed": 0.8,
+        "emphasis": [0, 2],
+        "tone": "nervous"
+      },
+      {
+        "text": "오래전부터.",
+        "startTime": 4.5,
+        "endTime": 6.5,
+        "speed": 0.9,
+        "emphasis": [0],
+        "tone": "sincere"
+      },
+      {
+        "text": "이제야 말하게 됐네.",
+        "startTime": 7.0,
+        "endTime": 10.0,
+        "speed": 1.0,
+        "emphasis": [0, 2],
+        "tone": "relieved"
+      }
+    ],
+    "learningPoints": [
+      "고백 톤: 떨리지만 진심으로",
+      "말줄임의 감정적 효과",
+      "'-네'의 자연스러운 억양"
+    ],
+    "settings": {
+      "level1": { "speed": 0.7, "delay": 1000, "pause": true },
+      "level2": { "speed": 1.0, "delay": 500, "pause": false },
+      "level3": { "speed": 1.2, "delay": 200, "pause": false },
+      "level4": { "speed": 1.5, "delay": 0, "pause": false }
+    }
+  }
+}

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import toast from "react-hot-toast";
 import {
   signInWithPopup,
@@ -178,7 +179,7 @@ export default function SignInPage() {
         {/* Logo/Title */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <img
+            <Image
               src="/icons/icon-192x192.png"
               alt="Edu_Hangul"
               width={80}

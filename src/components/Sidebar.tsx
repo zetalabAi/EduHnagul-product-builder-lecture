@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, memo } from "react";
 import { Session } from "@/types";
 import ContextMenu from "./ContextMenu";
 
@@ -14,7 +14,7 @@ interface SidebarProps {
   onDeleteSession: (sessionId: string) => void;
 }
 
-export default function Sidebar({
+const Sidebar = memo(function Sidebar({
   sessions,
   currentSessionId,
   onSessionSelect,
@@ -145,4 +145,6 @@ export default function Sidebar({
       )}
     </div>
   );
-}
+});
+
+export default Sidebar;

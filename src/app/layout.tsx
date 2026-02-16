@@ -1,6 +1,16 @@
 import type { Metadata, Viewport } from "next";
+import { Noto_Sans_KR } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
+
+// Optimize Korean font with Next.js font optimization
+const notoSansKR = Noto_Sans_KR({
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  display: "swap",
+  preload: true,
+  variable: "--font-noto-sans-kr",
+});
 
 export const metadata: Metadata = {
   title: "Edu_Hangul - AI 한국어 학습",
@@ -34,7 +44,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko">
+    <html lang="ko" className={notoSansKR.variable}>
       <head>
         {/* PWA 메타 태그 */}
         <meta name="application-name" content="Edu_Hangul" />
@@ -59,7 +69,7 @@ export default function RootLayout({
           crossOrigin="anonymous"
         ></script>
       </head>
-      <body className="antialiased">
+      <body className={`${notoSansKR.className} antialiased`}>
         <Toaster
           position="top-center"
           toastOptions={{

@@ -2,15 +2,31 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import toast from "react-hot-toast";
 import { onAuthStateChanged } from "firebase/auth";
 import { httpsCallable } from "firebase/functions";
 import { auth, functions } from "@/lib/firebase";
-import { TextChat } from "@/components/TextChat";
 import { useUserCredits } from "@/hooks/useUserCredits";
 import { useSessionHistory } from "@/hooks/useSessionHistory";
 import Sidebar from "@/components/Sidebar";
 import RenameDialog from "@/components/RenameDialog";
+
+// Dynamic import for TextChat to reduce initial bundle size
+const TextChat = dynamic(
+  () => import("@/components/TextChat").then((mod) => ({ default: mod.TextChat })),
+  {
+    loading: () => (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">채팅 로딩 중...</p>
+        </div>
+      </div>
+    ),
+    ssr: false,
+  }
+);
 
 interface CreateSessionResponse {
   sessionId: string;

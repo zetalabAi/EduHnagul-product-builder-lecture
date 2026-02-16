@@ -1,0 +1,436 @@
+{
+  "ep001": {
+    "id": "ep001",
+    "season": 1,
+    "episode": 1,
+    "title": "카페에서 우연히",
+    "difficulty": "beginner",
+    "description": "서울에 온 첫 날, 카페에서 매력적인 바리스타를 만나요.",
+    "thumbnail": "/drama/ep001_thumb.jpg",
+    "learningGoals": [
+      "카페 주문하기",
+      "자기소개",
+      "간단한 대화",
+      "존댓말 사용"
+    ],
+    "characters": [
+      {
+        "id": "barista",
+        "name": "지수",
+        "role": "바리스타",
+        "personality": "친절하고 외향적",
+        "sprite": "/characters/barista.png"
+      }
+    ],
+    "scenes": [
+      {
+        "id": "scene1",
+        "background": "/backgrounds/cafe.jpg",
+        "narrator": "서울에 온 첫 날. 피곤한 당신은 홍대 거리를 걷다가 작은 카페를 발견합니다. 따뜻한 조명과 커피 향기가 당신을 반깁니다.",
+        "dialogue": [
+          {
+            "character": "barista",
+            "text": "안녕하세요! 어서오세요~ 😊",
+            "audio": "/audio/ep001_s1_barista_1.mp3"
+          },
+          {
+            "character": "narrator",
+            "text": "뭐라고 대답할까요?"
+          }
+        ],
+        "userTurn": true,
+        "expectedResponses": [
+          "안녕하세요",
+          "안녕하세요!",
+          "hello",
+          "hi"
+        ],
+        "hints": [
+          "한국에서는 '안녕하세요'라고 인사해요",
+          "존댓말로 말해보세요",
+          "밝은 목소리로 인사하면 좋아요!"
+        ],
+        "nextScene": "scene2"
+      },
+      {
+        "id": "scene2",
+        "background": "/backgrounds/cafe.jpg",
+        "dialogue": [
+          {
+            "character": "barista",
+            "text": "뭐 드릴까요?"
+          },
+          {
+            "character": "narrator",
+            "text": "주문해볼까요? 어떻게 말할까요?"
+          }
+        ],
+        "userTurn": true,
+        "choices": [
+          {
+            "id": "choice1",
+            "text": "아메리카노 주세요",
+            "difficulty": "easy",
+            "points": 10,
+            "nextScene": "scene3_good"
+          },
+          {
+            "id": "choice2",
+            "text": "음... 뭐가 맛있어요?",
+            "difficulty": "medium",
+            "points": 20,
+            "nextScene": "scene3_better"
+          },
+          {
+            "id": "choice3",
+            "text": "추천해 주세요! 저 커피 잘 몰라요 ㅠㅠ",
+            "difficulty": "hard",
+            "points": 30,
+            "nextScene": "scene3_best",
+            "note": "친근하게 대화 시작!"
+          }
+        ]
+      },
+      {
+        "id": "scene3_good",
+        "background": "/backgrounds/cafe.jpg",
+        "dialogue": [
+          {
+            "character": "barista",
+            "text": "네! 아메리카노 나왔습니다~ ☕"
+          },
+          {
+            "character": "narrator",
+            "text": "커피를 받았습니다. (+10점)"
+          }
+        ],
+        "userTurn": false,
+        "nextScene": "scene4"
+      },
+      {
+        "id": "scene3_better",
+        "background": "/backgrounds/cafe.jpg",
+        "dialogue": [
+          {
+            "character": "barista",
+            "text": "아! 저는 카페라떼 좋아해요. 그리고 바닐라라떼도 인기 많아요!"
+          },
+          {
+            "character": "narrator",
+            "text": "바리스타가 친절하게 설명해줍니다. (+20점)"
+          }
+        ],
+        "userTurn": true,
+        "choices": [
+          {
+            "id": "choice4",
+            "text": "그럼 카페라떼 주세요",
+            "difficulty": "easy",
+            "points": 10,
+            "nextScene": "scene4"
+          },
+          {
+            "id": "choice5",
+            "text": "바닐라라떼로 할게요!",
+            "difficulty": "easy",
+            "points": 10,
+            "nextScene": "scene4"
+          }
+        ]
+      },
+      {
+        "id": "scene3_best",
+        "background": "/backgrounds/cafe.jpg",
+        "dialogue": [
+          {
+            "character": "barista",
+            "text": "오! 한국어 잘하시네요~ 😊 저는 카페라떼 좋아해요!"
+          },
+          {
+            "character": "narrator",
+            "text": "바리스타가 호감을 보입니다! (+30점)"
+          },
+          {
+            "character": "barista",
+            "text": "한국 처음이세요?"
+          }
+        ],
+        "userTurn": true,
+        "expectedResponses": [
+          "네",
+          "네!",
+          "네, 처음이에요",
+          "yes"
+        ],
+        "hints": [
+          "'네' 또는 '네, 처음이에요'라고 대답해보세요"
+        ],
+        "nextScene": "scene5_special"
+      },
+      {
+        "id": "scene4",
+        "background": "/backgrounds/cafe.jpg",
+        "dialogue": [
+          {
+            "character": "barista",
+            "text": "여기 있습니다~ 맛있게 드세요!"
+          },
+          {
+            "character": "narrator",
+            "text": "커피를 받고 자리에 앉았습니다. 피로가 조금 풀리는 것 같습니다."
+          },
+          {
+            "character": "narrator",
+            "text": "에피소드 종료"
+          }
+        ],
+        "userTurn": false,
+        "nextScene": "ending"
+      },
+      {
+        "id": "scene5_special",
+        "background": "/backgrounds/cafe.jpg",
+        "dialogue": [
+          {
+            "character": "barista",
+            "text": "우와! 한국어 정말 잘하시네요! 혹시 어디서 왔어요?"
+          },
+          {
+            "character": "narrator",
+            "text": "자기소개를 할 차례입니다!"
+          }
+        ],
+        "userTurn": true,
+        "expectedResponses": [
+          "미국에서 왔어요",
+          "미국",
+          "I'm from America",
+          "영국에서 왔어요",
+          "영국",
+          "일본에서 왔어요",
+          "일본"
+        ],
+        "hints": [
+          "'[나라]에서 왔어요'라고 말해보세요",
+          "예: 미국에서 왔어요"
+        ],
+        "nextScene": "scene6_friendship"
+      },
+      {
+        "id": "scene6_friendship",
+        "background": "/backgrounds/cafe.jpg",
+        "dialogue": [
+          {
+            "character": "barista",
+            "text": "저도 외국 가보고 싶어요! 😄 혹시 시간 있으면 한국 이것저것 알려줄게요!"
+          },
+          {
+            "character": "narrator",
+            "text": "지수가 연락처를 건넵니다!"
+          },
+          {
+            "character": "barista",
+            "text": "제 이름은 지수예요. 친구하실래요?"
+          },
+          {
+            "character": "narrator",
+            "text": "완벽한 첫 만남! (+50점 보너스)"
+          }
+        ],
+        "userTurn": false,
+        "nextScene": "ending"
+      }
+    ],
+    "endings": [
+      {
+        "id": "perfect_ending",
+        "title": "완벽한 첫 만남 💕",
+        "condition": {
+          "minScore": 80,
+          "minPronunciation": 0.85
+        },
+        "description": "지수와 친구가 되었어요! 연락처도 교환했습니다! 앞으로 서울 생활이 기대되네요!",
+        "rewards": {
+          "xp": 200,
+          "badge": "drama_master_ep001",
+          "unlocks": ["ep002", "ep003"]
+        },
+        "image": "/endings/ep001_perfect.jpg"
+      },
+      {
+        "id": "good_ending",
+        "title": "좋은 시작 😊",
+        "condition": {
+          "minScore": 50,
+          "minPronunciation": 0.7
+        },
+        "description": "지수와 즐거운 대화를 나눴어요! 카페 분위기도 좋고, 다음에 또 오고 싶네요.",
+        "rewards": {
+          "xp": 100,
+          "unlocks": ["ep002"]
+        },
+        "image": "/endings/ep001_good.jpg"
+      },
+      {
+        "id": "normal_ending",
+        "title": "첫 주문 성공 ☕",
+        "condition": {
+          "minScore": 0
+        },
+        "description": "커피는 맛있게 마셨어요. 다음엔 더 잘할 수 있을 거예요! 한국어 공부를 계속해봐요!",
+        "rewards": {
+          "xp": 50,
+          "unlocks": ["ep002"]
+        },
+        "image": "/endings/ep001_normal.jpg"
+      }
+    ]
+  },
+  "ep002": {
+    "id": "ep002",
+    "season": 1,
+    "episode": 2,
+    "title": "길을 잃다",
+    "difficulty": "beginner",
+    "description": "홍대에서 길을 잃었어요. 지나가는 사람에게 길을 물어봐야 할 것 같아요.",
+    "thumbnail": "/drama/ep002_thumb.jpg",
+    "learningGoals": [
+      "길 묻기",
+      "방향 이해하기",
+      "감사 인사",
+      "위치 표현"
+    ],
+    "characters": [
+      {
+        "id": "passerby",
+        "name": "민준",
+        "role": "지나가는 사람",
+        "personality": "바쁘지만 친절함",
+        "sprite": "/characters/passerby.png"
+      }
+    ],
+    "scenes": [
+      {
+        "id": "scene1",
+        "background": "/backgrounds/hongdae_street.jpg",
+        "narrator": "홍대 거리를 걷다가 길을 잃었습니다. 스마트폰 배터리도 거의 없네요. 지나가는 사람에게 물어봐야 할 것 같아요.",
+        "dialogue": [
+          {
+            "character": "narrator",
+            "text": "어떻게 말을 걸까요?"
+          }
+        ],
+        "userTurn": true,
+        "choices": [
+          {
+            "id": "choice1",
+            "text": "저기요!",
+            "difficulty": "easy",
+            "points": 10,
+            "nextScene": "scene2_casual"
+          },
+          {
+            "id": "choice2",
+            "text": "실례합니다",
+            "difficulty": "medium",
+            "points": 20,
+            "nextScene": "scene2_polite"
+          },
+          {
+            "id": "choice3",
+            "text": "죄송한데요, 잠깐만요",
+            "difficulty": "hard",
+            "points": 30,
+            "nextScene": "scene2_very_polite",
+            "note": "매우 공손한 표현!"
+          }
+        ]
+      },
+      {
+        "id": "scene2_polite",
+        "background": "/backgrounds/hongdae_street.jpg",
+        "dialogue": [
+          {
+            "character": "passerby",
+            "text": "네? 무슨 일이세요?"
+          },
+          {
+            "character": "narrator",
+            "text": "길을 물어봐요!"
+          }
+        ],
+        "userTurn": true,
+        "expectedResponses": [
+          "지하철역이 어디예요?",
+          "지하철역 어디예요?",
+          "홍대입구역이 어디예요?",
+          "where is subway"
+        ],
+        "hints": [
+          "'[장소]이/가 어디예요?'라고 물어보세요",
+          "예: 지하철역이 어디예요?"
+        ],
+        "nextScene": "scene3_direction"
+      },
+      {
+        "id": "scene3_direction",
+        "background": "/backgrounds/hongdae_street.jpg",
+        "dialogue": [
+          {
+            "character": "passerby",
+            "text": "아! 지하철역이요? 저기 직진하시면 있어요!"
+          },
+          {
+            "character": "passerby",
+            "text": "5분 정도 걸어가시면 돼요~"
+          },
+          {
+            "character": "narrator",
+            "text": "감사 인사를 해봐요!"
+          }
+        ],
+        "userTurn": true,
+        "expectedResponses": [
+          "감사합니다",
+          "고맙습니다",
+          "thank you",
+          "thanks"
+        ],
+        "hints": [
+          "'감사합니다' 또는 '고맙습니다'라고 말해보세요"
+        ],
+        "nextScene": "ending"
+      }
+    ],
+    "endings": [
+      {
+        "id": "perfect_ending",
+        "title": "길 찾기 성공! 🗺️",
+        "condition": {
+          "minScore": 60,
+          "minPronunciation": 0.8
+        },
+        "description": "무사히 지하철역을 찾았어요! 한국 사람들은 정말 친절하네요!",
+        "rewards": {
+          "xp": 150,
+          "badge": "navigator_ep002",
+          "unlocks": ["ep003"]
+        },
+        "image": "/endings/ep002_perfect.jpg"
+      },
+      {
+        "id": "good_ending",
+        "title": "길 찾기 완료 ✅",
+        "condition": {
+          "minScore": 0
+        },
+        "description": "지하철역을 찾았어요. 길 묻는 법을 배웠습니다!",
+        "rewards": {
+          "xp": 80,
+          "unlocks": ["ep003"]
+        },
+        "image": "/endings/ep002_good.jpg"
+      }
+    ]
+  }
+}

@@ -4,323 +4,224 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import Image from "next/image";
+import { LearningMode, DailyMission } from "@/types/gamification";
+import { useUserProgress } from "@/hooks/useUserProgress";
 
+// Components
+import WelcomeHeader from "@/components/HomePage/WelcomeHeader";
+import ModeCards from "@/components/HomePage/ModeCards";
+import QuickStart from "@/components/HomePage/QuickStart";
+import ProgressWidget from "@/components/HomePage/ProgressWidget";
+import DailyMissions from "@/components/HomePage/DailyMissions";
+import GardenPreview from "@/components/HomePage/GardenPreview";
+
+/**
+ * Edu_Hangul 2.0 Home Page
+ * 게임화 요소를 포함한 새로운 홈페이지
+ */
 export default function HomePage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
 
+  // Fetch user progress data
+  const progressData = useUserProgress(user?.uid || null);
+
+  // Auth check
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setIsLoading(false);
+      if (!currentUser) {
+        router.push("/auth/signin");
+      } else {
+        setUser(currentUser);
+        setIsAuthLoading(false);
+      }
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [router]);
 
-  if (isLoading) {
+  // Learning Modes
+  const learningModes: LearningMode[] = [
+    {
+      id: "conversation",
+      title: "실전 회화",
+      subtitle: "친구처럼 자연스러운 한국어 대화",
+      icon: "💬",
+      color: "from-blue-500 to-purple-600",
+      available: true,
+      route: "/chat",
+    },
+    {
+      id: "tutor",
+      title: "AI 튜터",
+      subtitle: "체계적인 문법과 어휘 학습",
+      icon: "🎓",
+      color: "from-green-500 to-teal-600",
+      available: false, // 곧 추가 예정
+      route: "/tutor",
+    },
+  ];
+
+  // Mission click handler
+  const handleMissionClick = (mission: DailyMission) => {
+    if (mission.completed) return;
+
+    // Navigate based on mission type
+    switch (mission.type) {
+      case "chat":
+        router.push("/chat");
+        break;
+      case "voice":
+        router.push("/voice");
+        break;
+      case "practice":
+        router.push("/garden");
+        break;
+      default:
+        break;
+    }
+  };
+
+  // Loading state
+  if (isAuthLoading || progressData.isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50">
-        <div className="text-primary-600 text-lg font-medium">로딩 중...</div>
+      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-primary-500 mx-auto mb-4"></div>
+          <p className="text-lg font-medium text-gray-900 dark:text-gray-100">
+            로딩 중...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (progressData.error) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
+        <div className="text-center max-w-md">
+          <div className="text-6xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+            데이터 로딩 실패
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            {progressData.error}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-lg font-medium"
+          >
+            다시 시도
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Image
-              src="/icons/icon-192x192.png"
-              alt="Edu_Hangul"
-              width={40}
-              height={40}
-              className="rounded-lg"
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        {/* Welcome Header */}
+        <WelcomeHeader
+          userName={progressData.userProgress.displayName}
+          streak={progressData.streak.currentStreak}
+          profileImage={user?.photoURL}
+        />
+
+        {/* Main Layout: 2-column on desktop */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column (2/3 width on desktop) */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Learning Mode Cards */}
+            <ModeCards modes={learningModes} />
+
+            {/* Quick Start */}
+            <QuickStart />
+
+            {/* Daily Missions */}
+            <DailyMissions
+              missions={progressData.dailyMissions}
+              onMissionClick={handleMissionClick}
             />
-            <span className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
-              Edu_Hangul
-            </span>
           </div>
-          <div className="flex items-center gap-4">
-            {user ? (
-              <>
-                <a
-                  href="/chat"
-                  className="hidden md:inline-block text-gray-600 hover:text-primary-600 transition font-medium"
-                >
-                  💬 텍스트
-                </a>
-                <a
-                  href="/voice"
-                  className="hidden md:inline-block text-gray-600 hover:text-primary-600 transition font-medium"
-                >
-                  🎤 음성
-                </a>
-                <a
-                  href="/pricing"
-                  className="hidden md:inline-block text-gray-600 hover:text-primary-600 transition font-medium"
-                >
-                  💰 요금제
-                </a>
-                <a
-                  href="/settings"
-                  className="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition font-medium shadow-md"
-                >
-                  👤 프로필
-                </a>
-              </>
-            ) : (
-              <>
-                <a
-                  href="/auth/signin"
-                  className="text-gray-600 hover:text-primary-600 transition font-medium"
-                >
-                  로그인
-                </a>
-                <a
-                  href="/auth/signin"
-                  className="bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 rounded-lg font-semibold transition shadow-md"
-                >
-                  시작하기
-                </a>
-              </>
-            )}
+
+          {/* Right Column (1/3 width on desktop) */}
+          <div className="space-y-6">
+            {/* Progress Widget */}
+            <ProgressWidget
+              xpProgress={progressData.xpProgress}
+              weeklyProgress={progressData.weeklyProgress}
+              streak={progressData.streak}
+            />
+
+            {/* Mistake Garden Preview */}
+            <GardenPreview items={progressData.mistakeGarden} />
           </div>
         </div>
-      </header>
 
-      {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32">
-        <div className="text-center">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6">
-            AI와 함께하는
-            <br />
-            <span className="bg-gradient-to-r from-primary-500 via-primary-600 to-secondary-500 bg-clip-text text-transparent">
-              자연스러운 한국어 학습
-            </span>
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            K-드라마처럼 자연스럽게, AI 선생님과 실시간 대화하며 배우세요
-            <br />
-            <span className="text-gray-500 text-lg">
-              교과서가 아닌, 실제 대화 수준의 한국어
-            </span>
-          </p>
+        {/* Bottom Navigation (Mobile) */}
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center justify-around">
+          <button
+            onClick={() => router.push("/")}
+            className="flex flex-col items-center gap-1 text-primary-600 dark:text-primary-400"
+          >
+            <svg
+              className="w-6 h-6"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+            </svg>
+            <span className="text-xs font-medium">홈</span>
+          </button>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-            {user ? (
-              <>
-                <a
-                  href="/voice"
-                  className="w-full sm:w-auto bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition shadow-lg hover:shadow-xl transform hover:scale-105"
-                >
-                  🎤 음성 대화 시작
-                </a>
-                <a
-                  href="/chat"
-                  className="w-full sm:w-auto bg-white hover:bg-gray-50 text-primary-600 border-2 border-primary-500 px-8 py-4 rounded-xl font-bold text-lg transition shadow-md"
-                >
-                  💬 텍스트 채팅 시작
-                </a>
-              </>
-            ) : (
-              <>
-                <a
-                  href="/auth/signin"
-                  className="w-full sm:w-auto bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-white px-10 py-4 rounded-xl font-bold text-lg transition shadow-lg hover:shadow-xl transform hover:scale-105"
-                >
-                  무료로 시작하기
-                </a>
-                <a
-                  href="/pricing"
-                  className="w-full sm:w-auto bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-300 px-10 py-4 rounded-xl font-bold text-lg transition"
-                >
-                  요금제 보기
-                </a>
-              </>
-            )}
-          </div>
+          <button
+            onClick={() => router.push("/chat")}
+            className="flex flex-col items-center gap-1 text-gray-600 dark:text-gray-400"
+          >
+            <svg
+              className="w-6 h-6"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <span className="text-xs font-medium">채팅</span>
+          </button>
 
-          <p className="text-sm text-gray-500">
-            ✨ 무료 체험: 주 15분 음성 대화 | 프리미엄 $4.9/월부터
-          </p>
+          <button
+            onClick={() => router.push("/garden")}
+            className="flex flex-col items-center gap-1 text-gray-600 dark:text-gray-400"
+          >
+            <span className="text-2xl">🌸</span>
+            <span className="text-xs font-medium">정원</span>
+          </button>
+
+          <button
+            onClick={() => router.push("/settings")}
+            className="flex flex-col items-center gap-1 text-gray-600 dark:text-gray-400"
+          >
+            <svg
+              className="w-6 h-6"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <span className="text-xs font-medium">설정</span>
+          </button>
         </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 text-gray-900">
-          ✨ 주요 기능
-        </h2>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {/* Feature 1 - 실시간 피드백 */}
-          <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
-            <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-3xl">🎯</span>
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-3 text-center">
-              실시간 피드백
-            </h3>
-            <p className="text-gray-600 text-center">
-              AI가 발음, 문법, 표현을 즉시 교정해드려요
-            </p>
-          </div>
-
-          {/* Feature 2 - 맞춤형 학습 */}
-          <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
-            <div className="w-16 h-16 bg-secondary-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-3xl">💖</span>
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-3 text-center">
-              맞춤형 학습
-            </h3>
-            <p className="text-gray-600 text-center">
-              연인, 친구, 선생님 등 원하는 페르소나 선택
-            </p>
-          </div>
-
-          {/* Feature 3 - 학습 성과 추적 */}
-          <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
-            <div className="w-16 h-16 bg-success-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-3xl">📊</span>
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-3 text-center">
-              학습 성과 추적
-            </h3>
-            <p className="text-gray-600 text-center">
-              대화 기록과 실력 향상을 한눈에 확인
-            </p>
-          </div>
-
-          {/* Feature 4 - 음성 대화 */}
-          <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
-            <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-3xl">🎤</span>
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-3 text-center">
-              음성 대화
-            </h3>
-            <p className="text-gray-600 text-center">
-              실시간 음성 인식으로 말하면서 배우세요
-            </p>
-          </div>
-
-          {/* Feature 5 - Claude AI */}
-          <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
-            <div className="w-16 h-16 bg-secondary-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-3xl">🤖</span>
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-3 text-center">
-              Claude AI
-            </h3>
-            <p className="text-gray-600 text-center">
-              최신 Claude 4로 자연스럽고 정확한 대화
-            </p>
-          </div>
-
-          {/* Feature 6 - 대화 도우미 */}
-          <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
-            <div className="w-16 h-16 bg-success-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-3xl">💡</span>
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-3 text-center">
-              대화 도우미
-            </h3>
-            <p className="text-gray-600 text-center">
-              막힐 때 AI가 자연스러운 문장을 제안해줘요
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-        <div className="bg-gradient-to-r from-primary-500 to-secondary-500 rounded-3xl p-12 shadow-2xl">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white">
-            지금 바로 시작하세요!
-          </h2>
-          <p className="text-xl text-white/90 mb-8">
-            무료로 주 15분 음성 대화 + 무제한 텍스트 채팅
-          </p>
-          {!user && (
-            <a
-              href="/auth/signin"
-              className="inline-block bg-white hover:bg-gray-100 text-primary-600 px-12 py-4 rounded-xl font-bold text-xl transition shadow-lg transform hover:scale-105"
-            >
-              무료 회원가입
-            </a>
-          )}
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-4 md:mb-0">
-              <p className="text-gray-600">
-                © 2026 Edu_Hangul. All rights reserved.
-              </p>
-            </div>
-            <div className="flex gap-6">
-              <a href="/pricing" className="text-gray-600 hover:text-primary-600 transition">
-                요금제
-              </a>
-              <a href="/settings" className="text-gray-600 hover:text-primary-600 transition">
-                프로필
-              </a>
-            </div>
-          </div>
-        </div>
-      </footer>
-
-      {/* Mobile Bottom Nav (for logged in users) */}
-      {user && (
-        <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 md:hidden z-50 pb-safe shadow-lg">
-          <div className="flex justify-around py-3">
-            <a
-              href="/"
-              className="flex flex-col items-center text-primary-500 transition"
-            >
-              <span className="text-2xl mb-1">🏠</span>
-              <span className="text-xs font-medium">홈</span>
-            </a>
-            <a
-              href="/voice"
-              className="flex flex-col items-center text-gray-500 hover:text-primary-500 transition"
-            >
-              <span className="text-2xl mb-1">🎤</span>
-              <span className="text-xs font-medium">음성</span>
-            </a>
-            <a
-              href="/chat"
-              className="flex flex-col items-center text-gray-500 hover:text-primary-500 transition"
-            >
-              <span className="text-2xl mb-1">💬</span>
-              <span className="text-xs font-medium">채팅</span>
-            </a>
-            <a
-              href="/pricing"
-              className="flex flex-col items-center text-gray-500 hover:text-primary-500 transition"
-            >
-              <span className="text-2xl mb-1">💰</span>
-              <span className="text-xs font-medium">요금</span>
-            </a>
-            <a
-              href="/settings"
-              className="flex flex-col items-center text-gray-500 hover:text-primary-500 transition"
-            >
-              <span className="text-2xl mb-1">👤</span>
-              <span className="text-xs font-medium">프로필</span>
-            </a>
-          </div>
-        </nav>
-      )}
+      </div>
     </div>
   );
 }

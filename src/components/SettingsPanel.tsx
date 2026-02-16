@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { ChatSettings, Persona, ResponseStyle, CorrectionStrength, FormalityLevel } from "@/types";
 
 interface SettingsPanelProps {
@@ -9,7 +10,7 @@ interface SettingsPanelProps {
   onTranslateAssistant: () => void;
 }
 
-export default function SettingsPanel({
+const SettingsPanel = memo(function SettingsPanel({
   settings,
   onSettingsChange,
   onTranslateUser,
@@ -154,4 +155,6 @@ export default function SettingsPanel({
       </div>
     </div>
   );
-}
+});
+
+export default SettingsPanel;

@@ -1,0 +1,436 @@
+{
+  "honorifics_basics": {
+    "id": "honorifics_basics",
+    "category": "social_hierarchy",
+    "title": "존댓말과 반말의 세계",
+    "difficulty": "beginner",
+    "estimatedTime": 15,
+    "introduction": "한국어의 가장 중요한 특징 중 하나는 '존댓말'이에요. 같은 의미도 상대방과의 관계에 따라 완전히 다르게 말해야 해요.",
+    "scenarios": [
+      {
+        "id": "scenario1",
+        "situation": "카페에서 친구를 만났을 때",
+        "characters": ["나", "친구 (같은 나이)"],
+        "rightWay": {
+          "dialogue": "야! 오랜만이야! 뭐 마실래?",
+          "explanation": "친한 친구에게는 반말을 써요. 이게 자연스럽고 친근해요.",
+          "tone": "casual, friendly"
+        },
+        "wrongWay": {
+          "dialogue": "안녕하세요. 오랜만이에요. 무엇을 드시겠어요?",
+          "explanation": "친구한테 존댓말을 쓰면 거리감이 느껴져요. 화났거나 관계가 틀어진 것처럼 보일 수 있어요.",
+          "warning": "⚠️ 친구 사이가 어색해질 수 있어요!",
+          "awkwardness": "high"
+        },
+        "culturalNote": "한국에서는 친구끼리 존댓말을 쓰면 오히려 이상해요. 처음 만났을 때는 존댓말로 시작하지만, '반말할까요?'라고 물어보고 반말로 바꿔요.",
+        "practiceExercise": {
+          "type": "choice",
+          "question": "당신의 대학 동기가 카페에 들어와요. 뭐라고 인사할까요?",
+          "options": [
+            {
+              "text": "안녕하세요!",
+              "correct": false,
+              "feedback": "동기에게는 너무 격식 차려요"
+            },
+            {
+              "text": "안녕!",
+              "correct": true,
+              "feedback": "완벽해요! 친근한 반말이에요"
+            },
+            {
+              "text": "하이~",
+              "correct": false,
+              "feedback": "한국어로 인사해보세요"
+            }
+          ]
+        }
+      },
+      {
+        "id": "scenario2",
+        "situation": "첫 출근 날, 팀장님을 만났을 때",
+        "characters": ["나", "팀장 (10살 위)"],
+        "rightWay": {
+          "dialogue": "안녕하세요, 팀장님. 잘 부탁드립니다.",
+          "explanation": "직장 상사에게는 항상 존댓말과 적절한 호칭을 사용해요.",
+          "tone": "polite, respectful"
+        },
+        "wrongWay": {
+          "dialogue": "안녕하세요, 김철수씨. 반가워요!",
+          "explanation": "이름을 직접 부르는 건 매우 무례해요! 한국 직장에서는 절대 안 돼요.",
+          "warning": "🚨 심각한 실례! 첫 날에 나쁜 인상을 줄 수 있어요!",
+          "awkwardness": "critical"
+        },
+        "correctHonorifics": ["팀장님", "부장님", "과장님", "대리님"],
+        "culturalNote": "한국 직장에서는 직함으로 부르는 게 기본이에요. 이름에 '-님'을 붙이는 건 드물고, 이름만 부르는 건 거의 금기예요.",
+        "realWorldExample": {
+          "drama": "미생",
+          "episode": 1,
+          "scene": "장그래가 처음 회사에서 인사하는 장면",
+          "link": "/examples/misaeng_ep1",
+          "explanation": "신입사원이 어떻게 존댓말과 호칭을 사용하는지 보세요"
+        },
+        "practiceExercise": {
+          "type": "choice",
+          "question": "회사에서 당신보다 5년 선배인 과장님을 어떻게 불러야 할까요?",
+          "options": [
+            {
+              "text": "김과장님",
+              "correct": true,
+              "feedback": "정확해요! 성 + 직함 + 님이에요"
+            },
+            {
+              "text": "과장님",
+              "correct": true,
+              "feedback": "좋아요! 직함만 써도 괜찮아요"
+            },
+            {
+              "text": "김철수님",
+              "correct": false,
+              "feedback": "이름보다는 직함을 사용하세요"
+            }
+          ]
+        }
+      }
+    ],
+    "keyTakeaways": [
+      "나이와 관계가 언어를 결정해요",
+      "친구 = 반말, 직장 상사 = 존댓말",
+      "처음에는 존댓말로 시작하고, 친해지면 반말 제안",
+      "직장에서는 항상 직함 + '님'"
+    ],
+    "commonMistakes": [
+      {
+        "mistake": "친구에게 계속 존댓말",
+        "why": "거리감, 화난 것처럼 보임",
+        "fix": "'반말할래?'라고 물어보고 바꾸기"
+      },
+      {
+        "mistake": "상사에게 이름으로 부르기",
+        "why": "매우 무례함",
+        "fix": "직함 + '님' 사용"
+      }
+    ]
+  },
+  "indirect_refusal": {
+    "id": "indirect_refusal",
+    "category": "indirect_communication",
+    "title": "한국식 거절의 기술",
+    "difficulty": "intermediate",
+    "estimatedTime": 20,
+    "introduction": "한국 문화는 직접적인 거절을 피해요. '아니요'보다는 부드러운 방법을 선호해요.",
+    "scenarios": [
+      {
+        "id": "scenario1",
+        "situation": "친구가 토요일 약속을 제안해요. 하지만 당신은 쉬고 싶어요.",
+        "characters": ["나", "친구"],
+        "rightWay": {
+          "dialogue": "아... 토요일은 좀 그런데... 다음 주는 어때?",
+          "explanation": "직접 '싫다'고 안 해요. '좀 그런데'는 부드러운 거절이에요.",
+          "tone": "indirect, polite"
+        },
+        "wrongWay": {
+          "dialogue": "No, I don't want to. I'm tired.",
+          "explanation": "너무 직접적이고 무례하게 들려요. 한국에서는 이렇게 말하지 않아요.",
+          "warning": "❌ 친구 관계가 나빠질 수 있어요",
+          "awkwardness": "high"
+        },
+        "alternatives": [
+          "아, 토요일은 다른 약속이 있어서... (실제로 없어도 OK)",
+          "토요일은 좀 피곤할 것 같은데... 미안해",
+          "토요일은 집에 좀 있어야 할 것 같아... 다음에!"
+        ],
+        "culturalNote": "한국에서는 직접 거절하는 걸 불편해해요. '다음에', '좀 그런데' 같은 표현으로 부드럽게 거절해요. 상대방도 이 신호를 알아채고 더 이상 묻지 않아요.",
+        "practiceExercise": {
+          "type": "choice",
+          "question": "친구가 내일 등산 가자고 해요. 하지만 당신은 집에서 쉬고 싶어요. 어떻게 거절할까요?",
+          "options": [
+            {
+              "text": "싫어, 피곤해",
+              "correct": false,
+              "feedback": "너무 직접적이에요. 부드럽게 거절해보세요"
+            },
+            {
+              "text": "내일은 좀... 다음에 가자!",
+              "correct": true,
+              "feedback": "완벽해요! 부드러운 한국식 거절이에요"
+            },
+            {
+              "text": "No, thank you",
+              "correct": false,
+              "feedback": "한국어로 거절해보세요"
+            }
+          ]
+        }
+      },
+      {
+        "id": "scenario2",
+        "situation": "상사가 주말 야근을 요청해요",
+        "characters": ["나", "상사"],
+        "rightWay": {
+          "dialogue": "주말에 가족 행사가 있어서... 최대한 노력해보겠습니다만...",
+          "explanation": "직접 '안 됩니다'라고 하지 않고, 어려움을 암시해요.",
+          "tone": "respectful, indirect"
+        },
+        "wrongWay": {
+          "dialogue": "주말에는 일 안 해요. 불가능합니다.",
+          "explanation": "상사에게 너무 직접적으로 거절하면 문제가 될 수 있어요.",
+          "warning": "🚨 업무 관계에 문제가 생길 수 있어요",
+          "awkwardness": "critical"
+        },
+        "culturalNote": "상사에게는 더욱 조심스럽게 거절해야 해요. '힘들 것 같습니다', '어려울 것 같습니다' 같은 표현을 사용하고, 이유를 설명해요.",
+        "practiceExercise": {
+          "type": "choice",
+          "question": "팀장님이 이번 주말에 회사 워크샵 가자고 해요. 하지만 이미 다른 약속이 있어요.",
+          "options": [
+            {
+              "text": "죄송합니다만 주말에 개인 약속이 있어서 참석이 어려울 것 같습니다...",
+              "correct": true,
+              "feedback": "완벽해요! 공손하고 부드러운 거절이에요"
+            },
+            {
+              "text": "주말에는 못 가요",
+              "correct": false,
+              "feedback": "상사에게는 더 공손하게 말해야 해요"
+            },
+            {
+              "text": "워크샵 싫어요",
+              "correct": false,
+              "feedback": "매우 무례해요!"
+            }
+          ]
+        }
+      }
+    ],
+    "keyTakeaways": [
+      "직접적인 '아니요'는 무례하게 들려요",
+      "'좀 그런데', '다음에', '어려울 것 같아요' 같은 부드러운 표현 사용",
+      "상대방도 이 신호를 알아채고 더 이상 묻지 않아요",
+      "상사에게는 더욱 조심스럽게 거절"
+    ],
+    "commonMistakes": [
+      {
+        "mistake": "직접적으로 'No' 또는 '싫어요'",
+        "why": "무례하고 관계를 해칠 수 있어요",
+        "fix": "'좀 그런데...', '다음에...' 사용"
+      },
+      {
+        "mistake": "이유 없이 거절",
+        "why": "성의 없어 보여요",
+        "fix": "부드러운 이유 제시 (사실이 아니어도 OK)"
+      }
+    ]
+  },
+  "bab_culture": {
+    "id": "bab_culture",
+    "category": "food_culture",
+    "title": "'밥' - 단순한 식사 이상의 의미",
+    "difficulty": "intermediate",
+    "estimatedTime": 18,
+    "introduction": "'밥'은 한국 문화에서 매우 중요해요. 단순히 음식이 아니라 관계를 나타내요.",
+    "scenarios": [
+      {
+        "id": "scenario1",
+        "situation": "친구를 오랜만에 만났을 때",
+        "characters": ["나", "친구"],
+        "rightWay": {
+          "dialogue": "밥 먹었어?",
+          "explanation": "이건 실제로 식사 여부를 묻는 게 아니라 '잘 지내?'라는 안부 인사예요.",
+          "tone": "caring, casual"
+        },
+        "wrongWay": {
+          "dialogue": "Did you eat rice?",
+          "explanation": "문자 그대로 번역하면 이상해요. 이건 단순히 밥을 먹었는지 확인하는 게 아니에요.",
+          "warning": "⚠️ 문화적 맥락을 놓칠 수 있어요",
+          "awkwardness": "medium"
+        },
+        "culturalNote": "'밥 먹었어?'는 한국에서 가장 흔한 안부 인사예요. 실제 식사 여부보다는 상대방에 대한 관심을 표현하는 거예요. '응, 먹었어!' 또는 '아직, 나중에 먹을 거야'라고 대답하면 돼요.",
+        "practiceExercise": {
+          "type": "choice",
+          "question": "친구가 '밥 먹었어?'라고 물어봐요. 어떻게 대답해야 할까요?",
+          "options": [
+            {
+              "text": "응, 먹었어! 너는?",
+              "correct": true,
+              "feedback": "완벽해요! 자연스러운 대답이에요"
+            },
+            {
+              "text": "왜? 배고파?",
+              "correct": false,
+              "feedback": "이건 단순히 배고픈지 묻는 게 아니에요"
+            },
+            {
+              "text": "What kind of food?",
+              "correct": false,
+              "feedback": "한국어로 대답하고, 문화적 맥락을 이해하세요"
+            }
+          ]
+        }
+      },
+      {
+        "id": "scenario2",
+        "situation": "마음에 드는 사람에게 접근할 때",
+        "characters": ["나", "이성"],
+        "rightWay": {
+          "dialogue": "저... 시간 되시면 밥 한번 먹어요?",
+          "explanation": "이건 데이트 신청이에요! '밥'은 함께 시간을 보내자는 의미예요.",
+          "tone": "romantic, nervous"
+        },
+        "wrongWay": {
+          "dialogue": "I want to take you to dinner",
+          "explanation": "너무 직접적이에요. 한국에서는 '밥 먹다'로 부드럽게 표현해요.",
+          "warning": "⚠️ 너무 강하게 들릴 수 있어요",
+          "awkwardness": "medium"
+        },
+        "culturalNote": "'밥 한번 먹어요'는 한국의 전통적인 데이트 신청 방법이에요. 캐주얼하면서도 로맨틱한 의미를 담고 있어요. 실제로 밥을 먹든 커피를 마시든 상관없어요.",
+        "alternatives": [
+          "커피 한잔 할래요?",
+          "영화 보러 갈래요?",
+          "주말에 시간 있으세요?"
+        ],
+        "practiceExercise": {
+          "type": "choice",
+          "question": "좋아하는 사람이 '밥 한번 먹어요?'라고 물어봐요. 긍정적으로 대답하려면?",
+          "options": [
+            {
+              "text": "좋아요! 언제가 좋으세요?",
+              "correct": true,
+              "feedback": "완벽해요! 데이트를 수락했어요 ❤️"
+            },
+            {
+              "text": "밥만 먹어요?",
+              "correct": false,
+              "feedback": "이건 데이트 신청이에요, 문자 그대로가 아니에요"
+            },
+            {
+              "text": "배 안 고픈데요",
+              "correct": false,
+              "feedback": "문화적 의미를 놓쳤어요!"
+            }
+          ]
+        }
+      }
+    ],
+    "keyTakeaways": [
+      "'밥 먹었어?' = 안부 인사",
+      "'밥 한번 먹어요' = 데이트 신청 또는 친구 만남",
+      "'밥값하다' = 제값을 하다, 기대에 부응하다",
+      "'밥'은 관계와 돌봄을 상징해요"
+    ],
+    "commonMistakes": [
+      {
+        "mistake": "'밥 먹었어?'를 문자 그대로 이해",
+        "why": "안부 인사의 의미를 놓침",
+        "fix": "문화적 맥락 이해: '잘 지내?'라는 뜻"
+      },
+      {
+        "mistake": "'밥 먹자'를 거절할 때 '배 안 고파'",
+        "why": "실제 식사가 아니라 만남 제안이에요",
+        "fix": "'다음에', '이번 주는 좀...' 같은 부드러운 거절"
+      }
+    ]
+  },
+  "work_hierarchy": {
+    "id": "work_hierarchy",
+    "category": "work_culture",
+    "title": "직장 내 언어 위계",
+    "difficulty": "intermediate",
+    "estimatedTime": 20,
+    "introduction": "한국 직장은 엄격한 위계가 있어요. '수고하세요' vs '수고하셨습니다'의 차이를 알아야 해요.",
+    "scenarios": [
+      {
+        "id": "scenario1",
+        "situation": "퇴근할 때 먼저 가는 상황",
+        "characters": ["나 (신입)", "팀장 (상사)"],
+        "rightWay": {
+          "dialogue": "먼저 실례하겠습니다. 수고하세요!",
+          "explanation": "신입이 먼저 퇴근할 때는 '실례하겠습니다'와 '수고하세요'(현재형)를 사용해요.",
+          "tone": "respectful, humble"
+        },
+        "wrongWay": {
+          "dialogue": "수고하셨습니다! 먼저 갈게요!",
+          "explanation": "'수고하셨습니다'는 위에서 아래로 하는 말이에요. 상사에게 쓰면 실례예요!",
+          "warning": "🚨 매우 무례한 표현! 위계를 무시하는 것처럼 보여요",
+          "awkwardness": "critical"
+        },
+        "culturalNote": "'수고하세요'(현재형)는 위→아래, 아래→위 모두 가능해요. 하지만 '수고하셨습니다'(과거형)는 위→아래로만 사용해요. 상사에게는 절대 쓰면 안 돼요!",
+        "practiceExercise": {
+          "type": "choice",
+          "question": "당신이 팀장이고, 신입사원이 먼저 퇴근해요. 뭐라고 말할까요?",
+          "options": [
+            {
+              "text": "수고하셨어요, 내일 봐요",
+              "correct": true,
+              "feedback": "맞아요! 위에서 아래로 과거형을 써요"
+            },
+            {
+              "text": "수고하세요",
+              "correct": true,
+              "feedback": "이것도 괜찮아요!"
+            },
+            {
+              "text": "먼저 실례하겠습니다",
+              "correct": false,
+              "feedback": "이건 아래 사람이 위 사람에게 하는 말이에요"
+            }
+          ]
+        }
+      },
+      {
+        "id": "scenario2",
+        "situation": "회의에서 의견 제시",
+        "characters": ["나", "부장님"],
+        "rightWay": {
+          "dialogue": "죄송하지만, 제 의견을 말씀드려도 될까요?",
+          "explanation": "먼저 허락을 구하고, 공손하게 의견을 제시해요.",
+          "tone": "humble, respectful"
+        },
+        "wrongWay": {
+          "dialogue": "제 생각에는 이게 틀렸어요",
+          "explanation": "상사 앞에서 '틀렸다'는 직접적 표현은 매우 무례해요.",
+          "warning": "❌ 직장에서 큰 문제가 될 수 있어요",
+          "awkwardness": "critical"
+        },
+        "culturalNote": "한국 직장에서는 상사의 의견에 반대할 때 매우 조심스럽게 해야 해요. '제 생각에는...', '다른 관점도 있을 것 같은데...' 같이 부드럽게 표현해요.",
+        "practiceExercise": {
+          "type": "choice",
+          "question": "부장님의 제안에 문제가 있다고 생각해요. 어떻게 말할까요?",
+          "options": [
+            {
+              "text": "그건 틀렸어요",
+              "correct": false,
+              "feedback": "너무 직접적이고 무례해요!"
+            },
+            {
+              "text": "죄송하지만, 이런 부분도 고려해볼 수 있을 것 같습니다...",
+              "correct": true,
+              "feedback": "완벽해요! 공손하고 간접적인 표현이에요"
+            },
+            {
+              "text": "I disagree",
+              "correct": false,
+              "feedback": "한국어로, 그리고 더 공손하게 표현하세요"
+            }
+          ]
+        }
+      }
+    ],
+    "keyTakeaways": [
+      "'수고하세요' (현재형) = 양방향 OK",
+      "'수고하셨습니다' (과거형) = 위→아래만",
+      "상사에게 반대 의견은 매우 조심스럽게",
+      "항상 '죄송하지만', '제 생각에는' 같은 완곡 표현 사용"
+    ],
+    "commonMistakes": [
+      {
+        "mistake": "상사에게 '수고하셨습니다'",
+        "why": "위→아래로만 쓰는 표현",
+        "fix": "'수고하세요' 또는 '먼저 실례하겠습니다'"
+      },
+      {
+        "mistake": "상사 의견에 직접적으로 '틀렸다'",
+        "why": "매우 무례하고 위계를 무시",
+        "fix": "'다른 관점도 있을 것 같은데...' 같은 부드러운 표현"
+      }
+    ]
+  }
+}

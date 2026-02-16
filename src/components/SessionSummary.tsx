@@ -1,9 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { httpsCallable } from "firebase/functions";
 import { functions } from "@/lib/firebase";
-import { DetailedAnalysis } from "./DetailedAnalysis";
+
+// Dynamic import for DetailedAnalysis (modal component)
+const DetailedAnalysis = dynamic(() => import("./DetailedAnalysis").then((mod) => ({ default: mod.DetailedAnalysis })), {
+  ssr: false,
+});
 import { AdInterstitial } from "./AdInterstitial";
 
 interface SessionSummaryProps {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, memo } from "react";
 
 interface RenameDialogProps {
   currentTitle: string;
@@ -8,7 +8,7 @@ interface RenameDialogProps {
   onCancel: () => void;
 }
 
-export default function RenameDialog({
+const RenameDialog = memo(function RenameDialog({
   currentTitle,
   onSave,
   onCancel,
@@ -102,4 +102,6 @@ export default function RenameDialog({
       </div>
     </>
   );
-}
+});
+
+export default RenameDialog;
