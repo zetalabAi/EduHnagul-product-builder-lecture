@@ -1,364 +1,223 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { httpsCallable } from "firebase/functions";
-import { auth, functions } from "@/lib/firebase";
-import { useUserCredits } from "@/hooks/useUserCredits";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
+import toast from "react-hot-toast";
+
+type SpeechStyle = "formal" | "casual";
+type Tutor = "jimin" | "minjun";
+
+const NAV = [
+  { href: "/home",    icon: "🏠", label: "홈" },
+  { href: "/courses", icon: "📚", label: "코스" },
+  { href: "/review",  icon: "🃏", label: "복습" },
+  { href: "/friends", icon: "🏆", label: "리그" },
+  { href: "/settings",icon: "👤", label: "프로필" },
+];
 
 export default function SettingsPage() {
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
-  const [displayName, setDisplayName] = useState("");
-  const [koreanLevel, setKoreanLevel] = useState<"beginner" | "intermediate" | "advanced">("intermediate");
-  const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const { credits } = useUserCredits(user?.uid || null);
+  const [uid, setUid] = useState<string | null>(null);
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [speechStyle, setSpeechStyleState] = useState<SpeechStyle>("formal");
+  const [tutor, setTutorState] = useState<Tutor>("jimin");
+  const [isPremium, setIsPremium] = useState(false);
+  const [mannerTemp, setMannerTemp] = useState(36.5);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      if (!currentUser) {
-        router.push("/auth/signin");
-      } else {
-        setDisplayName(currentUser.displayName || "");
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      if (!user) { router.replace("/onboarding"); return; }
+      setUid(user.uid);
+      setEmail(user.email ?? "");
+      const snap = await getDoc(doc(db, "users", user.uid));
+      const data = snap.data();
+      if (data) {
+        setName(data.name ?? "");
+        setSpeechStyleState(data.speechStyle ?? "formal");
+        setTutorState(data.selectedTutor ?? "jimin");
+        setIsPremium(data.isPremium ?? false);
+        setMannerTemp(data.mannerTemp ?? 36.5);
       }
     });
-
-    return () => unsubscribe();
+    return () => unsub();
   }, [router]);
 
-  // Load korean level from credits
-  useEffect(() => {
-    if (credits?.koreanLevel) {
-      setKoreanLevel(credits.koreanLevel);
-    }
-  }, [credits]);
-
-  const handleKoreanLevelChange = async (newLevel: "beginner" | "intermediate" | "advanced") => {
-    setKoreanLevel(newLevel);
-
-    // Update immediately in Firestore
-    if (functions) {
-      try {
-        const updateFn = httpsCallable(functions, "updateProfile");
-        await updateFn({ koreanLevel: newLevel });
-        toast.success("한국어 레벨이 업데이트되었습니다!");
-      } catch (error: any) {
-        console.error("Failed to update Korean level:", error);
-        toast.error("레벨 업데이트에 실패했습니다.");
-      }
-    }
+  const updateField = async (field: string, value: any) => {
+    if (!uid) return;
+    setSaving(true);
+    await updateDoc(doc(db, "users", uid), { [field]: value });
+    setSaving(false);
+    toast.success("저장됐어요!");
   };
 
-  const handleUpdateProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!functions) return;
-
-    try {
-      setIsLoading(true);
-      setMessage("");
-
-      const updateFn = httpsCallable<
-        { displayName?: string; koreanLevel?: string },
-        { success: boolean; message: string }
-      >(functions, "updateProfile");
-
-      const updates: any = {};
-      if (displayName !== user?.displayName) {
-        updates.displayName = displayName;
-      }
-      // Korean level is now updated immediately, so no need to include it here
-
-      const result = await updateFn(updates);
-      toast.success(result.data.message);
-    } catch (error: any) {
-      console.error("Failed to update profile:", error);
-      setMessage(error.message || "프로필 업데이트에 실패했습니다.");
-    } finally {
-      setIsLoading(false);
-    }
+  const setSpeechStyle = async (s: SpeechStyle) => {
+    setSpeechStyleState(s);
+    await updateField("speechStyle", s);
   };
 
-  const handleManageSubscription = async () => {
-    if (!functions) return;
-
-    try {
-      setIsLoading(true);
-
-      const createPortalFn = httpsCallable<
-        { returnUrl: string },
-        { url: string }
-      >(functions, "createPortalSession");
-
-      const result = await createPortalFn({
-        returnUrl: `${window.location.origin}/settings`,
-      });
-
-      window.location.href = result.data.url;
-    } catch (error: any) {
-      console.error("Failed to open portal:", error);
-      toast.error("구독 관리 페이지를 열 수 없습니다.");
-    } finally {
-      setIsLoading(false);
-    }
+  const setTutor = async (t: Tutor) => {
+    setTutorState(t);
+    await updateField("selectedTutor", t);
   };
 
   const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      toast.success("로그아웃되었습니다.");
-      router.push("/");
-    } catch (error: any) {
-      console.error("Logout error:", error);
-      toast.error("로그아웃에 실패했습니다.");
-    }
+    await signOut(auth);
+    router.replace("/onboarding");
   };
 
-  if (!user || !credits) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50">
-        <div className="text-gray-900">로딩 중...</div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 text-gray-900 py-8 px-4 md:py-12 md:px-6">
-      <div className="max-w-2xl mx-auto">
-        <div className="mb-6">
-          <button
-            onClick={() => router.push("/")}
-            className="flex items-center space-x-2 px-4 py-3 bg-white shadow-lg hover:bg-gray-100 rounded-lg text-blue-400 hover:text-blue-300 transition-colors active:scale-95 touch-manipulation"
-          >
-            <span className="text-lg">←</span>
-            <span className="font-medium">홈으로</span>
-          </button>
+    <div style={{ minHeight: "100dvh", background: "#F8F9FA", fontFamily: "Pretendard, sans-serif", paddingBottom: "80px" }}>
+      {/* 헤더 */}
+      <header style={{ background: "#fff", borderBottom: "1px solid #E5E7EB", padding: "16px 20px", position: "sticky", top: 0, zIndex: 50 }}>
+        <div style={{ fontWeight: 800, fontSize: "20px", color: "#1A1A2E" }}>👤 프로필 & 설정</div>
+      </header>
+
+      <div style={{ maxWidth: "480px", margin: "0 auto", padding: "16px", display: "flex", flexDirection: "column", gap: "12px" }}>
+
+        {/* 프로필 카드 */}
+        <div style={{ background: "#fff", borderRadius: "16px", border: "1px solid #E5E7EB", padding: "20px", display: "flex", alignItems: "center", gap: "16px" }}>
+          <div style={{ width: "60px", height: "60px", borderRadius: "50%", background: "linear-gradient(135deg, #D63000, #FF5722)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "28px", flexShrink: 0 }}>
+            🐯
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 700, fontSize: "18px", color: "#1A1A2E" }}>{name || "학습자"}</div>
+            <div style={{ fontSize: "13px", color: "#6B7280", marginTop: "2px" }}>{email}</div>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "6px" }}>
+              <div style={{ background: "#FFF0EB", color: "#D63000", borderRadius: "9999px", padding: "3px 10px", fontSize: "12px", fontWeight: 600 }}>
+                🌡️ {mannerTemp.toFixed(1)}° 학습온도
+              </div>
+              {isPremium && (
+                <div style={{ background: "linear-gradient(135deg, #F59E0B, #EF4444)", color: "#fff", borderRadius: "9999px", padding: "3px 10px", fontSize: "12px", fontWeight: 600 }}>
+                  ⭐ 프리미엄
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
-        <h1 className="text-4xl font-bold mb-8">프로필</h1>
+        {/* 학습 설정 */}
+        <div style={{ background: "#fff", borderRadius: "16px", border: "1px solid #E5E7EB", overflow: "hidden" }}>
+          <div style={{ padding: "14px 18px", borderBottom: "1px solid #F3F4F6", fontWeight: 700, fontSize: "14px", color: "#6B7280" }}>
+            학습 설정
+          </div>
 
-        {/* Account Info */}
-        <div className="bg-white shadow-lg rounded-xl p-6 mb-6">
-          <h2 className="text-2xl font-bold mb-4">계정 정보</h2>
-
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">이메일</label>
-              <input
-                type="email"
-                value={user.email || ""}
-                disabled
-                className="w-full bg-gray-100 text-gray-600 px-4 py-2 rounded-lg cursor-not-allowed"
-              />
+          {/* 말투 설정 ← 핵심 */}
+          <div style={{ padding: "18px", borderBottom: "1px solid #F3F4F6" }}>
+            <div style={{ fontWeight: 700, fontSize: "16px", color: "#1A1A2E", marginBottom: "4px" }}>말투 설정</div>
+            <div style={{ fontSize: "13px", color: "#6B7280", marginBottom: "14px" }}>
+              현재: <strong style={{ color: "#D63000" }}>{speechStyle === "formal" ? "존댓말로 대화 중이에요" : "반말로 대화 중이에요"}</strong>
             </div>
-
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">이름</label>
-              <input
-                type="text"
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                className="w-full bg-gray-100 text-gray-900 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="이름을 입력하세요"
-              />
+            {/* 슬라이드 토글 */}
+            <div style={{ background: "#F3F4F6", borderRadius: "12px", padding: "4px", display: "flex" }}>
+              <button
+                onClick={() => setSpeechStyle("formal")}
+                style={{ flex: 1, height: "40px", border: "none", borderRadius: "9px", background: speechStyle === "formal" ? "#fff" : "transparent", color: speechStyle === "formal" ? "#D63000" : "#6B7280", fontWeight: speechStyle === "formal" ? 700 : 500, fontSize: "14px", cursor: "pointer", boxShadow: speechStyle === "formal" ? "0 1px 4px rgba(0,0,0,0.08)" : "none", transition: "all 0.2s" }}
+              >
+                존댓말
+              </button>
+              <button
+                onClick={() => setSpeechStyle("casual")}
+                style={{ flex: 1, height: "40px", border: "none", borderRadius: "9px", background: speechStyle === "casual" ? "#fff" : "transparent", color: speechStyle === "casual" ? "#D63000" : "#6B7280", fontWeight: speechStyle === "casual" ? 700 : 500, fontSize: "14px", cursor: "pointer", boxShadow: speechStyle === "casual" ? "0 1px 4px rgba(0,0,0,0.08)" : "none", transition: "all 0.2s" }}
+              >
+                반말
+              </button>
             </div>
+            <div style={{ marginTop: "10px", background: "#FFF0EB", borderRadius: "10px", padding: "10px 14px", fontSize: "13px", color: "#D63000" }}>
+              {speechStyle === "formal"
+                ? "💬 다음 세션부터 존댓말로 대화해요"
+                : "💬 다음 세션부터 반말로 대화해요"}
+            </div>
+          </div>
 
-            {message && (
-              <div className="bg-blue-900 bg-opacity-50 rounded-lg p-3">
-                <p className="text-blue-200 text-sm">{message}</p>
-              </div>
-            )}
+          {/* 선생님 변경 */}
+          <div style={{ padding: "18px", borderBottom: "1px solid #F3F4F6" }}>
+            <div style={{ fontWeight: 700, fontSize: "16px", color: "#1A1A2E", marginBottom: "12px" }}>선생님 변경</div>
+            <div style={{ display: "flex", gap: "10px" }}>
+              {([
+                { id: "jimin" as Tutor, emoji: "👩", name: "지민", desc: "K-drama 전문", color: "#EC4899" },
+                { id: "minjun" as Tutor, emoji: "👨", name: "민준", desc: "K-pop 전문", color: "#D63000" },
+              ]).map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => setTutor(t.id)}
+                  style={{ flex: 1, border: `2px solid ${tutor === t.id ? t.color : "#E5E7EB"}`, borderRadius: "14px", padding: "14px 10px", background: tutor === t.id ? `${t.color}10` : "#fff", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: "4px", transition: "all 0.15s" }}
+                >
+                  <span style={{ fontSize: "28px" }}>{t.emoji}</span>
+                  <span style={{ fontWeight: 700, fontSize: "14px", color: "#1A1A2E" }}>{t.name}</span>
+                  <span style={{ fontSize: "11px", color: "#6B7280" }}>{t.desc}</span>
+                  {tutor === t.id && <span style={{ fontSize: "10px", color: t.color, fontWeight: 700 }}>현재 선택</span>}
+                </button>
+              ))}
+            </div>
+          </div>
 
+          {/* 언어 설정 */}
+          <div style={{ padding: "18px", borderBottom: "1px solid #F3F4F6" }}>
+            <div style={{ fontWeight: 700, fontSize: "16px", color: "#1A1A2E", marginBottom: "4px" }}>앱 언어</div>
+            <div style={{ fontSize: "13px", color: "#6B7280", marginBottom: "12px" }}>
+              현재: <strong style={{ color: "#D63000" }}>{typeof window !== "undefined" ? (localStorage.getItem("appLanguage")?.toUpperCase() ?? "EN") : "EN"}</strong>
+            </div>
             <button
-              onClick={handleUpdateProfile}
-              disabled={isLoading}
-              className="w-full bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 disabled:bg-gray-100 px-6 py-3 rounded-lg font-bold"
+              onClick={() => router.push("/language-select")}
+              style={{ width: "100%", height: "44px", border: "1px solid #E5E7EB", borderRadius: "12px", background: "#F8F9FA", color: "#1A1A2E", fontSize: "14px", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px" }}
             >
-              {isLoading ? "업데이트 중..." : "프로필 업데이트"}
+              <span>🌐 언어 변경</span>
+              <span style={{ color: "#9CA3AF" }}>→</span>
             </button>
           </div>
-        </div>
 
-        {/* Korean Level Selection */}
-        <div className="bg-white shadow-lg rounded-xl p-6 mb-6">
-          <h2 className="text-2xl font-bold mb-4">📚 한국어 레벨</h2>
-          <p className="text-sm text-gray-600 mb-4">
-            AI가 당신의 레벨에 맞춰 대화합니다. 레벨이 높을수록 더 많은 질문과 복잡한 표현을 사용합니다.
-            <br />
-            <span className="text-blue-400">💡 선택하면 즉시 저장되며, 모든 대화에 자동으로 적용됩니다.</span>
-          </p>
-
-          <div className="space-y-3">
-            <label className="flex items-start space-x-3 p-4 bg-gray-100 hover:bg-gray-650 rounded-lg cursor-pointer transition">
-              <input
-                type="radio"
-                name="koreanLevel"
-                value="beginner"
-                checked={koreanLevel === "beginner"}
-                onChange={(e) => handleKoreanLevelChange(e.target.value as "beginner")}
-                className="mt-1 w-4 h-4 text-blue-600"
-              />
-              <div className="flex-1">
-                <div className="font-bold text-gray-900">🌱 초급 (Beginner)</div>
-                <div className="text-sm text-gray-600 mt-1">
-                  짧은 문장, 기본 어휘, 한 번에 1개 질문
-                </div>
+          {/* 알림 설정 */}
+          <div style={{ padding: "18px" }}>
+            <div style={{ fontWeight: 700, fontSize: "16px", color: "#1A1A2E", marginBottom: "12px" }}>알림 설정</div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div>
+                <div style={{ fontSize: "14px", color: "#1A1A2E" }}>매일 학습 리마인더</div>
+                <div style={{ fontSize: "12px", color: "#9CA3AF" }}>오전 9시</div>
               </div>
-            </label>
-
-            <label className="flex items-start space-x-3 p-4 bg-gray-100 hover:bg-gray-650 rounded-lg cursor-pointer transition">
-              <input
-                type="radio"
-                name="koreanLevel"
-                value="intermediate"
-                checked={koreanLevel === "intermediate"}
-                onChange={(e) => handleKoreanLevelChange(e.target.value as "intermediate")}
-                className="mt-1 w-4 h-4 text-blue-600"
-              />
-              <div className="flex-1">
-                <div className="font-bold text-gray-900">🌿 중급 (Intermediate)</div>
-                <div className="text-sm text-gray-600 mt-1">
-                  자연스러운 대화, 일상 어휘, 한 번에 1-2개 질문
-                </div>
+              <div style={{ width: "44px", height: "24px", borderRadius: "9999px", background: "#D63000", position: "relative", cursor: "pointer" }}>
+                <div style={{ position: "absolute", right: "2px", top: "2px", width: "20px", height: "20px", borderRadius: "50%", background: "#fff" }} />
               </div>
-            </label>
-
-            <label className="flex items-start space-x-3 p-4 bg-gray-100 hover:bg-gray-650 rounded-lg cursor-pointer transition">
-              <input
-                type="radio"
-                name="koreanLevel"
-                value="advanced"
-                checked={koreanLevel === "advanced"}
-                onChange={(e) => handleKoreanLevelChange(e.target.value as "advanced")}
-                className="mt-1 w-4 h-4 text-blue-600"
-              />
-              <div className="flex-1">
-                <div className="font-bold text-gray-900">🌳 고급 (Advanced)</div>
-                <div className="text-sm text-gray-600 mt-1">
-                  원어민 수준, 다양한 표현, 질문 개수 제한 없음
-                </div>
-              </div>
-            </label>
-          </div>
-        </div>
-
-        {/* Subscription Info */}
-        <div className="bg-white shadow-lg rounded-xl p-6 mb-6">
-          <h2 className="text-2xl font-bold mb-4">구독 정보</h2>
-
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-gray-600">현재 플랜</span>
-              <span className="font-bold uppercase">{credits.subscriptionTier}</span>
-            </div>
-
-            {credits.subscriptionStatus && (
-              <div className="flex justify-between">
-                <span className="text-gray-600">상태</span>
-                <span
-                  className={`font-medium ${
-                    credits.subscriptionStatus === "active"
-                      ? "text-green-400"
-                      : credits.subscriptionStatus === "past_due"
-                        ? "text-yellow-400"
-                        : "text-red-400"
-                  }`}
-                >
-                  {credits.subscriptionStatus === "active"
-                    ? "활성"
-                    : credits.subscriptionStatus === "past_due"
-                      ? "결제 대기"
-                      : "취소됨"}
-                </span>
-              </div>
-            )}
-
-            <div className="flex justify-between">
-              <span className="text-gray-600">주간 사용 시간</span>
-              <span>
-                {credits.weeklyMinutesUsed}분 /{" "}
-                {credits.subscriptionTier === "pro" || credits.subscriptionTier === "pro+"
-                  ? "무제한"
-                  : credits.subscriptionTier === "free+"
-                    ? "25분"
-                    : "15분"}
-              </span>
-            </div>
-
-            {credits.weeklyResetAt && (
-              <div className="flex justify-between">
-                <span className="text-gray-600">다음 충전</span>
-                <span>{credits.weeklyResetAt.toLocaleDateString("ko-KR")}</span>
-              </div>
-            )}
-
-            {credits.subscriptionTier !== "free" && (
-              <button
-                onClick={handleManageSubscription}
-                disabled={isLoading}
-                className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-100 px-6 py-3 rounded-lg font-bold mt-4"
-              >
-                구독 관리
-              </button>
-            )}
-
-            {credits.subscriptionTier === "free" && (
-              <button
-                onClick={() => router.push("/pricing")}
-                className="w-full bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 px-6 py-3 rounded-lg font-bold mt-4"
-              >
-                플랜 업그레이드
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Usage Stats */}
-        <div className="bg-white shadow-lg rounded-xl p-6 mb-6">
-          <h2 className="text-2xl font-bold mb-4">사용 현황</h2>
-
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-gray-600">대화 도우미 사용</span>
-              <span>
-                {credits.weeklyAssistantUsed}회 /{" "}
-                {credits.subscriptionTier === "pro" || credits.subscriptionTier === "pro+"
-                  ? "무제한"
-                  : credits.subscriptionTier === "free+"
-                    ? "주 1회"
-                    : "없음"}
-              </span>
-            </div>
-
-            <div className="flex justify-between">
-              <span className="text-gray-600">분석 사용</span>
-              <span>
-                {credits.subscriptionTier === "free" || credits.subscriptionTier === "free+"
-                  ? credits.analysisUsedLifetime
-                    ? "1회 (평생 1회 사용 완료)"
-                    : "0회 (평생 1회)"
-                  : `${credits.dailyAnalysisUsed}회 / ${
-                      credits.subscriptionTier === "pro+" ? "일 7회" : "일 3회"
-                    }`}
-              </span>
             </div>
           </div>
         </div>
 
-        {/* Logout Button */}
-        <div className="bg-white shadow-lg rounded-xl p-6">
+        {/* 계정 */}
+        <div style={{ background: "#fff", borderRadius: "16px", border: "1px solid #E5E7EB", overflow: "hidden" }}>
+          <div style={{ padding: "14px 18px", borderBottom: "1px solid #F3F4F6", fontWeight: 700, fontSize: "14px", color: "#6B7280" }}>
+            계정
+          </div>
+          {!isPremium && (
+            <button
+              onClick={() => router.push("/premium")}
+              style={{ width: "100%", padding: "16px 18px", background: "linear-gradient(135deg, #D63000, #FF5722)", color: "#fff", border: "none", textAlign: "left", fontSize: "15px", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: "10px" }}
+            >
+              ⭐ 프리미엄 업그레이드
+              <span style={{ marginLeft: "auto", opacity: 0.8, fontSize: "13px" }}>→</span>
+            </button>
+          )}
           <button
             onClick={handleLogout}
-            className="w-full bg-gray-100 hover:bg-gray-600 px-6 py-3 rounded-lg font-bold transition-colors flex items-center justify-center space-x-2 text-red-500 hover:text-red-400"
+            style={{ width: "100%", padding: "16px 18px", background: "#fff", color: "#EF4444", border: "none", borderTop: "1px solid #F3F4F6", textAlign: "left", fontSize: "15px", cursor: "pointer", fontWeight: 600 }}
           >
-            <span>🚪</span>
-            <span>로그아웃</span>
+            로그아웃
           </button>
         </div>
       </div>
+
+      {/* 하단 탭 */}
+      <nav style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "#fff", borderTop: "1px solid #E5E7EB", display: "flex", height: "64px", zIndex: 100 }}>
+        {NAV.map((n) => (
+          <a key={n.href} href={n.href} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px", textDecoration: "none" }}>
+            <span style={{ fontSize: "22px" }}>{n.icon}</span>
+            <span style={{ fontSize: "10px", fontWeight: 600, color: n.href === "/settings" ? "#D63000" : "#9CA3AF" }}>{n.label}</span>
+          </a>
+        ))}
+      </nav>
     </div>
   );
 }

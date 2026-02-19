@@ -29,7 +29,7 @@ const StreakCalendar = memo(function StreakCalendar({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-md">
+    <div className="bg-white dark:bg-white rounded-2xl p-4 shadow-md">
       <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
         📅 학습 달력 (최근 30일)
       </h3>
@@ -57,7 +57,7 @@ const StreakCalendar = memo(function StreakCalendar({
                       ? "bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-md"
                       : day.freezeUsed
                       ? "bg-gradient-to-br from-blue-400 to-blue-600 text-white"
-                      : "bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500"
+                      : "bg-gray-100 dark:bg-gray-100 text-gray-400 dark:text-gray-500"
                   }
                   ${isToday ? "ring-2 ring-primary-500 ring-offset-2" : ""}
                 `}
@@ -101,7 +101,7 @@ const StreakCalendar = memo(function StreakCalendar({
           <span className="text-gray-600 dark:text-gray-400">프리즈</span>
         </div>
         <div className="flex items-center gap-1.5 text-xs">
-          <div className="w-4 h-4 bg-gray-100 dark:bg-gray-700 rounded" />
+          <div className="w-4 h-4 bg-gray-100 dark:bg-gray-100 rounded" />
           <span className="text-gray-600 dark:text-gray-400">비활성</span>
         </div>
       </div>

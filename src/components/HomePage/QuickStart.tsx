@@ -13,14 +13,14 @@ const QuickStart = memo(function QuickStart() {
   const quickActions = [
     {
       id: "chat",
-      title: "실전 AI와 채팅",
+      title: "AI와 채팅",
       icon: "💬",
       route: "/chat",
       color: "from-blue-500 to-purple-600",
     },
     {
       id: "voice",
-      title: "음성 대화",
+      title: "AI와 대화",
       icon: "🎙️",
       route: "/voice",
       color: "from-green-500 to-teal-600",

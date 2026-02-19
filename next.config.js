@@ -70,6 +70,14 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  // 번들 최적화
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
+  // 실험적 최적화
+  experimental: {
+    optimizePackageImports: ['framer-motion', 'recharts', 'firebase'],
+  },
 };
 
 module.exports = withPWA(nextConfig);

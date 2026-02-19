@@ -16,6 +16,16 @@ service cloud.firestore {
       allow read, write: if isOwner(userId);
     }
 
+    // Flashcards collection
+    match /flashcards/{userId}/cards/{cardId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // Session vocab collection
+    match /sessionVocab/{userId}/{sessionId}/{vocabId} {
+      allow read, write: if isOwner(userId);
+    }
+
     // Sessions collection
     match /sessions/{sessionId} {
       // Read/update/delete only if user owns the session

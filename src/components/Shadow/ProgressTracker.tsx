@@ -36,7 +36,7 @@ export function ProgressTracker({
   };
 
   return (
-    <div className="bg-gray-800 rounded-lg p-4 border border-gray-700 space-y-4">
+    <div className="bg-white rounded-lg p-4 border border-gray-700 space-y-4">
       {/* Time Progress */}
       <div>
         <div className="flex items-center justify-between mb-2">
@@ -45,7 +45,7 @@ export function ProgressTracker({
             {formatTime(currentTime)} / {formatTime(totalTime)}
           </span>
         </div>
-        <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 transition-all duration-300"
             style={{ width: `${Math.min(100, progressPercent)}%` }}
@@ -61,7 +61,7 @@ export function ProgressTracker({
             {completedSentences} / {totalSentences}
           </span>
         </div>
-        <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-300"
             style={{ width: `${Math.min(100, sentencePercent)}%` }}
@@ -70,7 +70,7 @@ export function ProgressTracker({
       </div>
 
       {/* Average Accuracy */}
-      <div className="bg-gray-900 rounded-lg p-3">
+      <div className="bg-white rounded-lg p-3">
         <div className="flex items-center justify-between">
           <span className="text-gray-400 text-sm">평균 정확도</span>
           <span className={`text-2xl font-bold ${getAccuracyColor(averageAccuracy)}`}>

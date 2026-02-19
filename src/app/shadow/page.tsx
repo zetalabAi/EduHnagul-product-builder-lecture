@@ -136,7 +136,7 @@ export default function ShadowSpeakingPage() {
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 categoryFilter === null
                   ? "bg-blue-600 text-white"
-                  : "bg-gray-800 text-gray-400 hover:text-white"
+                  : "bg-white text-gray-400 hover:text-white"
               }`}
             >
               전체
@@ -148,7 +148,7 @@ export default function ShadowSpeakingPage() {
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   categoryFilter === key
                     ? "bg-blue-600 text-white"
-                    : "bg-gray-800 text-gray-400 hover:text-white"
+                    : "bg-white text-gray-400 hover:text-white"
                 }`}
               >
                 {label}
@@ -162,7 +162,7 @@ export default function ShadowSpeakingPage() {
           {filteredContents.map((content) => (
             <div
               key={content.id}
-              className="bg-gray-800 rounded-lg p-6 border border-gray-700 hover:border-gray-600 transition-all group"
+              className="bg-white rounded-lg p-6 border border-gray-700 hover:border-gray-600 transition-all group"
             >
               <div className="flex items-start justify-between mb-3">
                 <h3 className="text-white font-bold text-lg group-hover:text-blue-400 transition-colors">

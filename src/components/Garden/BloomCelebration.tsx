@@ -75,7 +75,7 @@ const BloomCelebration = memo(function BloomCelebration({
           </h2>
 
           {/* Rewards */}
-          <div className="bg-white/50 dark:bg-gray-800/50 rounded-2xl p-6 mb-8">
+          <div className="bg-white/50 dark:bg-white/50 rounded-2xl p-6 mb-8">
             <p className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">
               보상:
             </p>

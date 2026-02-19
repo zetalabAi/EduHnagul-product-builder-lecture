@@ -80,15 +80,15 @@ const PlantDetailModal = memo(function PlantDetailModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-6 flex items-center justify-between">
+        <div className="sticky top-0 bg-white dark:bg-white border-b border-gray-200 dark:border-gray-700 p-6 flex items-center justify-between">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
             식물 상세
           </h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-100 rounded-full transition-colors"
           >
             <svg
               className="w-6 h-6 text-gray-600 dark:text-gray-400"
@@ -154,7 +154,7 @@ const PlantDetailModal = memo(function PlantDetailModal({
 
           {/* Stats */}
           <div className="grid grid-cols-3 gap-4 mb-8">
-            <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
+            <div className="text-center p-4 bg-gray-50 dark:bg-gray-100 rounded-xl">
               <div className="text-2xl font-bold text-gray-900 dark:text-white">
                 {plant.practiceCount}
               </div>
@@ -162,7 +162,7 @@ const PlantDetailModal = memo(function PlantDetailModal({
                 연습 횟수
               </div>
             </div>
-            <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
+            <div className="text-center p-4 bg-gray-50 dark:bg-gray-100 rounded-xl">
               <div className="text-2xl font-bold text-gray-900 dark:text-white">
                 {Math.round(plant.masteryLevel * 100)}%
               </div>
@@ -170,7 +170,7 @@ const PlantDetailModal = memo(function PlantDetailModal({
                 숙달도
               </div>
             </div>
-            <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
+            <div className="text-center p-4 bg-gray-50 dark:bg-gray-100 rounded-xl">
               <div className="text-2xl font-bold text-gray-900 dark:text-white">
                 {plant.errorHistory.length}
               </div>
@@ -189,7 +189,7 @@ const PlantDetailModal = memo(function PlantDetailModal({
               {plant.errorHistory.slice(0, 5).map((error, index) => (
                 <div
                   key={index}
-                  className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-sm"
+                  className="p-3 bg-gray-50 dark:bg-gray-100 rounded-lg text-sm"
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600 dark:text-gray-400">

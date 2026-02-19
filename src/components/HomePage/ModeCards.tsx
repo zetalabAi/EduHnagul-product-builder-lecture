@@ -23,18 +23,18 @@ const ModeCards = memo(function ModeCards({ modes }: ModeCardsProps) {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+    <div className="flex justify-center mb-6">
       {modes.map((mode) => (
         <button
           key={mode.id}
           onClick={() => handleModeClick(mode)}
           disabled={!mode.available}
           className={`
-            relative overflow-hidden rounded-2xl p-6 text-left transition-all duration-300
+            relative overflow-hidden rounded-2xl p-6 text-left transition-all duration-300 w-full max-w-sm
             ${
               mode.available
                 ? "bg-gradient-to-br hover:shadow-2xl hover:scale-105 cursor-pointer"
-                : "bg-gray-100 dark:bg-gray-800 cursor-not-allowed opacity-75"
+                : "bg-gray-100 dark:bg-white cursor-not-allowed opacity-75"
             }
             ${mode.color}
           `}

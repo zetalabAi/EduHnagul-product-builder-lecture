@@ -43,7 +43,7 @@ export function EpisodeCard({ episode }: EpisodeCardProps) {
   };
 
   return (
-    <div className="bg-gray-800 rounded-lg overflow-hidden border border-gray-700 hover:border-gray-600 transition-all hover:shadow-xl group">
+    <div className="bg-white rounded-lg overflow-hidden border border-gray-700 hover:border-gray-600 transition-all hover:shadow-xl group">
       {/* Thumbnail */}
       <div className="relative h-48 bg-gradient-to-br from-purple-900 to-blue-900 overflow-hidden">
         {episode.thumbnail ? (

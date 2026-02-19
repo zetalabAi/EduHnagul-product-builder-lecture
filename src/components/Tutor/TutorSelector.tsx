@@ -73,7 +73,7 @@ const TutorSelector = memo(function TutorSelector({
               ${
                 selectedTutor === tutor.id
                   ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20"
-                  : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-primary-300"
+                  : "border-gray-200 dark:border-gray-700 bg-white dark:bg-white hover:border-primary-300"
               }
             `}
           >

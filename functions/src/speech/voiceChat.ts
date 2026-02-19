@@ -8,7 +8,7 @@ import {AppError} from "../utils/errors";
 import {UserDocument, SessionDocument, MessageDocument} from "../types";
 import {assemblePrompt} from "../chat/prompts";
 import {checkVoiceCredits, deductVoiceCredits} from "./creditManager";
-import {generateGeminiTTS, buildStyleInstructions} from "./geminiTTS";
+import {generateGeminiTTS, buildStyleInstructions, TUTOR_VOICE_MAP} from "./geminiTTS";
 import {getGeminiModel} from "../ai/gemini";
 
 // Lazy initialization
@@ -227,16 +227,21 @@ export const voiceChat = functions.https.onCall(
         formalityLevel: effectiveSession.formalityLevel,
       });
 
+      // ⚠️ 절대 수정 금지: Aoede(지민)/Puck(민준) 감정 보이스
+      const tutorId = (effectiveSession as any).selectedTutor || (effectiveSession as any).persona || "jimin";
+      const tutorVoice = TUTOR_VOICE_MAP[tutorId] ?? "Aoede";
+      const emotionalStylePrompt = `${styleInstructions}\n감정을 충분히 담아서, 자연스럽고 따뜻하게 말해주세요.`;
+
       let audioUrl = "";
       try {
-        functions.logger.info("🎤 Generating Gemini TTS audio...");
+        functions.logger.info(`🎤 Generating Gemini TTS audio (voice: ${tutorVoice})...`);
         audioUrl = await generateGeminiTTS({
-          text: dialogue, // Only dialogue, NOT full message!
-          voiceName: "Kore",
+          text: dialogue,
+          voiceName: tutorVoice, // Aoede(지민) or Puck(민준)
           temperature: 1.5,
-          styleInstructions,
+          styleInstructions: emotionalStylePrompt,
         });
-        functions.logger.info("✅ Gemini TTS 사용");
+        functions.logger.info("✅ Gemini TTS 사용 (감정 음성)");
       } catch (ttsError) {
         functions.logger.warn("⚠️ Gemini TTS 실패, Google Cloud TTS fallback 사용", ttsError);
         const fallbackBuffer = await generateGoogleTTS(dialogue);

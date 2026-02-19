@@ -38,7 +38,7 @@ const PlantCard = memo(function PlantCard({ plant, onClick }: PlantCardProps) {
     <div
       onClick={onClick}
       className={`
-        relative bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-md
+        relative bg-white dark:bg-white rounded-2xl p-6 shadow-md
         transition-all duration-300 cursor-pointer
         hover:shadow-xl hover:scale-105
         ${isMastered ? "ring-2 ring-yellow-400 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20" : ""}
@@ -74,7 +74,7 @@ const PlantCard = memo(function PlantCard({ plant, onClick }: PlantCardProps) {
 
       {/* Progress Bar */}
       <div className="mb-3">
-        <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+        <div className="h-2 bg-gray-200 dark:bg-gray-100 rounded-full overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-green-400 to-emerald-500 transition-all duration-500"
             style={{ width: `${progressPercent}%` }}

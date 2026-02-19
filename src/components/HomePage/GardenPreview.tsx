@@ -39,7 +39,7 @@ const GardenPreview = memo(function GardenPreview({ items }: GardenPreviewProps)
   const previewItems = items.slice(0, 3);
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+    <div className="bg-white dark:bg-white rounded-2xl shadow-lg p-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
           <span>🌸</span>
@@ -88,7 +88,7 @@ const GardenPreview = memo(function GardenPreview({ items }: GardenPreviewProps)
             {previewItems.map((item) => (
               <div
                 key={item.id}
-                className="flex items-start gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                className="flex items-start gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-100/50 hover:bg-gray-100 dark:hover:bg-gray-100 transition-colors cursor-pointer"
                 onClick={() => router.push(`/garden/${item.id}`)}
               >
                 {/* Stage Icon */}

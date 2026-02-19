@@ -38,14 +38,14 @@ export function ContextComparison({
   return (
     <div className="space-y-6">
       {/* Situation Context */}
-      <div className="bg-gradient-to-r from-indigo-900/30 to-purple-900/30 rounded-lg p-6 border border-indigo-700">
-        <h3 className="text-indigo-400 font-bold text-lg mb-3">📍 상황</h3>
+      <div className="bg-gradient-to-r from-indigo-900/30 to-purple-900/30 rounded-lg p-6 border border-orange-700">
+        <h3 className="text-orange-400 font-bold text-lg mb-3">📍 상황</h3>
         <p className="text-white text-lg mb-3">{situation}</p>
         <div className="flex flex-wrap gap-2">
           {characters.map((char, index) => (
             <span
               key={index}
-              className="bg-indigo-700 text-white px-3 py-1 rounded-full text-sm"
+              className="bg-orange-700 text-white px-3 py-1 rounded-full text-sm"
             >
               {char}
             </span>
@@ -63,7 +63,7 @@ export function ContextComparison({
           </div>
 
           {/* Dialogue */}
-          <div className="bg-gray-900/50 rounded-lg p-4 mb-4">
+          <div className="bg-white/50 rounded-lg p-4 mb-4">
             <p className="text-white text-lg mb-2">"{wrongWay.dialogue}"</p>
             {wrongWay.tone && (
               <span className="text-red-400 text-sm">톤: {wrongWay.tone}</span>
@@ -91,7 +91,7 @@ export function ContextComparison({
           </div>
 
           {/* Dialogue */}
-          <div className="bg-gray-900/50 rounded-lg p-4 mb-4">
+          <div className="bg-white/50 rounded-lg p-4 mb-4">
             <p className="text-white text-lg mb-2">"{rightWay.dialogue}"</p>
             {rightWay.tone && (
               <span className="text-green-400 text-sm">톤: {rightWay.tone}</span>
@@ -130,18 +130,18 @@ export function ContextComparison({
         <div>
           <button
             onClick={() => setShowAlternatives(!showAlternatives)}
-            className="w-full bg-gray-800 hover:bg-gray-700 text-white py-3 px-4 rounded-lg flex items-center justify-between transition-colors"
+            className="w-full bg-white hover:bg-gray-100 text-white py-3 px-4 rounded-lg flex items-center justify-between transition-colors"
           >
             <span className="font-medium">다른 표현 방법 보기</span>
             <span>{showAlternatives ? "▲" : "▼"}</span>
           </button>
 
           {showAlternatives && (
-            <div className="mt-3 bg-gray-800 rounded-lg p-4 space-y-2">
+            <div className="mt-3 bg-white rounded-lg p-4 space-y-2">
               {alternatives.map((alt, index) => (
                 <div
                   key={index}
-                  className="bg-gray-900 rounded-lg p-3 border border-gray-700"
+                  className="bg-white rounded-lg p-3 border border-gray-700"
                 >
                   <p className="text-white">"{alt}"</p>
                 </div>

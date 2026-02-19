@@ -60,7 +60,7 @@ export function FriendCard({ friend, currentUserStreak = 0 }: FriendCardProps) {
   const isAhead = streakComparison > 0;
 
   return (
-    <div className="bg-gray-800 rounded-lg p-4 border border-gray-700 hover:border-gray-600 transition-colors">
+    <div className="bg-white rounded-lg p-4 border border-gray-700 hover:border-gray-600 transition-colors">
       <div className="flex items-start justify-between">
         {/* Profile Section */}
         <div className="flex items-center space-x-3">
@@ -95,29 +95,29 @@ export function FriendCard({ friend, currentUserStreak = 0 }: FriendCardProps) {
           </button>
 
           {isMenuOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-10">
+            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-700 rounded-lg shadow-xl z-10">
               <button
                 onClick={() => handleCreateChallenge("streak")}
-                className="w-full text-left px-4 py-2 hover:bg-gray-800 text-white rounded-t-lg"
+                className="w-full text-left px-4 py-2 hover:bg-white text-white rounded-t-lg"
               >
                 🔥 Streak 챌린지
               </button>
               <button
                 onClick={() => handleCreateChallenge("xp")}
-                className="w-full text-left px-4 py-2 hover:bg-gray-800 text-white"
+                className="w-full text-left px-4 py-2 hover:bg-white text-white"
               >
                 ⭐ XP 챌린지
               </button>
               <button
                 onClick={() => handleCreateChallenge("lessons")}
-                className="w-full text-left px-4 py-2 hover:bg-gray-800 text-white"
+                className="w-full text-left px-4 py-2 hover:bg-white text-white"
               >
                 📚 Lesson 챌린지
               </button>
               <hr className="border-gray-700" />
               <button
                 onClick={handleRemove}
-                className="w-full text-left px-4 py-2 hover:bg-gray-800 text-red-400 rounded-b-lg"
+                className="w-full text-left px-4 py-2 hover:bg-white text-red-400 rounded-b-lg"
               >
                 🗑️ 친구 삭제
               </button>
@@ -127,7 +127,7 @@ export function FriendCard({ friend, currentUserStreak = 0 }: FriendCardProps) {
       </div>
 
       {/* Streak Comparison */}
-      <div className="mt-4 bg-gray-900 rounded-lg p-3">
+      <div className="mt-4 bg-white rounded-lg p-3">
         <div className="flex items-center justify-between text-sm">
           <div className="text-gray-400">
             스트릭: <span className="text-orange-500 font-bold">{friend.currentStreak}일</span>
@@ -153,7 +153,7 @@ export function FriendCard({ friend, currentUserStreak = 0 }: FriendCardProps) {
           🎯 챌린지
         </button>
         <button
-          className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-all"
+          className="bg-gray-100 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-all"
         >
           💌 응원하기
         </button>

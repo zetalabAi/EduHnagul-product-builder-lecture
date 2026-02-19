@@ -19,7 +19,7 @@ const LessonProgress = memo(function LessonProgress({
   onBack,
 }: LessonProgressProps) {
   return (
-    <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
+    <div className="bg-white dark:bg-white border-b border-gray-200 dark:border-gray-700 px-4 py-3">
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-3">
           {/* Back Button */}
@@ -64,7 +64,7 @@ const LessonProgress = memo(function LessonProgress({
 
         {/* Progress Bar */}
         <div className="relative">
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+          <div className="w-full bg-gray-200 dark:bg-gray-100 rounded-full h-2">
             <div
               className="bg-gradient-to-r from-primary-500 to-secondary-500 h-2 rounded-full transition-all duration-500"
               style={{ width: `${progress}%` }}

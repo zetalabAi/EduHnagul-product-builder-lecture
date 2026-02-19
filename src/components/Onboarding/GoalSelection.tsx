@@ -107,7 +107,7 @@ const GoalSelection = memo(function GoalSelection({
             value={customGoal}
             onChange={(e) => setCustomGoal(e.target.value)}
             placeholder="학습 목표를 입력하세요 (예: 한국 친구와 대화하기)"
-            className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:border-primary-500 focus:outline-none"
+            className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-white text-gray-900 dark:text-white focus:border-primary-500 focus:outline-none"
           />
         </div>
       )}

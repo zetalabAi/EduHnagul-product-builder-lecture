@@ -38,7 +38,7 @@ const Leaderboard = memo(function Leaderboard({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md overflow-hidden">
+    <div className="bg-white dark:bg-white rounded-2xl shadow-md overflow-hidden">
       <div className="bg-gradient-to-r from-primary-500 to-secondary-500 p-4">
         <h3 className="text-xl font-bold text-white">🏆 리더보드</h3>
         <p className="text-sm text-white/80 mt-1">상위 학습자</p>
@@ -58,7 +58,7 @@ const Leaderboard = memo(function Leaderboard({
                 ${
                   isCurrentUser
                     ? "bg-primary-50 dark:bg-primary-900/20"
-                    : "hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                    : "hover:bg-gray-50 dark:hover:bg-gray-100/50"
                 }
               `}
             >

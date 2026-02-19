@@ -6,7 +6,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { doc, onSnapshot } from "firebase/firestore";
 import { httpsCallable } from "firebase/functions";
-import { db, functions } from "../config/firebase";
+import { db, functions } from "@/lib/firebase";
 import type { League, WeeklyRank, LeagueHistory } from "../types/league";
 
 export function useLeague(userId: string | null) {

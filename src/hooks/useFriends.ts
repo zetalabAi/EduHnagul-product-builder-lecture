@@ -12,7 +12,7 @@ import {
   orderBy,
 } from "firebase/firestore";
 import { httpsCallable } from "firebase/functions";
-import { db, functions } from "../config/firebase";
+import { db, functions } from "@/lib/firebase";
 import type { Friend } from "../types/social";
 
 export function useFriends(userId: string | null) {

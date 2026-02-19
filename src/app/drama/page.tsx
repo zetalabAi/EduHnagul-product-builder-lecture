@@ -57,7 +57,7 @@ export default function DramaPage() {
             <div
               key={ep.id}
               onClick={() => router.push(`/drama/${ep.id}`)}
-              className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 cursor-pointer hover:shadow-xl transition-shadow"
+              className="bg-white dark:bg-white rounded-2xl shadow-lg p-6 cursor-pointer hover:shadow-xl transition-shadow"
             >
               <div className="text-3xl mb-4">🎬</div>
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">

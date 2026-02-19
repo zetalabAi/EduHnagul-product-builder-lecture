@@ -1,0 +1,51 @@
+/* ============================================
+   Edu_Hangul Design Tokens v3.0
+   Brand: Deep Orange #D63000 (Babbel 기반)
+   ============================================ */
+:root {
+  /* ── 브랜드 컬러 ── */
+  --primary:       #D63000;
+  --primary-dark:  #B32700;
+  --primary-mid:   #FF5722;
+  --primary-light: #FFF0EB;
+  --accent:        #FF8C00;
+  --accent-light:  #FFF8F0;
+
+  /* ── 배경 ── */
+  --bg-primary:    #FFFFFF;
+  --bg-secondary:  #F8F9FA;
+  --bg-card:       #FFFFFF;
+  --bg-input:      #F3F4F6;
+
+  /* ── 텍스트 ── */
+  --text-primary:   #1A1A2E;
+  --text-secondary: #6B7280;
+  --text-muted:     #9CA3AF;
+  --text-white:     #FFFFFF;
+
+  /* ── 상태 ── */
+  --success:       #10B981;
+  --success-light: #D1FAE5;
+  --warning:       #F59E0B;
+  --warning-light: #FEF3C7;
+  --error:         #EF4444;
+  --error-light:   #FEE2E2;
+
+  /* ── 레이아웃 ── */
+  --border:        #E5E7EB;
+  --border-mid:    #D1D5DB;
+  --shadow-sm:     0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md:     0 4px 12px rgba(0,0,0,0.10);
+  --shadow-lg:     0 8px 24px rgba(0,0,0,0.12);
+  --radius-sm:     8px;
+  --radius-md:     16px;
+  --radius-lg:     24px;
+  --radius-full:   9999px;
+
+  /* ── 타이포 ── */
+  --font-sans: 'Pretendard', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* ── 전환 ── */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}

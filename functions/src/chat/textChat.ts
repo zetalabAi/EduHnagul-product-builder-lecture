@@ -9,11 +9,13 @@ import {getGeminiModel} from "../ai/gemini";
 interface TextChatRequest {
   sessionId: string;
   userMessage: string;
+  nativeLanguage?: string;
   settings?: {
     persona: string;
     responseStyle: string;
     correctionStrength: string;
     formalityLevel: string;
+    nativeLanguage?: string;
   };
 }
 
@@ -74,7 +76,7 @@ export const textChat = functions.https.onCall(
   async (data: TextChatRequest, context): Promise<TextChatResponse> => {
     const startTime = Date.now();
     const userId = verifyAuth(context);
-    const { sessionId, userMessage, settings } = data;
+    const { sessionId, userMessage, nativeLanguage, settings } = data;
 
     if (!sessionId || !userMessage) {
       throw new AppError("INVALID_PARAMS", "Missing required parameters", 400);
@@ -139,10 +141,12 @@ export const textChat = functions.https.onCall(
       .reverse();
 
     // 6. Build Gemini conversation
-    // Apply settings from request if provided
-    const effectiveSession = settings
-      ? ({ ...session, ...settings } as SessionDocument)
-      : session;
+    // Apply settings + nativeLanguage from request if provided
+    const effectiveSession = {
+      ...session,
+      ...(settings ?? {}),
+      ...(nativeLanguage ? { nativeLanguage } : {}),
+    } as SessionDocument;
     const systemPrompt = assemblePrompt(effectiveSession, user, session.rollingSummary);
 
     const conversationContents = messages.map((msg) => ({

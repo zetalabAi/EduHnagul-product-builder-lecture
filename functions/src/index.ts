@@ -50,6 +50,8 @@ import { getCulturalTopic, getAllCulturalTopics } from "./culture/getCulturalTop
 import { addFriend, removeFriend, searchUsers, generateInviteLink } from "./social/friendFunctions";
 import { createChallenge, updateChallenge, completeChallenge, sendCheerMessage } from "./social/challengeFunctions";
 import { updateWeeklyXP, processWeekEnd, calculateRankings, getGlobalLeaderboard, initializeUserLeague } from "./league/leagueFunctions";
+import { analyzeWeeklyProgress } from "./garden/weeklyAnalysis";
+import { onXPGained, onLessonCompleted, onChatMessage, onMistakeDetected } from "./garden/updateStats";
 
 // Initialize Firebase Admin
 admin.initializeApp();
@@ -139,4 +141,10 @@ export {
   calculateRankings,
   getGlobalLeaderboard,
   initializeUserLeague,
+  // Progress Garden
+  analyzeWeeklyProgress,
+  onXPGained,
+  onLessonCompleted,
+  onChatMessage,
+  onMistakeDetected,
 };

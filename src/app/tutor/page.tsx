@@ -208,7 +208,7 @@ export default function TutorPage() {
 
       {/* Complete Lesson Button */}
       {lessonProgress >= 100 && (
-        <div className="p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+        <div className="p-4 bg-white dark:bg-white border-t border-gray-200 dark:border-gray-700">
           <button
             onClick={handleCompleteLesson}
             className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold rounded-xl shadow-lg transition-all duration-300"

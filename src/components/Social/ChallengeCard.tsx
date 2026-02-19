@@ -104,8 +104,8 @@ export function ChallengeCard({ challenge, userId }: ChallengeCardProps) {
       isComplete
         ? isWinner
           ? "bg-gradient-to-br from-yellow-900/30 to-orange-900/30 border-yellow-600"
-          : "bg-gray-800 border-gray-700"
-        : "bg-gray-800 border-gray-700"
+          : "bg-white border-gray-700"
+        : "bg-white border-gray-700"
     }`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
@@ -123,7 +123,7 @@ export function ChallengeCard({ challenge, userId }: ChallengeCardProps) {
           <div className={`px-3 py-1 rounded-full text-sm font-medium ${
             isWinner
               ? "bg-yellow-600 text-white"
-              : "bg-gray-700 text-gray-300"
+              : "bg-gray-100 text-gray-300"
           }`}>
             {isWinner ? "🏆 승리!" : "패배"}
           </div>
@@ -144,7 +144,7 @@ export function ChallengeCard({ challenge, userId }: ChallengeCardProps) {
               {myProgress} / {challenge.goal}
             </span>
           </div>
-          <div className="h-3 bg-gray-700 rounded-full overflow-hidden">
+          <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
             <div
               className={`h-full transition-all duration-500 ${
                 isWinning ? "bg-gradient-to-r from-green-500 to-emerald-500" : "bg-gradient-to-r from-blue-500 to-cyan-500"
@@ -162,7 +162,7 @@ export function ChallengeCard({ challenge, userId }: ChallengeCardProps) {
               {opponentProgress} / {challenge.goal}
             </span>
           </div>
-          <div className="h-3 bg-gray-700 rounded-full overflow-hidden">
+          <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
             <div
               className={`h-full transition-all duration-500 ${
                 !isWinning ? "bg-gradient-to-r from-green-500 to-emerald-500" : "bg-gradient-to-r from-orange-500 to-red-500"

@@ -1,78 +1,75 @@
 import * as functions from "firebase-functions";
-import {TextToSpeechClient} from "@google-cloud/text-to-speech";
 import {verifyAuth} from "../auth/authMiddleware";
 import {AppError} from "../utils/errors";
+import {generateGeminiTTSBase64, TUTOR_VOICE_MAP, getSpeechStylePrompt} from "./geminiTTS";
 
-const ttsClient = new TextToSpeechClient();
+// ⚠️ 절대 수정 금지 ⚠️
+// 이 TTS 설정은 Gemini AI Studio 감정 음성 전용입니다.
+// Standard 보이스, 기계음, 기본 TTS로 절대 변경하지 마세요.
+// 튜터: jimin=Aoede(여성 감정 풍부), minjun=Puck(남성 자연스러움)
 
 interface SynthesizeSpeechRequest {
   text: string;
+  tutor?: "jimin" | "minjun";         // 튜터 (보이스 결정)
+  speechStyle?: "formal" | "casual";  // 말투 (감정 프롬프트 결정)
+  // Legacy params (무시됨 — 기계음 방지를 위해 Gemini TTS로 override)
   voiceName?: string;
-  speakingRate?: number;
-  pitch?: number;
+  languageCode?: string;
 }
 
 /**
- * Synthesizes speech from text using Google Cloud Text-to-Speech Journey voices
- * with emotional expression.
+ * Synthesizes speech using Gemini AI Studio TTS.
+ * ⚠️ 감정 실린 자연스러운 음성 — 절대 기계음으로 변경 금지
  */
 export const synthesizeSpeech = functions.https.onCall(
   async (data: SynthesizeSpeechRequest, context) => {
-    // Verify authentication
     verifyAuth(context);
 
-    const {text, voiceName, speakingRate, pitch} = data;
+    const {
+      text,
+      tutor = "jimin",
+      speechStyle = "formal",
+    } = data;
 
     if (!text || text.trim().length === 0) {
       throw new AppError("INVALID_INPUT", "Text is required", 400);
     }
 
-    if (text.length > 5000) {
-      throw new AppError("INVALID_INPUT", "Text too long (max 5000 characters)", 400);
+    if (text.length > 3000) {
+      throw new AppError("INVALID_INPUT", "Text too long (max 3000 characters)", 400);
     }
 
+    // ⭐ 튜터별 감정 보이스 선택
+    const voiceName = TUTOR_VOICE_MAP[tutor] ?? "Aoede";
+
+    // ⭐ 튜터 + 말투 기반 감정 스타일 프롬프트
+    const styleInstructions = getSpeechStylePrompt(text.trim(), tutor, speechStyle);
+
+    functions.logger.info(`🎙️ Gemini TTS: voice=${voiceName}, tutor=${tutor}, style=${speechStyle}`);
+
     try {
-      // Use Journey voice for natural emotional expression
-      const request = {
-        input: {text: text.trim()},
-        voice: {
-          languageCode: "ko-KR",
-          // Journey voices: ko-KR-Journey-F, ko-KR-Journey-M
-          name: voiceName || "ko-KR-Journey-F",
-        },
-        audioConfig: {
-          audioEncoding: "MP3" as const,
-          speakingRate: speakingRate || 1.0,
-          pitch: pitch || 0.0,
-          // Enable effects for more natural sound
-          effectsProfileId: ["small-bluetooth-speaker-class-device"],
-        },
-      };
+      // ⚠️ 반드시 Gemini TTS 사용 (Google Cloud TTS 절대 금지)
+      const { data: audioBase64, mimeType } = await generateGeminiTTSBase64({
+        text: text.trim(),
+        voiceName,
+        temperature: 1.5,
+        styleInstructions,
+      });
 
-      const [response] = await ttsClient.synthesizeSpeech(request);
-
-      if (!response.audioContent) {
-        throw new AppError("TTS_ERROR", "Failed to synthesize speech", 500);
-      }
-
-      // Return audio as base64 for direct playback
-      const audioBase64 = response.audioContent.toString("base64");
+      functions.logger.info(`✅ Gemini TTS 완료 (${voiceName}, ${mimeType})`);
 
       return {
         audioContent: audioBase64,
-        audioFormat: "mp3",
+        audioFormat: mimeType.includes("mpeg") ? "mp3" : "wav",
+        mimeType,
         textLength: text.length,
+        voiceUsed: voiceName,
       };
     } catch (error: any) {
-      functions.logger.error("TTS synthesis error:", error);
-
-      if (error instanceof AppError) {
-        throw error;
-      }
-
+      functions.logger.error("❌ Gemini TTS 실패:", error.message);
       throw new AppError(
         "TTS_ERROR",
-        `Failed to synthesize speech: ${error.message}`,
+        `Gemini TTS failed: ${error.message}`,
         500
       );
     }

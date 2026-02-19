@@ -41,7 +41,7 @@ const AdaptiveLearningIndicator = memo(function AdaptiveLearningIndicator({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 mb-4">
+    <div className="bg-white dark:bg-white rounded-xl shadow-md p-4 mb-4">
       <div className="flex items-center justify-between mb-3">
         {/* Flow State 인디케이터 */}
         <div className="flex items-center gap-2">
@@ -71,7 +71,7 @@ const AdaptiveLearningIndicator = memo(function AdaptiveLearningIndicator({
             난이도:
           </span>
           <div className="flex items-center gap-1">
-            <div className="w-16 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+            <div className="w-16 h-2 bg-gray-200 dark:bg-gray-100 rounded-full overflow-hidden">
               <div
                 className={`h-full ${getDifficultyColor(currentDifficulty)} transition-all duration-500`}
                 style={{ width: `${currentDifficulty * 100}%` }}

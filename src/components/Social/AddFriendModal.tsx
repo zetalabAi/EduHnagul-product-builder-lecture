@@ -96,9 +96,9 @@ export function AddFriendModal({ isOpen, onClose, userId }: AddFriendModalProps)
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900 rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto border border-gray-700">
+      <div className="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto border border-gray-700">
         {/* Header */}
-        <div className="sticky top-0 bg-gray-900 border-b border-gray-700 p-4">
+        <div className="sticky top-0 bg-white border-b border-gray-700 p-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-white">친구 추가</h2>
             <button
@@ -116,7 +116,7 @@ export function AddFriendModal({ isOpen, onClose, userId }: AddFriendModalProps)
               className={`flex-1 py-2 rounded-lg font-medium transition-colors ${
                 activeTab === "qr"
                   ? "bg-blue-600 text-white"
-                  : "bg-gray-800 text-gray-400 hover:text-white"
+                  : "bg-white text-gray-400 hover:text-white"
               }`}
             >
               QR 코드
@@ -126,7 +126,7 @@ export function AddFriendModal({ isOpen, onClose, userId }: AddFriendModalProps)
               className={`flex-1 py-2 rounded-lg font-medium transition-colors ${
                 activeTab === "search"
                   ? "bg-blue-600 text-white"
-                  : "bg-gray-800 text-gray-400 hover:text-white"
+                  : "bg-white text-gray-400 hover:text-white"
               }`}
             >
               검색
@@ -136,7 +136,7 @@ export function AddFriendModal({ isOpen, onClose, userId }: AddFriendModalProps)
               className={`flex-1 py-2 rounded-lg font-medium transition-colors ${
                 activeTab === "invite"
                   ? "bg-blue-600 text-white"
-                  : "bg-gray-800 text-gray-400 hover:text-white"
+                  : "bg-white text-gray-400 hover:text-white"
               }`}
             >
               초대 링크
@@ -187,7 +187,7 @@ export function AddFriendModal({ isOpen, onClose, userId }: AddFriendModalProps)
                     />
                     <button
                       onClick={() => setShowScanner(false)}
-                      className="w-full mt-2 bg-gray-700 hover:bg-gray-600 text-white py-2 rounded-lg"
+                      className="w-full mt-2 bg-gray-100 hover:bg-gray-600 text-white py-2 rounded-lg"
                     >
                       취소
                     </button>
@@ -211,7 +211,7 @@ export function AddFriendModal({ isOpen, onClose, userId }: AddFriendModalProps)
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyPress={(e) => e.key === "Enter" && handleSearch()}
                     placeholder="예: 김철수"
-                    className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                    className="flex-1 bg-white border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
                   />
                   <button
                     onClick={handleSearch}
@@ -230,7 +230,7 @@ export function AddFriendModal({ isOpen, onClose, userId }: AddFriendModalProps)
                   {searchResults.map((user) => (
                     <div
                       key={user.id}
-                      className="bg-gray-800 rounded-lg p-3 flex items-center justify-between"
+                      className="bg-white rounded-lg p-3 flex items-center justify-between"
                     >
                       <div className="flex items-center space-x-3">
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
@@ -292,7 +292,7 @@ export function AddFriendModal({ isOpen, onClose, userId }: AddFriendModalProps)
                   </button>
                 ) : (
                   <div className="space-y-3">
-                    <div className="bg-gray-800 rounded-lg p-4">
+                    <div className="bg-white rounded-lg p-4">
                       <p className="text-gray-400 text-sm mb-2">초대 링크</p>
                       <p className="text-white font-mono text-sm break-all">
                         {inviteLink.inviteUrl}

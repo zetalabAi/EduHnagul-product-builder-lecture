@@ -98,7 +98,7 @@ const StyleQuiz = memo(function StyleQuiz({ onNext }: StyleQuizProps) {
         {questions.map((q) => (
           <div
             key={q.id}
-            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-md"
+            className="bg-white dark:bg-white rounded-2xl p-6 shadow-md"
           >
             <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
               {q.id}. {q.question}

@@ -79,7 +79,7 @@ export function DramaScene({
           className={`flex-1 py-3 rounded-lg font-medium transition-colors ${
             mode === "watch"
               ? "bg-blue-600 text-white"
-              : "bg-gray-800 text-gray-400 hover:text-white"
+              : "bg-white text-gray-400 hover:text-white"
           }`}
         >
           👁️ 보기 모드
@@ -89,7 +89,7 @@ export function DramaScene({
           className={`flex-1 py-3 rounded-lg font-medium transition-colors ${
             mode === "roleplay"
               ? "bg-purple-600 text-white"
-              : "bg-gray-800 text-gray-400 hover:text-white"
+              : "bg-white text-gray-400 hover:text-white"
           }`}
         >
           🎭 역할극 모드
@@ -110,7 +110,7 @@ export function DramaScene({
       )}
 
       {/* Dialogue Display */}
-      <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+      <div className="bg-white rounded-xl p-6 border border-gray-700">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-white font-bold text-lg">대사 ({currentDialogueIndex + 1}/{dialogues.length})</h3>
           <div className="flex space-x-2">
@@ -181,7 +181,7 @@ export function DramaScene({
         {mode === "watch" && (
           <button
             onClick={handleNext}
-            className="w-full mt-4 bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-lg font-medium transition-colors"
+            className="w-full mt-4 bg-gray-100 hover:bg-gray-600 text-white py-3 rounded-lg font-medium transition-colors"
           >
             다음 대사 ▶️
           </button>

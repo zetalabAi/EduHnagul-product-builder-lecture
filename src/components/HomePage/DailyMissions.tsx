@@ -19,7 +19,7 @@ const DailyMissions = memo(function DailyMissions({
   const completedCount = missions.filter((m) => m.completed).length;
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-6">
+    <div className="bg-white dark:bg-white rounded-2xl shadow-lg p-6 mb-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
           <span>🎯</span>
@@ -41,7 +41,7 @@ const DailyMissions = memo(function DailyMissions({
               ${
                 mission.completed
                   ? "bg-green-50 dark:bg-green-900/20 border-green-500"
-                  : "bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600 hover:border-primary-500 hover:shadow-md"
+                  : "bg-gray-50 dark:bg-gray-100/50 border-gray-200 dark:border-gray-600 hover:border-primary-500 hover:shadow-md"
               }
             `}
           >

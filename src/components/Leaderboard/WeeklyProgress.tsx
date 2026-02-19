@@ -40,7 +40,7 @@ export function WeeklyProgress({
   const maxDailyXP = Math.max(...mockDailyData.map((d) => d.xp), 1);
 
   return (
-    <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+    <div className="bg-white rounded-lg p-6 border border-gray-700">
       <h3 className="text-white font-semibold text-lg mb-4">주간 진행 상황</h3>
 
       {/* XP Progress Bar */}
@@ -49,7 +49,7 @@ export function WeeklyProgress({
           <span className="text-gray-400 text-sm">내 주간 XP</span>
           <span className="text-white font-bold">{weeklyXP.toLocaleString()}</span>
         </div>
-        <div className="h-3 bg-gray-700 rounded-full overflow-hidden">
+        <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-500"
             style={{ width: `${Math.min(progressPercent, 100)}%` }}
@@ -59,7 +59,7 @@ export function WeeklyProgress({
 
       {/* Gap to First Place */}
       {gap > 0 && (
-        <div className="bg-gray-900 rounded-lg p-4 mb-6">
+        <div className="bg-white rounded-lg p-4 mb-6">
           <div className="flex items-center justify-between">
             <span className="text-gray-400 text-sm">1등과의 차이</span>
             <span className="text-orange-400 font-bold">
@@ -99,7 +99,7 @@ export function WeeklyProgress({
                         ? "bg-gradient-to-t from-blue-500 to-cyan-400"
                         : data.xp > 0
                         ? "bg-gradient-to-t from-gray-600 to-gray-500"
-                        : "bg-gray-800"
+                        : "bg-white"
                     }`}
                     style={{ height: `${heightPercent}%` }}
                   >

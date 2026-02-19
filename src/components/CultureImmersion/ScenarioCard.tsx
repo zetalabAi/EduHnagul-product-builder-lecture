@@ -49,7 +49,7 @@ export function ScenarioCard({
   const router = useRouter();
 
   return (
-    <div className="bg-gray-800 rounded-lg p-6 border border-gray-700 hover:border-gray-600 transition-all group">
+    <div className="bg-white rounded-lg p-6 border border-gray-700 hover:border-gray-600 transition-all group">
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center space-x-3">

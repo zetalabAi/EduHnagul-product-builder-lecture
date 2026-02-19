@@ -14,7 +14,7 @@ interface Scene {
   id: string;
   background?: string;
   dialogue: {
-    speaker: string;
+    character: string;
     text: string;
     emotion?: "happy" | "sad" | "surprised" | "angry" | "neutral";
     audioUrl?: string;
@@ -85,7 +85,7 @@ export function ScenePlayer({ scene, onChoiceSelect, score }: ScenePlayerProps) 
 
       {/* Character Sprite */}
       <CharacterSprite
-        character={currentDialogue.speaker}
+        character={currentDialogue.character}
         emotion={currentDialogue.emotion}
         position="center"
         visible={true}
@@ -101,14 +101,14 @@ export function ScenePlayer({ scene, onChoiceSelect, score }: ScenePlayerProps) 
             >
               ⬅️
             </button>
-            <div className="bg-gray-900/80 backdrop-blur-sm px-4 py-2 rounded-lg">
+            <div className="bg-white/80 backdrop-blur-sm px-4 py-2 rounded-lg">
               <p className="text-white font-bold">점수: {score}</p>
             </div>
           </div>
           <button
             onClick={() => setIsAutoPlay(!isAutoPlay)}
             className={`${
-              isAutoPlay ? "bg-blue-600" : "bg-gray-700"
+              isAutoPlay ? "bg-blue-600" : "bg-gray-100"
             } text-white px-4 py-2 rounded-lg transition-colors`}
           >
             {isAutoPlay ? "⏸️ 자동" : "▶️ 수동"}
@@ -118,7 +118,7 @@ export function ScenePlayer({ scene, onChoiceSelect, score }: ScenePlayerProps) 
 
       {/* Progress Indicator */}
       <div className="absolute top-20 left-4 right-4">
-        <div className="h-1 bg-gray-700 rounded-full overflow-hidden">
+        <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
           <div
             className="h-full bg-blue-500 transition-all duration-300"
             style={{
@@ -132,7 +132,7 @@ export function ScenePlayer({ scene, onChoiceSelect, score }: ScenePlayerProps) 
       <div className="absolute bottom-0 left-0 right-0 p-6">
         {!showChoices ? (
           <DialogueBox
-            speaker={currentDialogue.speaker}
+            speaker={currentDialogue.character}
             text={currentDialogue.text}
             audioUrl={currentDialogue.audioUrl}
             onNext={handleNext}
@@ -140,7 +140,7 @@ export function ScenePlayer({ scene, onChoiceSelect, score }: ScenePlayerProps) 
           />
         ) : (
           <div className="space-y-4">
-            <div className="bg-gray-900/95 backdrop-blur-sm rounded-lg p-4 border border-gray-700">
+            <div className="bg-white/95 backdrop-blur-sm rounded-lg p-4 border border-gray-700">
               <h3 className="text-white font-bold text-lg mb-2">어떻게 대답하시겠습니까?</h3>
               <p className="text-gray-400 text-sm">선택지를 선택하세요</p>
             </div>
@@ -158,7 +158,7 @@ export function ScenePlayer({ scene, onChoiceSelect, score }: ScenePlayerProps) 
       {!showChoices && (
         <button
           onClick={handleNext}
-          className="absolute right-6 bottom-32 bg-gray-800/80 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors"
+          className="absolute right-6 bottom-32 bg-white/80 hover:bg-gray-100 text-white px-4 py-2 rounded-lg transition-colors"
         >
           ⏭️ 스킵
         </button>

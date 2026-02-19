@@ -13,6 +13,8 @@ export interface ShadowSentence {
   speed: number;
   emphasis: number[];
   tone: string;
+  romanization?: string;
+  translation?: string;
 }
 
 export interface ShadowSettings {

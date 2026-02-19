@@ -498,6 +498,13 @@ const LANGUAGE_NAMES: Record<string, string> = {
   ja: "Japanese (日本語)",
   zh: "Chinese (中文)",
   fr: "French (Français)",
+  de: "German (Deutsch)",
+  pt: "Portuguese (Português)",
+  th: "Thai (ภาษาไทย)",
+  vi: "Vietnamese (Tiếng Việt)",
+  id: "Indonesian (Bahasa Indonesia)",
+  ar: "Arabic (العربية)",
+  ru: "Russian (Русский)",
 };
 
 export function assemblePrompt(
@@ -536,13 +543,39 @@ export function assemblePrompt(
     prompt += "\n\n" + `📜 CONVERSATION HISTORY SUMMARY:\n${rollingSummary}`;
   }
 
-  // Add native language for corrections
-  const langName = LANGUAGE_NAMES[user.nativeLanguage];
-  prompt += "\n\n" + `🌍 USER'S NATIVE LANGUAGE: ${langName}`;
-  prompt +=
-    "\n📝 Provide all corrections and explanations in " +
-    langName +
-    ". Keep Korean responses in Korean, but explain grammar/mistakes in their language.";
+  // Add native language + bilingual teaching structure
+  const rawLang = (session as any).nativeLanguage || user.nativeLanguage || "en";
+  const langName = LANGUAGE_NAMES[rawLang] || "English";
+  prompt += `
+
+🌍 STUDENT'S NATIVE LANGUAGE: ${langName}
+
+🎯 BILINGUAL TEACHING STRUCTURE (CRITICAL — follow every response):
+The student does NOT yet understand Korean well. They need ${langName} to understand.
+
+EVERY response MUST follow this pattern:
+1. Brief context/explanation in ${langName} (1–2 sentences)
+2. The Korean expression(s) they should practice (Korean text + romanization)
+3. Translation of the Korean back into ${langName}
+
+EXAMPLE if native language is English:
+"Let's practice greeting people! 😊
+한국어: 안녕하세요! (an-nyeong-ha-se-yo)
+→ This means 'Hello' in polite Korean. Try saying it!"
+
+EXAMPLE if native language is Japanese:
+"挨拶の練習をしましょう！😊
+한국어: 안녕하세요! (an-nyeong-ha-se-yo)
+→「こんにちは」という意味です！"
+
+RULES:
+- ALL explanations, encouragement, corrections → in ${langName}
+- Korean expressions → written in 한글 (Korean script)
+- Romanization → always include for beginner/intermediate learners
+- NEVER respond with Korean-only — the student can't understand it yet
+- Keep responses SHORT: 1 context sentence + 1–2 Korean phrases + 1 translation sentence
+- Corrections and grammar tips → always in ${langName}`;
+
 
   return prompt;
 }

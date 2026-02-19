@@ -20,7 +20,7 @@ const QuestionCard = memo(function QuestionCard({
   selectedOption,
 }: QuestionCardProps) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-4">
+    <div className="bg-white dark:bg-white rounded-2xl shadow-lg p-6 mb-4">
       {/* Question */}
       <div className="mb-4">
         <div className="flex items-start gap-3">
@@ -30,7 +30,7 @@ const QuestionCard = memo(function QuestionCard({
             </div>
           </div>
           <div className="flex-1">
-            <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+            <div className="bg-gray-50 dark:bg-gray-100/50 rounded-xl p-4">
               <p className="text-gray-900 dark:text-gray-100 leading-relaxed whitespace-pre-wrap">
                 {question}
               </p>
@@ -51,7 +51,7 @@ const QuestionCard = memo(function QuestionCard({
                 ${
                   selectedOption === option
                     ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20"
-                    : "border-gray-200 dark:border-gray-600 hover:border-primary-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                    : "border-gray-200 dark:border-gray-600 hover:border-primary-300 hover:bg-gray-50 dark:hover:bg-gray-100/50"
                 }
               `}
             >

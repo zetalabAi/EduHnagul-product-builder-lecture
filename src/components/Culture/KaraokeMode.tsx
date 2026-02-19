@@ -186,7 +186,7 @@ export function KaraokeMode({
         <div className="p-6 bg-gradient-to-t from-black/70 to-transparent">
           {/* Progress Bar */}
           <div className="mb-6">
-            <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-pink-500 to-purple-500 transition-all"
                 style={{
@@ -210,7 +210,7 @@ export function KaraokeMode({
 
           {/* Score Display */}
           {lineScores.length > 0 && (
-            <div className="mt-4 bg-gray-900/80 rounded-lg p-4">
+            <div className="mt-4 bg-white/80 rounded-lg p-4">
               <div className="flex items-center justify-between">
                 <span className="text-gray-400">현재 평균 점수</span>
                 <span className={`text-2xl font-bold ${getScoreColor(

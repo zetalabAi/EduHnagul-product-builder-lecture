@@ -459,7 +459,7 @@ export function VoiceChat({
           {onMenuClick && (
             <button
               onClick={onMenuClick}
-              className="lg:hidden w-10 h-10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-800 rounded-full transition"
+              className="lg:hidden w-10 h-10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white rounded-full transition"
             >
               ☰
             </button>
@@ -478,7 +478,7 @@ export function VoiceChat({
           <button
             onClick={() => setShowSettings(true)}
             disabled={isLoading}
-            className="px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm font-medium disabled:opacity-50"
+            className="px-3 py-2 bg-gray-100 hover:bg-gray-600 rounded-lg text-sm font-medium disabled:opacity-50"
             title="대화 설정"
           >
             ⚙️
@@ -588,7 +588,7 @@ export function VoiceChat({
               {/* Transcript Display */}
               {transcript && (
                 <div className="absolute top-1/4 w-full max-w-md px-6 text-center">
-                  <div className="bg-gray-800 bg-opacity-90 rounded-2xl px-6 py-4 backdrop-blur-sm">
+                  <div className="bg-white bg-opacity-90 rounded-2xl px-6 py-4 backdrop-blur-sm">
                     <p className="text-sm text-gray-400 mb-2">인식 중...</p>
                     <p className="text-lg text-white">{transcript}</p>
                   </div>
@@ -622,7 +622,7 @@ export function VoiceChat({
               <div className="flex space-x-4 mt-4">
                 <button
                   onClick={handleCancelRecording}
-                  className="px-8 py-3 bg-gray-700 hover:bg-gray-600 rounded-full font-bold transition"
+                  className="px-8 py-3 bg-gray-100 hover:bg-gray-600 rounded-full font-bold transition"
                 >
                   취소
                 </button>
@@ -684,7 +684,7 @@ export function VoiceChat({
       {/* Assistant suggestions modal */}
       {suggestions.length > 0 && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 px-4">
-          <div className="bg-gray-800 rounded-xl p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto">
+          <div className="bg-white rounded-xl p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold">💡 이렇게 말해보세요!</h3>
               <button
@@ -702,7 +702,7 @@ export function VoiceChat({
                 <div
                   key={index}
                   onClick={() => handleUseSuggestion(suggestion.text)}
-                  className="bg-gray-700 hover:bg-gray-600 rounded-lg p-4 cursor-pointer transition"
+                  className="bg-gray-100 hover:bg-gray-600 rounded-lg p-4 cursor-pointer transition"
                 >
                   <p className="font-bold text-lg mb-2">{suggestion.text}</p>
                   <p className="text-sm text-gray-300 mb-2">
@@ -773,7 +773,7 @@ export function VoiceChat({
       {/* Settings Modal */}
       {showSettings && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 px-4">
-          <div className="bg-gray-800 rounded-xl p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto">
+          <div className="bg-white rounded-xl p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold">⚙️ 대화 설정</h3>
               <button
@@ -795,7 +795,7 @@ export function VoiceChat({
                   onChange={(e) =>
                     setSessionSettings({ ...sessionSettings, persona: e.target.value })
                   }
-                  className="w-full px-4 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 bg-gray-100 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="friend">👥 친구 (Friend)</option>
                   <option value="lover">❤️ 연인 (Lover)</option>
@@ -816,7 +816,7 @@ export function VoiceChat({
                   onChange={(e) =>
                     setSessionSettings({ ...sessionSettings, responseStyle: e.target.value })
                   }
-                  className="w-full px-4 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 bg-gray-100 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="empathetic">😊 공감적 (Empathetic)</option>
                   <option value="balanced">⚖️ 균형적 (Balanced)</option>
@@ -839,7 +839,7 @@ export function VoiceChat({
                   onChange={(e) =>
                     setSessionSettings({ ...sessionSettings, correctionStrength: e.target.value })
                   }
-                  className="w-full px-4 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 bg-gray-100 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="minimal">🟢 최소 (Minimal)</option>
                   <option value="strict">🔴 엄격 (Strict)</option>
@@ -860,7 +860,7 @@ export function VoiceChat({
                   onChange={(e) =>
                     setSessionSettings({ ...sessionSettings, formalityLevel: e.target.value })
                   }
-                  className="w-full px-4 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 bg-gray-100 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="formal">📋 격식체 (Formal)</option>
                   <option value="polite">🙂 존댓말 (Polite)</option>
@@ -898,7 +898,7 @@ export function VoiceChat({
                       }
                     }
                   }}
-                  className="w-full px-4 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 bg-gray-100 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="beginner">🌱 초급 (Beginner)</option>
                   <option value="intermediate">🌿 중급 (Intermediate)</option>
@@ -933,7 +933,7 @@ export function VoiceChat({
       {/* Back Confirmation Dialog */}
       {showBackConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 px-4">
-          <div className="bg-gray-800 rounded-xl p-6 max-w-md w-full">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full">
             <h3 className="text-xl font-bold mb-4">⚠️ 녹음 중</h3>
             <p className="text-gray-300 mb-6">
               녹음이 진행 중입니다. 정말 뒤로 가시겠습니까?
@@ -945,7 +945,7 @@ export function VoiceChat({
             <div className="flex space-x-3">
               <button
                 onClick={() => setShowBackConfirm(false)}
-                className="flex-1 px-4 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-bold transition"
+                className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-600 rounded-lg font-bold transition"
               >
                 계속 녹음
               </button>
@@ -978,7 +978,7 @@ export function VoiceChat({
       {/* End Conversation Confirmation Dialog */}
       {showEndConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 px-4">
-          <div className="bg-gray-800 rounded-xl p-6 max-w-md w-full">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full">
             <h3 className="text-xl font-bold mb-4">✕ 대화 끝내기</h3>
             <p className="text-gray-300 mb-6">
               대화를 종료하고 홈으로 돌아가시겠습니까?
@@ -990,7 +990,7 @@ export function VoiceChat({
             <div className="flex space-x-3">
               <button
                 onClick={() => setShowEndConfirm(false)}
-                className="flex-1 px-4 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-bold transition"
+                className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-600 rounded-lg font-bold transition"
               >
                 취소
               </button>

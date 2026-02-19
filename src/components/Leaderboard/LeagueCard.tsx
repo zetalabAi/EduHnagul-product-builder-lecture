@@ -45,7 +45,7 @@ const TIER_NAMES: Record<LeagueTier, string> = {
 export function LeagueCard({ league, weeklyXP, rank, timeRemaining }: LeagueCardProps) {
   if (!league) {
     return (
-      <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+      <div className="bg-white rounded-lg p-6 border border-gray-700">
         <p className="text-gray-400 text-center">리그 정보를 불러오는 중...</p>
       </div>
     );

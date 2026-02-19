@@ -21,13 +21,16 @@ export function ShadowPlayer({ contentId, userId }: ShadowPlayerProps) {
   const {
     isPlaying,
     currentTime,
-    duration,
-    currentSentence,
-    sentences,
+    content,
+    isLoading,
     startShadowing,
     stopShadowing,
-    loading,
+    getCurrentSentence,
   } = useShadowSpeaking(contentId, userId);
+
+  const duration = content?.duration ?? 0;
+  const currentSentence = getCurrentSentence();
+  const sentences = content?.sentences ?? [];
 
   const [showResult, setShowResult] = useState(false);
   const [finalScore, setFinalScore] = useState(0);
@@ -43,18 +46,15 @@ export function ShadowPlayer({ contentId, userId }: ShadowPlayerProps) {
   const completedSentences = sentences.findIndex((s) => s === currentSentence);
 
   const handleStart = async () => {
-    await startShadowing(level);
+    await startShadowing();
   };
 
   const handleStop = async () => {
-    const result = await stopShadowing();
-    if (result) {
-      setFinalScore(result.scores.overall);
-      setShowResult(true);
-    }
+    await stopShadowing();
+    setShowResult(true);
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
@@ -72,7 +72,7 @@ export function ShadowPlayer({ contentId, userId }: ShadowPlayerProps) {
           <p className="text-gray-300">훌륭한 연습이었습니다!</p>
         </div>
 
-        <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+        <div className="bg-white rounded-xl p-6 border border-gray-700">
           <h3 className="text-white font-bold text-lg mb-4">최종 점수</h3>
           <div className="text-center mb-6">
             <p className="text-5xl font-bold text-blue-400">{Math.round(finalScore * 100)}점</p>
@@ -101,7 +101,7 @@ export function ShadowPlayer({ contentId, userId }: ShadowPlayerProps) {
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Level Selection */}
       {!isPlaying && (
-        <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+        <div className="bg-white rounded-xl p-6 border border-gray-700">
           <h3 className="text-white font-bold text-lg mb-4">난이도 선택</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {levelSettings.map((setting) => (
@@ -111,7 +111,7 @@ export function ShadowPlayer({ contentId, userId }: ShadowPlayerProps) {
                 className={`p-4 rounded-lg border-2 transition-all ${
                   level === setting.level
                     ? "bg-blue-900/50 border-blue-500"
-                    : "bg-gray-900 border-gray-700 hover:border-gray-600"
+                    : "bg-white border-gray-700 hover:border-gray-600"
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -138,7 +138,7 @@ export function ShadowPlayer({ contentId, userId }: ShadowPlayerProps) {
 
           {/* Learning Points */}
           {currentSentence.emphasis && currentSentence.emphasis.length > 0 && (
-            <div className="mt-6 bg-gray-900/50 rounded-lg p-4">
+            <div className="mt-6 bg-white/50 rounded-lg p-4">
               <p className="text-purple-400 text-sm font-semibold mb-2">💡 강조할 부분</p>
               <div className="flex flex-wrap gap-2">
                 {currentSentence.emphasis.map((word, index) => (
@@ -203,7 +203,7 @@ export function ShadowPlayer({ contentId, userId }: ShadowPlayerProps) {
 
       {/* Instructions */}
       {!isPlaying && (
-        <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+        <div className="bg-white rounded-lg p-4 border border-gray-700">
           <h4 className="text-white font-semibold mb-2">📖 사용 방법</h4>
           <ul className="text-gray-400 text-sm space-y-1">
             <li>1. 난이도를 선택하세요</li>

@@ -108,7 +108,7 @@ export function WaveformVisualizer({
   };
 
   return (
-    <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+    <div className="bg-white rounded-lg p-4 border border-gray-700">
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-white font-semibold">파형 비교</h3>
         <div className="flex items-center space-x-4 text-sm">

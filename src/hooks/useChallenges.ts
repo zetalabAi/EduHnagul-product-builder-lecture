@@ -13,7 +13,7 @@ import {
   or,
 } from "firebase/firestore";
 import { httpsCallable } from "firebase/functions";
-import { db, functions } from "../config/firebase";
+import { db, functions } from "@/lib/firebase";
 import type { Challenge } from "../types/social";
 
 export function useChallenges(userId: string | null) {

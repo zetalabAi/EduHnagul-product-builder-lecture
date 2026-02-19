@@ -70,7 +70,7 @@ export default function LeaderboardPage() {
   return (
     <div className="min-h-screen bg-gray-950 text-white">
       {/* Header */}
-      <div className="bg-gray-900 border-b border-gray-800 sticky top-0 z-10">
+      <div className="bg-white border-b border-gray-800 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-4">
           <h1 className="text-2xl font-bold mb-4">리더보드 🏆</h1>
 
@@ -81,7 +81,7 @@ export default function LeaderboardPage() {
               className={`flex-1 py-2 rounded-lg font-medium transition-colors ${
                 activeTab === "league"
                   ? "bg-blue-600 text-white"
-                  : "bg-gray-800 text-gray-400 hover:text-white"
+                  : "bg-white text-gray-400 hover:text-white"
               }`}
             >
               내 리그
@@ -91,7 +91,7 @@ export default function LeaderboardPage() {
               className={`flex-1 py-2 rounded-lg font-medium transition-colors ${
                 activeTab === "global"
                   ? "bg-blue-600 text-white"
-                  : "bg-gray-800 text-gray-400 hover:text-white"
+                  : "bg-white text-gray-400 hover:text-white"
               }`}
             >
               글로벌 Top 100
@@ -185,7 +185,7 @@ export default function LeaderboardPage() {
                 )}
 
                 {/* Top 100 Info */}
-                <div className="bg-gray-800 rounded-lg p-4">
+                <div className="bg-white rounded-lg p-4">
                   <p className="text-gray-300 text-sm">
                     💡 글로벌 리더보드는 총 XP 기준 상위 100명을 실시간으로 표시합니다.
                   </p>

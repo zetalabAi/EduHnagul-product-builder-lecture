@@ -52,7 +52,7 @@ const HintPanel = memo(function HintPanel({
                 flex-1 px-4 py-3 text-sm font-medium transition-colors
                 ${
                   activeTab === tab.id
-                    ? "bg-white dark:bg-gray-800 text-primary-600 dark:text-primary-400"
+                    ? "bg-white dark:bg-white text-primary-600 dark:text-primary-400"
                     : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
                 }
               `}

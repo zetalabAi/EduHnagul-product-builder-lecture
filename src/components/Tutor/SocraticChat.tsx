@@ -96,7 +96,7 @@ const SocraticChat = memo(function SocraticChat({
               </div>
             </div>
             <div className="flex-1">
-              <div className="bg-gray-100 dark:bg-gray-700 rounded-xl p-4">
+              <div className="bg-gray-100 dark:bg-gray-100 rounded-xl p-4">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                   <div
@@ -117,14 +117,14 @@ const SocraticChat = memo(function SocraticChat({
       </div>
 
       {/* Input Area */}
-      <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-4">
+      <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-white px-4 py-4">
         <form onSubmit={handleSubmit} className="flex items-center gap-3">
           <input
             ref={inputRef}
             type="text"
             placeholder="메시지를 입력하세요..."
             disabled={isLoading}
-            className="flex-1 px-4 py-3 rounded-full border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:border-primary-500 focus:outline-none disabled:opacity-50"
+            className="flex-1 px-4 py-3 rounded-full border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-100 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:border-primary-500 focus:outline-none disabled:opacity-50"
           />
           <button
             type="submit"

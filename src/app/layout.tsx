@@ -1,30 +1,16 @@
 import type { Metadata, Viewport } from "next";
-import { Noto_Sans_KR } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
 
-// Optimize Korean font with Next.js font optimization
-const notoSansKR = Noto_Sans_KR({
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
-  display: "swap",
-  preload: true,
-  variable: "--font-noto-sans-kr",
-});
-
 export const metadata: Metadata = {
   title: "Edu_Hangul - AI 한국어 학습",
-  description: "드라마와 K-pop으로 배우는 재미있는 한국어 학습. AI 음성 대화, 발음 교정, 문법 분석까지!",
-
-  // PWA 설정
-  manifest: "/manifest.json",
-
+  description: "K-drama와 K-pop으로 배우는 재미있는 한국어. AI 선생님과 함께 즐겁게!",
+  manifest: process.env.NODE_ENV === "production" ? "/manifest.json" : undefined,
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "Edu_Hangul",
   },
-
   icons: {
     icon: "/icons/icon-192x192.png",
     apple: "/icons/icon-152x152.png",
@@ -34,61 +20,53 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 5,
-  themeColor: "#4F46E5",
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+  themeColor: "#D63000",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="ko" className={notoSansKR.variable}>
+    <html lang="ko">
       <head>
-        {/* PWA 메타 태그 */}
         <meta name="application-name" content="Edu_Hangul" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Edu_Hangul" />
         <meta name="format-detection" content="telephone=no" />
         <meta name="mobile-web-app-capable" content="yes" />
-
-        {/* Apple Touch Icons */}
         <link rel="apple-touch-icon" href="/icons/icon-152x152.png" />
-        <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.png" />
-
-        {/* Manifest */}
-        <link rel="manifest" href="/manifest.json" />
-
-        {/* Google AdSense */}
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
-          crossOrigin="anonymous"
-        ></script>
+        {process.env.NODE_ENV === "production" && (
+          <link rel="manifest" href="/manifest.json" />
+        )}
+        {/* Pretendard Font */}
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+        />
       </head>
-      <body className={`${notoSansKR.className} antialiased`}>
+      <body className="antialiased bg-[#F8F9FA]">
         <Toaster
           position="top-center"
           toastOptions={{
-            duration: 4000,
+            duration: 3500,
             style: {
-              background: '#363636',
-              color: '#fff',
+              background: '#FFFFFF',
+              color: '#1A1A2E',
+              borderRadius: '12px',
+              fontSize: '14px',
+              border: '1px solid #E5E7EB',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.10)',
             },
             success: {
-              iconTheme: {
-                primary: '#4F46E5',
-                secondary: '#fff',
-              },
+              iconTheme: { primary: '#D63000', secondary: '#fff' },
             },
             error: {
-              iconTheme: {
-                primary: '#EF4444',
-                secondary: '#fff',
-              },
+              iconTheme: { primary: '#EF4444', secondary: '#fff' },
             },
           }}
         />

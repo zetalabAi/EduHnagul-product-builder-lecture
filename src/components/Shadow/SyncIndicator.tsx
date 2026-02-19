@@ -47,7 +47,7 @@ export function SyncIndicator({ targetDelay, actualDelay }: SyncIndicatorProps) 
 
       {/* Visual Indicator */}
       <div className="mt-4">
-        <div className="h-2 bg-gray-700 rounded-full overflow-hidden relative">
+        <div className="h-2 bg-gray-100 rounded-full overflow-hidden relative">
           <div
             className="absolute inset-y-0 bg-white/30"
             style={{

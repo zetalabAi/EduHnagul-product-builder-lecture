@@ -37,7 +37,7 @@ const NotificationSetup = memo(function NotificationSetup({
         </p>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-md mb-6">
+      <div className="bg-white dark:bg-white rounded-2xl p-8 shadow-md mb-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <div className="text-4xl">🔔</div>
@@ -79,7 +79,7 @@ const NotificationSetup = memo(function NotificationSetup({
               type="time"
               value={notificationTime}
               onChange={(e) => setNotificationTime(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-primary-500 focus:outline-none"
+              className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-100 text-gray-900 dark:text-white focus:border-primary-500 focus:outline-none"
             />
             <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
               매일 이 시간에 학습 리마인더를 받게 됩니다

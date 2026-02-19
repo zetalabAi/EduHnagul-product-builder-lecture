@@ -74,14 +74,14 @@ export function EndingScreen({
 
         {/* Detailed Scores */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
+          <div className="bg-white/50 rounded-lg p-4 border border-gray-700">
             <div className="flex items-center space-x-2 mb-2">
               <span className="text-2xl">🗣️</span>
               <h3 className="text-white font-semibold">발음</h3>
             </div>
             <p className="text-blue-400 text-2xl font-bold">{scores.pronunciation}점</p>
           </div>
-          <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
+          <div className="bg-white/50 rounded-lg p-4 border border-gray-700">
             <div className="flex items-center space-x-2 mb-2">
               <span className="text-2xl">📝</span>
               <h3 className="text-white font-semibold">문법</h3>
@@ -123,7 +123,7 @@ export function EndingScreen({
         <div className="grid grid-cols-2 gap-4">
           <button
             onClick={onReplay}
-            className="bg-gray-700 hover:bg-gray-600 text-white py-4 rounded-lg font-bold text-lg transition-colors"
+            className="bg-gray-100 hover:bg-gray-600 text-white py-4 rounded-lg font-bold text-lg transition-colors"
           >
             🔄 다시하기
           </button>
@@ -145,7 +145,7 @@ export function EndingScreen({
               });
             }
           }}
-          className="w-full bg-gray-800 hover:bg-gray-700 text-gray-300 py-3 rounded-lg transition-colors"
+          className="w-full bg-white hover:bg-gray-100 text-gray-300 py-3 rounded-lg transition-colors"
         >
           📤 결과 공유하기
         </button>

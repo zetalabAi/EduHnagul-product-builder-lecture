@@ -19,7 +19,7 @@ const ProgressWidget = memo(function ProgressWidget({
   streak,
 }: ProgressWidgetProps) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-6">
+    <div className="bg-white dark:bg-white rounded-2xl shadow-lg p-6 mb-6">
       <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
         <span>📊</span>
         <span>나의 학습 현황</span>
@@ -76,7 +76,7 @@ const ProgressWidget = memo(function ProgressWidget({
             </div>
           </div>
           {/* Progress Bar */}
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
+          <div className="w-full bg-gray-200 dark:bg-gray-100 rounded-full h-3 overflow-hidden">
             <div
               className="bg-gradient-to-r from-primary-500 to-secondary-500 h-full rounded-full transition-all duration-500"
               style={{ width: `${Math.min(xpProgress.percentage, 100)}%` }}
@@ -103,7 +103,7 @@ const ProgressWidget = memo(function ProgressWidget({
             </div>
           </div>
           {/* Progress Bar */}
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
+          <div className="w-full bg-gray-200 dark:bg-gray-100 rounded-full h-3 overflow-hidden">
             <div
               className="bg-gradient-to-r from-secondary-500 to-purple-600 h-full rounded-full transition-all duration-500"
               style={{ width: `${Math.min(weeklyProgress.percentage, 100)}%` }}

@@ -85,7 +85,7 @@ const LevelUpModal = memo(function LevelUpModal({
             </div>
           </div>
 
-          <div className="bg-white/50 dark:bg-gray-800/50 rounded-xl p-4 mb-6">
+          <div className="bg-white/50 dark:bg-white/50 rounded-xl p-4 mb-6">
             <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">
               보너스 획득
             </div>

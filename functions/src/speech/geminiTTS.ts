@@ -16,6 +16,109 @@ interface TTSOptions {
   styleInstructions?: string;
 }
 
+// ⚠️ 절대 수정 금지 ⚠️
+// 이 TTS 설정은 Gemini AI Studio 감정 음성 전용입니다.
+// Standard 보이스, 기계음, 기본 TTS로 절대 변경하지 마세요.
+// 튜터별 감정 보이스 매핑: jimin=Aoede(여성), minjun=Puck(남성)
+export const TUTOR_VOICE_MAP: Record<string, string> = {
+  jimin:      "Aoede", // 여성, 따뜻하고 감정 풍부 ⭐
+  minjun:     "Puck",  // 남성, 자연스럽고 활기참 ⭐
+  girlfriend: "Aoede", // createSession persona → jimin voice
+  boyfriend:  "Puck",  // createSession persona → minjun voice
+  "same-sex-friend":      "Aoede",
+  "opposite-sex-friend":  "Puck",
+};
+
+/**
+ * 튜터 + 말투에 따른 감정 스타일 프롬프트
+ */
+export function getSpeechStylePrompt(
+  text: string,
+  tutor: string,
+  speechStyle: string
+): string {
+  const prompts: Record<string, string> = {
+    jimin_formal:  `따뜻하고 친절한 선생님처럼, 존댓말 톤으로 감정을 담아서: ${text}`,
+    jimin_casual:  `친한 친구 언니처럼 편하게, 밝고 활기차게: ${text}`,
+    minjun_formal: `친절한 남자 선생님처럼, 부드러운 존댓말 톤으로: ${text}`,
+    minjun_casual: `편한 오빠처럼 자연스럽게, 가볍고 유쾌하게: ${text}`,
+  };
+  const key = `${tutor}_${speechStyle}`;
+  return prompts[key] ?? `자연스럽고 감정을 담아서: ${text}`;
+}
+
+/**
+ * Gemini TTS를 호출해 base64 오디오를 직접 반환 (Cloud Storage 저장 없음)
+ * synthesizeSpeech Firebase Function 전용
+ */
+export async function generateGeminiTTSBase64(options: TTSOptions): Promise<{data: string; mimeType: string}> {
+  const {
+    text,
+    voiceName = "Aoede", // ⚠️ 기계음 금지: Aoede(지민) 또는 Puck(민준) 사용
+    temperature = 1.5,
+    styleInstructions = "따뜻하고 자연스럽게, 감정을 담아서 말해주세요.",
+  } = options;
+
+  const cleanText = text.replace(/!{2,}/g, "!").replace(/\?{2,}/g, "?").replace(/\s+/g, " ").trim();
+  const enrichedText = `${styleInstructions}\n\n${cleanText}`;
+
+  const apiKey = getGeminiApiKey();
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+
+  const body = {
+    contents: [{ parts: [{ text: enrichedText }] }],
+    generationConfig: {
+      temperature,
+      responseModalities: ["AUDIO"],
+      speechConfig: {
+        voiceConfig: {
+          prebuiltVoiceConfig: { voiceName },
+        },
+      },
+    },
+  };
+
+  // Node 20: native fetch available globally
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Gemini TTS HTTP ${res.status}: ${errText.substring(0, 200)}`);
+  }
+
+  const json = await res.json() as any;
+  const part = json.candidates?.[0]?.content?.parts?.[0];
+
+  let rawBase64: string | null = null;
+  let mimeType = "audio/wav";
+
+  if (part?.inlineData?.data) {
+    rawBase64 = part.inlineData.data;
+    mimeType  = part.inlineData.mimeType ?? "audio/wav";
+  } else if (part?.audioData) {
+    rawBase64 = part.audioData;
+    mimeType  = "audio/wav";
+  }
+
+  if (!rawBase64) throw new Error("Gemini TTS: No audio data in response");
+
+  // raw PCM은 브라우저 decodeAudioData()가 지원 안 함 → WAV 헤더 래핑
+  // Gemini TTS는 audio/pcm, audio/L16, audio/L16;rate=24000 등 다양하게 반환
+  const mimeLC = mimeType.toLowerCase();
+  const isPcm = mimeLC.includes("pcm") || mimeLC.includes("l16");
+  if (isPcm) {
+    const pcmBuffer = Buffer.from(rawBase64, "base64");
+    const wavBuffer = pcmToWav(pcmBuffer, 24000, 1, 16);
+    return { data: wavBuffer.toString("base64"), mimeType: "audio/wav" };
+  }
+
+  return { data: rawBase64, mimeType };
+}
+
 /**
  * Preprocess text for better TTS quality
  * Remove special characters that might be read literally
@@ -40,9 +143,9 @@ export async function generateGeminiTTS(options: TTSOptions): Promise<string> {
 
   const {
     text,
-    voiceName = "Kore", // Korean female voice
+    voiceName = "Aoede", // ⚠️ 기계음 금지: 감정 풍부한 Aoede 사용 (jimin용 기본)
     temperature = 1.5,
-    styleInstructions = "친근하고 따뜻한 목소리로 자연스럽게 말해주세요.",
+    styleInstructions = "따뜻하고 자연스럽게, 감정을 담아서 말해주세요.",
   } = options;
 
   // Preprocess text

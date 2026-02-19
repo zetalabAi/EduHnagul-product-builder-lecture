@@ -26,7 +26,7 @@ export function RankingList({
 }: RankingListProps) {
   if (rankings.length === 0) {
     return (
-      <div className="bg-gray-800 rounded-lg p-8 text-center">
+      <div className="bg-white rounded-lg p-8 text-center">
         <p className="text-gray-400">순위 정보가 없습니다.</p>
       </div>
     );
@@ -38,7 +38,7 @@ export function RankingList({
 
   const getRowClass = (rank: number, userId: string) => {
     const isCurrentUser = userId === currentUserId;
-    let bgClass = "bg-gray-800";
+    let bgClass = "bg-white";
 
     if (showPromotionZones) {
       if (rank <= promotionCutoff) {

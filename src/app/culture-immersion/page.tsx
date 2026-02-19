@@ -80,7 +80,7 @@ export default function CultureImmersionPage() {
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 activeCategory === cat.id
                   ? "bg-purple-600 text-white"
-                  : "bg-gray-800 text-gray-400 hover:text-white"
+                  : "bg-white text-gray-400 hover:text-white"
               }`}
             >
               {cat.icon} {cat.label}

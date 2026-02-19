@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { httpsCallable } from "firebase/functions";
-import { functions } from "../config/firebase";
+import { functions } from "@/lib/firebase";
 import type { GlobalLeaderboardEntry } from "../types/league";
 
 export function useLeaderboard(userId: string | null) {

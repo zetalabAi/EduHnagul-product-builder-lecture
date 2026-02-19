@@ -62,12 +62,12 @@ const EmotionIndicator = memo(function EmotionIndicator({
     excited: "bg-yellow-100 dark:bg-yellow-900/20 border-yellow-500 text-yellow-700 dark:text-yellow-300",
     tired: "bg-purple-100 dark:bg-purple-900/20 border-purple-500 text-purple-700 dark:text-purple-300",
     positive: "bg-green-100 dark:bg-green-900/20 border-green-500 text-green-700 dark:text-green-300",
-    negative: "bg-gray-100 dark:bg-gray-900/20 border-gray-500 text-gray-700 dark:text-gray-300",
+    negative: "bg-gray-100 dark:bg-white/20 border-gray-500 text-gray-700 dark:text-gray-300",
     neutral: "bg-blue-100 dark:bg-blue-900/20 border-blue-500 text-blue-700 dark:text-blue-300",
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 mb-4">
+    <div className="bg-white dark:bg-white rounded-xl shadow-md p-4 mb-4">
       {/* 감정 상태 */}
       <div className="flex items-center gap-3 mb-3">
         <span className="text-3xl">{emotionEmojis[currentEmotion]}</span>
@@ -81,7 +81,7 @@ const EmotionIndicator = memo(function EmotionIndicator({
             </span>
           </div>
           {/* 강도 바 */}
-          <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+          <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-100 rounded-full overflow-hidden">
             <div
               className={`h-full ${
                 currentEmotion === "stressed" || currentEmotion === "negative"
@@ -109,7 +109,7 @@ const EmotionIndicator = memo(function EmotionIndicator({
 
       {/* 제안 사항 */}
       {suggestions.length > 0 && (
-        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
+        <div className="bg-gray-50 dark:bg-gray-100/50 rounded-lg p-3">
           <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">
             💡 제안:
           </p>

@@ -102,7 +102,7 @@ export function CulturalQuiz({ quizzes, onComplete }: CulturalQuizProps) {
   }
 
   return (
-    <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+    <div className="bg-white rounded-xl p-6 border border-gray-700">
       {/* Progress */}
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-white font-bold text-lg">문화 퀴즈</h3>
@@ -111,7 +111,7 @@ export function CulturalQuiz({ quizzes, onComplete }: CulturalQuizProps) {
         </span>
       </div>
 
-      <div className="h-2 bg-gray-700 rounded-full mb-6 overflow-hidden">
+      <div className="h-2 bg-gray-100 rounded-full mb-6 overflow-hidden">
         <div
           className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-300"
           style={{
@@ -121,7 +121,7 @@ export function CulturalQuiz({ quizzes, onComplete }: CulturalQuizProps) {
       </div>
 
       {/* Question */}
-      <div className="bg-gray-900 rounded-lg p-6 mb-6">
+      <div className="bg-white rounded-lg p-6 mb-6">
         <p className="text-white text-lg leading-relaxed">{currentQuiz.question}</p>
       </div>
 
@@ -144,7 +144,7 @@ export function CulturalQuiz({ quizzes, onComplete }: CulturalQuizProps) {
                   ? "bg-red-900/50 border-red-500"
                   : isSelected
                   ? "bg-blue-900/50 border-blue-500"
-                  : "bg-gray-900 border-gray-700 hover:border-gray-600"
+                  : "bg-white border-gray-700 hover:border-gray-600"
               } disabled:cursor-not-allowed`}
             >
               <div className="flex items-center justify-between">

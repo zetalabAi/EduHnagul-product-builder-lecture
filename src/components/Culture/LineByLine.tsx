@@ -106,7 +106,7 @@ export function LineByLine({ line, quiz, onComplete }: LineByLineProps) {
       </div>
 
       {/* Lyrics Display */}
-      <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 space-y-4">
+      <div className="bg-white rounded-xl p-6 border border-gray-700 space-y-4">
         <div className="text-center space-y-3">
           <p className="text-white text-2xl font-bold">{line.korean}</p>
           <p className="text-blue-400 text-lg">{line.romanization}</p>
@@ -115,13 +115,13 @@ export function LineByLine({ line, quiz, onComplete }: LineByLineProps) {
       </div>
 
       {/* Word Breakdown */}
-      <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+      <div className="bg-white rounded-xl p-6 border border-gray-700">
         <h3 className="text-white font-bold text-lg mb-4">단어 분해</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {line.breakdown.map((word, index) => (
             <div
               key={index}
-              className="bg-gray-900 rounded-lg p-4 border border-gray-700"
+              className="bg-white rounded-lg p-4 border border-gray-700"
             >
               <div className="flex items-baseline space-x-2 mb-2">
                 <span className="text-white font-bold text-lg">{word.word}</span>
@@ -162,7 +162,7 @@ export function LineByLine({ line, quiz, onComplete }: LineByLineProps) {
 
       {/* Quiz */}
       {quiz && (
-        <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+        <div className="bg-white rounded-xl p-6 border border-gray-700">
           <h3 className="text-white font-bold text-lg mb-4">연습 문제</h3>
           <p className="text-gray-300 mb-4">{quiz.question}</p>
           <div className="space-y-2">
@@ -181,7 +181,7 @@ export function LineByLine({ line, quiz, onComplete }: LineByLineProps) {
                       ? isCorrect
                         ? "bg-green-900/50 border-green-500"
                         : "bg-red-900/50 border-red-500"
-                      : "bg-gray-900 border-gray-700 hover:border-blue-500"
+                      : "bg-white border-gray-700 hover:border-blue-500"
                   } disabled:cursor-not-allowed`}
                 >
                   <div className="flex items-center justify-between">

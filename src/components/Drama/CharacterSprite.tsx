@@ -74,7 +74,7 @@ export function CharacterSprite({
         )}
 
         {/* Character Name Tag */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full mt-2 bg-gray-900/90 backdrop-blur-sm px-4 py-2 rounded-lg border border-gray-700">
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full mt-2 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg border border-gray-700">
           <p className="text-white font-medium whitespace-nowrap">{character}</p>
         </div>
 

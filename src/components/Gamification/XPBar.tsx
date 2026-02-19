@@ -32,7 +32,7 @@ const XPBar = memo(function XPBar({
       <div className="flex items-center gap-2">
         <span className="text-xl">{levelBadge}</span>
         <div className="flex-1 max-w-[200px]">
-          <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+          <div className="h-2 bg-gray-200 dark:bg-gray-100 rounded-full overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-primary-500 to-secondary-500 transition-all duration-500"
               style={{ width: `${progressPercent}%` }}
@@ -71,7 +71,7 @@ const XPBar = memo(function XPBar({
       </div>
 
       {/* Progress Bar */}
-      <div className="relative h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+      <div className="relative h-3 bg-gray-200 dark:bg-gray-100 rounded-full overflow-hidden">
         <div
           className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary-500 to-secondary-500 transition-all duration-500"
           style={{ width: `${progressPercent}%` }}
